@@ -6,7 +6,5 @@
   "editor.formatOnSave": false,
   "files.associations": {
     "*.css": "postcss"
-  },
-  "volar.completion.preferredTagNameCase": "pascal",
-  "volar.completion.preferredAttrNameCase": "kebab"
+  }
 }

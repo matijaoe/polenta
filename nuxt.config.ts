@@ -2,13 +2,11 @@ import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
   modules: [
-    '@unocss/nuxt',
     '@vueuse/nuxt',
     '@pinia/nuxt',
     'nuxt-icon',
-    '@nuxtjs/color-mode',
-    '@nuxtjs/critters',
     '@nuxt/devtools',
+    '@nuxthq/ui',
   ],
 
   experimental: {
@@ -28,10 +26,6 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
-  unocss: {
-    preflight: true,
-  },
-
   typescript: {
     tsConfig: {
       compilerOptions: {
@@ -48,16 +42,6 @@ export default defineNuxtConfig({
     presets: [
       'pinia',
     ],
-  },
-
-  postcss: {
-    plugins: {
-      'postcss-nesting': {},
-    },
-  },
-
-  colorMode: {
-    classSuffix: '',
   },
 
   app: {
