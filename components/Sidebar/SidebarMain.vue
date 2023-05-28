@@ -49,9 +49,19 @@ const links = [
 
       <div class="mt-8 space-y-10">
         <section>
-          <h2 class="font-bold">
+          <UButton
+            :ui="{
+              font: 'font-bold',
+            }"
+            :padded="false"
+            size="lg"
+            variant="link"
+            color="black"
+            :to="{ name: 'wallets' }"
+            class="font-bold"
+          >
             Wallets
-          </h2>
+          </UButton>
 
           <UVerticalNavigation
             :links="wallets"
@@ -60,9 +70,19 @@ const links = [
         </section>
 
         <section>
-          <h2 class="font-bold">
+          <UButton
+            :ui="{
+              font: 'font-bold',
+            }"
+            :padded="false"
+            size="lg"
+            variant="link"
+            color="black"
+            :to="{ name: 'devices' }"
+            class="font-bold"
+          >
             Devices
-          </h2>
+          </UButton>
 
           <UVerticalNavigation
             :links="devices"
