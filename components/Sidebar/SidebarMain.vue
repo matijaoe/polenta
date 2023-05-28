@@ -51,20 +51,15 @@ const links = [
       <nav class="flex flex-col gap-2">
         <UVerticalNavigation
           :links="links"
-          class="-mx-3 mt-2"
+          class="-mx-3"
         />
       </nav>
 
-      <div class="mt-8 space-y-8">
+      <div class="mt-8 space-y-10">
         <section>
-          <div>
-            <h2 class="font-bold">
-              Wallets
-            </h2>
-            <p class="text-xs text-gray-400 dark:text-gray-600">
-              Unique xpub wallets
-            </p>
-          </div>
+          <h2 class="font-bold">
+            Wallets
+          </h2>
 
           <UVerticalNavigation
             :links="wallets"
@@ -79,7 +74,7 @@ const links = [
 
           <UVerticalNavigation
             :links="devices"
-            class="-mx-3 mt-2"
+            class="-mx-3 mt-1"
           />
         </section>
       </div>

@@ -28,6 +28,7 @@ const accounts = computed(() => {
             Accounts
           </h2>
         </div>
+
         <UVerticalNavigation
           :links="accounts"
           class="-mx-3 mt-2"

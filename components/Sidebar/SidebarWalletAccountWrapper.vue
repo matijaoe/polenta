@@ -7,7 +7,6 @@ defineProps<{
 <template>
   <div class="grid grid-cols-[230px_1fr] h-full">
     <SidebarWalletAccounts
-      class="mt-2"
       :wallet-id="walletId"
     />
     <div class="h-full p-6">
