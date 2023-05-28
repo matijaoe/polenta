@@ -65,7 +65,7 @@ const devices = [
 </script>
 
 <template>
-  <aside class="border-r border-gray-200 dark:border-gray-700 px-5 py-8">
+  <aside class="border-r border-gray-200 dark:border-gray-700 px-5 py-8 pb-14">
     <menu>
       <nav class="flex flex-col gap-2">
         <NuxtLink to="/">
