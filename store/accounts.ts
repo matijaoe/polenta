@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import type { Account } from 'models'
-import { useWalletsStore } from './wallets'
 
 export const useAccountsStore = defineStore('accounts', () => {
   const accounts: Account[] = [
@@ -52,19 +51,13 @@ export const useAccountsStore = defineStore('accounts', () => {
     return accounts.find(account => account.id === id)
   }
 
-  const walletsStore = useWalletsStore()
-
-  const getAccountWallets = (walletId: string) => {
-    const wallet = getAccount(walletId)
-    if (!wallet)
-      return []
-
-    return walletsStore.getWallets(wallet.id)
+  const getWalletAccounts = (walletId: string) => {
+    return accounts.filter(account => account.walletId === walletId)
   }
 
   return {
     accounts,
     getAccount,
-    getAccountWallets,
+    getAccountWallets: getWalletAccounts,
   }
 })

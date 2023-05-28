@@ -5,7 +5,10 @@ const walletsStore = useWalletsStore()
 const accounts = computed(() => accountsStore.accounts.map(account => ({
   label: account.label,
   badge: account.scriptType,
-  to: { name: 'wallets-walletId-accountId', params: { walletId: account.walletId, accountId: account.id } },
+  to: {
+    name: 'wallets-walletId-accountId',
+    params: { walletId: account.walletId, accountId: account.id },
+  },
 })))
 
 const wallets = computed(() => walletsStore.wallets)
