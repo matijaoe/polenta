@@ -1,28 +1,14 @@
 <script lang="ts" setup>
-import { useAccountsStore } from '~/store/accounts'
-
 const accountsStore = useAccountsStore()
+const walletsStore = useWalletsStore()
 
 const accounts = computed(() => accountsStore.accounts.map(account => ({
   label: account.label,
   badge: account.scriptType,
-  to: { name: 'accounts-accountId', params: { accountId: account.id } },
+  to: { name: 'wallets-walletId-accountId', params: { walletId: account.walletId, accountId: account.id } },
 })))
 
-const wallets = [
-  {
-    label: 'Primary',
-  },
-  {
-    label: 'New Nano S+',
-  },
-  {
-    label: 'Old Ledger',
-  },
-  {
-    label: 'Uncle Jim',
-  },
-]
+const wallets = computed(() => walletsStore.wallets)
 
 const devices = [
   {

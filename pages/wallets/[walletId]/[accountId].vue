@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 const route = useRoute()
-const accountId = computed(() => route.params.accountId)
+const accountId = computed(() => (route.params as { accountId: string }).accountId)
+
 const accountsStore = useAccountsStore()
-const account = computed(() => {
-  return accountsStore.accounts.find(account => account.id === accountId.value)
-})
+
+const account = computed(() => accountsStore.getAccount(accountId.value))
 </script>
 
 <template>
