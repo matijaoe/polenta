@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const walletsStore = useWalletsStore()
+const devicesStore = useDevicesStore()
 
 const wallets = computed(() => walletsStore.wallets.map((wallet) => {
   return {
@@ -10,24 +11,15 @@ const wallets = computed(() => walletsStore.wallets.map((wallet) => {
     },
   }
 }))
-
-const devices = [
-  {
-    label: 'COLDCARD',
-  },
-  {
-    label: 'COLDCARD backup',
-  },
-  {
-    label: 'Ledger Nano S Plus',
-  },
-  {
-    label: 'Ledger Nano S',
-  },
-  {
-    label: 'Trezor One',
-  },
-]
+const devices = computed(() => devicesStore.devices.map((device) => {
+  return {
+    label: device.label,
+    to: {
+      name: 'devices-deviceId',
+      params: { deviceId: device.id },
+    },
+  }
+}))
 
 const links = [
   {
