@@ -1,31 +1,32 @@
 import { defineStore } from 'pinia'
+import type { Wallet } from '~/models'
 
 export const useWalletsStore = defineStore('wallets', () => {
-  const wallets = [
+  const wallets: Wallet[] = [
     {
       label: 'Primary',
-      walletId: '5sDVnzEeXf15n4z-zndMz',
+      id: '5sDVnzEeXf15n4z-zndMz',
     },
     {
       label: 'New Nano S+',
-      walletId: 'fa3OvL4CqhSOtIPDqDG4r',
+      id: 'fa3OvL4CqhSOtIPDqDG4r',
     },
     {
       label: 'Old Ledger',
-      walletId: 'Ox7igk-tUfuWD7pmhQJjb',
+      id: 'Ox7igk-tUfuWD7pmhQJjb',
     },
     {
       label: 'Uncle Jim',
-      walletId: 'nW4hS0V_4Hpgg47xNof9t',
+      id: 'nW4hS0V_4Hpgg47xNof9t',
     },
   ]
 
   const getWallet = (walletId: string) => {
-    return wallets.find(wallet => wallet.walletId === walletId)
+    return wallets.find(wallet => wallet.id === walletId)
   }
 
   const getWallets = (walletId: string) => {
-    return wallets.filter(wallet => wallet.walletId === walletId)
+    return wallets.filter(wallet => wallet.id === walletId)
   }
 
   return {

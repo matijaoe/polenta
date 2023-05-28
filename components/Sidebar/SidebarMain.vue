@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-const accountsStore = useAccountsStore()
 const walletsStore = useWalletsStore()
 
-const accounts = computed(() => accountsStore.accounts.map(account => ({
-  label: account.label,
-  badge: account.scriptType,
-  to: {
-    name: 'wallets-walletId-accountId',
-    params: { walletId: account.walletId, accountId: account.id },
-  },
-})))
-
-const wallets = computed(() => walletsStore.wallets)
+const wallets = computed(() => walletsStore.wallets.map((wallet) => {
+  return {
+    label: wallet.label,
+    to: {
+      name: 'wallets-walletId',
+      params: { walletId: wallet.id },
+    },
+  }
+}))
 
 const devices = [
   {
@@ -30,36 +28,34 @@ const devices = [
     label: 'Trezor One',
   },
 ]
+
+const links = [
+  {
+    label: 'Dashboard',
+    to: {
+      name: 'index',
+    },
+  },
+  {
+    label: 'Accounts',
+    to: {
+      name: 'accounts',
+    },
+  },
+]
 </script>
 
 <template>
-  <aside class="border-r border-gray-200 dark:border-gray-700 px-5 py-8 pb-14">
+  <SidebarBase>
     <menu>
       <nav class="flex flex-col gap-2">
-        <NuxtLink to="/">
-          Dashboard
-        </NuxtLink>
-        <NuxtLink to="/accounts">
-          Accounts
-        </NuxtLink>
+        <UVerticalNavigation
+          :links="links"
+          class="-mx-3 mt-2"
+        />
       </nav>
 
       <div class="mt-8 space-y-8">
-        <section>
-          <div>
-            <h2 class="font-bold">
-              Accounts
-            </h2>
-            <p class="text-xs text-gray-400 dark:text-gray-600">
-              Tied to wallets
-            </p>
-          </div>
-          <UVerticalNavigation
-            :links="accounts"
-            class="-mx-3 mt-2"
-          />
-        </section>
-
         <section>
           <div>
             <h2 class="font-bold">
@@ -88,5 +84,5 @@ const devices = [
         </section>
       </div>
     </menu>
-  </aside>
+  </SidebarBase>
 </template>

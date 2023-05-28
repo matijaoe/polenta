@@ -5,13 +5,13 @@ export const useAccountsStore = defineStore('accounts', () => {
   const accounts: Account[] = [
     {
       label: 'BTC #1',
-      scriptType: 'native segwit',
+      scriptType: 'bech32',
       id: 'PrPW7WC1RW14LstMwvIom',
       walletId: '5sDVnzEeXf15n4z-zndMz',
     },
     {
       label: 'BTC #2',
-      scriptType: 'native segwit',
+      scriptType: 'bech32',
       id: 'LMrf99Heh7FjznRnN4xZs',
       walletId: '5sDVnzEeXf15n4z-zndMz',
     },
@@ -22,14 +22,20 @@ export const useAccountsStore = defineStore('accounts', () => {
       walletId: '5sDVnzEeXf15n4z-zndMz',
     },
     {
+      label: 'BTC #old',
+      scriptType: 'legacy',
+      id: 'luLFOiVBhQ4RpamGGO8k2',
+      walletId: '5sDVnzEeXf15n4z-zndMz',
+    },
+    {
       label: 'mom',
-      scriptType: 'native segwit',
+      scriptType: 'bech32',
       id: 'zO5wr0gxd5RqyxKC51JPQ',
       walletId: 'nW4hS0V_4Hpgg47xNof9',
     },
     {
       label: 'CC duress',
-      scriptType: 'native segwit',
+      scriptType: 'bech32',
       id: 'Jb-Jv4hVHP7N0trveeN',
       walletId: '5sDVnzEeXf15n4z-zndMz',
     },

@@ -5,10 +5,17 @@ const accountId = computed(() => (route.params as { accountId: string }).account
 const accountsStore = useAccountsStore()
 
 const account = computed(() => accountsStore.getAccount(accountId.value))
+
+definePageMeta({
+  layout: 'dual',
+})
 </script>
 
 <template>
-  <div v-if="account">
+  <SidebarWalletAccountWrapper
+    v-if="account"
+    :wallet-id="account.walletId"
+  >
     <div class="space-y-4">
       <UBadge>{{ account.scriptType }}</UBadge>
 
@@ -16,5 +23,5 @@ const account = computed(() => accountsStore.getAccount(accountId.value))
         {{ account.label }}
       </h2>
     </div>
-  </div>
+  </SidebarWalletAccountWrapper>
 </template>
