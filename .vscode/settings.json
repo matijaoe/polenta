@@ -6,5 +6,8 @@
   "editor.formatOnSave": false,
   "files.associations": {
     "*.css": "postcss"
-  }
+  },
+  "cSpell.words": [
+    "samourai"
+  ]
 }
