@@ -2,6 +2,7 @@
   <div class="h-screen ">
     <div class="h-[calc(100vh-25px)] grid grid-cols-[260px_1fr]">
       <SidebarMain class="h-full overflow-y-auto" />
+
       <div class="h-full overflow-y-auto p-8">
         <slot />
       </div>

@@ -1,34 +1,13 @@
 <script lang="ts" setup>
-const accounts = [
-  {
-    label: 'BTC #1',
-    badge: 'native segwit',
-  },
-  {
-    label: 'BTC #2',
-    badge: 'native segwit',
-  },
-  {
-    label: 'BTC #3',
-    badge: 'taproot',
-  },
-  {
-    label: 'mom',
-    badge: 'native segwit',
-  },
-  {
-    label: 'CC duress',
-    badge: 'native segwit',
-  },
-  {
-    label: 'BTC nano s',
-    badge: 'segwit',
-  },
-  {
-    label: 'samourai starter',
-    badge: 'legacy',
-  },
-]
+import { useAccountsStore } from '~/store/accounts'
+
+const accountsStore = useAccountsStore()
+
+const accounts = computed(() => accountsStore.accounts.map(account => ({
+  label: account.label,
+  badge: account.scriptType,
+  to: { name: 'accounts-accountId', params: { accountId: account.id } },
+})))
 
 const wallets = [
   {
