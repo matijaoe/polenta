@@ -10,7 +10,7 @@ function toggleDark() {
 </script>
 
 <template>
-  <div>
+  <div class="space-y-10">
     <div>
       <p class="text-4xl text-primary-500">
         xpubhub
@@ -20,13 +20,17 @@ function toggleDark() {
       </p>
     </div>
 
-    <div class="mt-8 flex gap-2">
+    <div class="mt-4 flex gap-2">
       <UButton>
         Publish
       </UButton>
       <UButton color="white" variant="solid" @click="toggleDark">
         Toggle theme
       </UButton>
+    </div>
+
+    <div class="mt-12">
+      <AddressDerivation />
     </div>
   </div>
 </template>
