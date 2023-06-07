@@ -1,5 +1,6 @@
 import { addressesFromExtPubKey } from '@swan-bitcoin/xpub-lib/lib/derivation.js'
 import { Purpose } from '@swan-bitcoin/xpub-lib/lib/purpose.js'
+import type { AddressBasic } from '../../../models'
 
 export default defineEventHandler((event) => {
   const { xpub } = event.context.params as { xpub: string }
@@ -10,11 +11,10 @@ export default defineEventHandler((event) => {
       network: 'mainnet',
       addressCount: 4,
       purpose: Purpose.P2WPKH,
-    }) as { path: string; address: string }[]
+    }) as AddressBasic[]
 
     return addresses ?? []
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error)
     return []
   }
