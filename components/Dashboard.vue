@@ -10,23 +10,23 @@ function toggleDark() {
 </script>
 
 <template>
-  <div>
-    <div>
-      <p class="text-4xl text-primary-500">
-        xpubhub
-      </p>
-      <p class="text-sm mt-2 opacity-70">
-        Bitcoin account tracker
-      </p>
-    </div>
-
-    <div class="mt-8 flex gap-2">
-      <UButton>
-        Publish
-      </UButton>
+  <div class="space-y-10">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <p class="text-4xl text-primary-500">
+          xpubhub
+        </p>
+        <p class="text-sm mt-2 opacity-70">
+          Bitcoin account tracker
+        </p>
+      </div>
       <UButton color="white" variant="solid" @click="toggleDark">
         Toggle theme
       </UButton>
+    </div>
+
+    <div class="mt-12">
+      <AddressDerivation />
     </div>
   </div>
 </template>
