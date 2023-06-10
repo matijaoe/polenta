@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AddressBalance, AddressBasic } from '~/models'
 
-const key = ref('xpub6CYi7nyojjztfD63jj4eQdJXF1iXgM2TDFgB3DjCe2wrdFpPpKvBajafDAknoYKSs68uuzACozw92nTC4SCFh4DSAaL8y21qTNS2fnjpi2c')
+const key = ref('xpub6Ea8xeCW1XVEf9qTggAkUHrK4tJPAcPo7Y3EwodMazzMwXzga6e4Fbg7sp1NwvdhtbvANjyrBXHCWUjeqBARthg2fhBh7WCGWVquBVNxP2C')
 const keyBuffer = ref(key.value)
 
 const { data: addresses, pending: addressesPending } = await useFetch<AddressBasic[]>(() => `/api/addresses/${key.value}`)
