@@ -39,12 +39,15 @@ watch(scriptType, (type) => {
   purpose.value = scriptTypeDerivationMap[type]
 })
 
-const dumbXpubValid = computed(() => key.value.startsWith('xpub') && key.value.length === 111)
-const dumbDerivationValid = computed(() => {
+const xpubValid = computed(() => {
+  const regex = /^xpub[1-9A-HJ-NP-Za-km-z]{107}$/
+  return regex.test(key.value)
+})
+const derivationValid = computed(() => {
   const regex = /^m\/84'?(\/0'?)?(\/0'?)?(\/0'?)?$/
   return regex.test(derivationPathManual.value)
 })
-const dumbFingerprintValid = computed(() => {
+const fingerprintValid = computed(() => {
   const regex = /^[0-9a-fA-F]{6}$/
   return regex.test(fingerprint.value)
 })
@@ -61,7 +64,7 @@ const dumbFingerprintValid = computed(() => {
       <div class="flex flex-col gap-9">
         <div>
           <p class="mb-1 font-medium text-gray-700 dark:text-gray-200 text-sm" />
-          <UFormGroup label="xpub" hint="Extended private key" :error="!dumbXpubValid && !!key.length">
+          <UFormGroup label="xpub" hint="Extended private key" :error="!xpubValid && !!key.length">
             <UTextarea v-model="key" size="md" color="gray" placeholder="xpub" autoresize />
           </UFormGroup>
         </div>
@@ -107,6 +110,7 @@ const dumbFingerprintValid = computed(() => {
 
             <UFormGroup
               label="Derivation path"
+              hint="readonly"
             >
               <UInput v-model="derivationPath" readonly size="md" error :placeholder="derivationPathManualPlaceholder" />
             </UFormGroup>
@@ -115,7 +119,7 @@ const dumbFingerprintValid = computed(() => {
           <div v-show="manualDerivationPath">
             <UFormGroup
               help="m / purpose' / coin_type' / account' / change / index"
-              :error="!dumbDerivationValid"
+              :error="!derivationValid"
             >
               <UInput v-model="derivationPathManual" size="md" color="gray" :placeholder="derivationPathManualPlaceholder" />
             </UFormGroup>
@@ -125,7 +129,7 @@ const dumbFingerprintValid = computed(() => {
         <div>
           <UFormGroup
             label="Master fingerprint"
-            :error="!dumbFingerprintValid"
+            :error="!fingerprintValid"
             description="Uniquely identifies this keystore using the first 4 bytes of the master public key hash."
             help="It is safe to use any valid value (00000000) for Watch Only Wallets."
           >
