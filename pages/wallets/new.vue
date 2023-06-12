@@ -1,29 +1,42 @@
 <script lang="ts" setup>
 import { useQRCode } from '@vueuse/integrations/useQRCode'
+import { validateDerivation, validateFingerprint, validateXpub } from '~/utils'
 
 type ScriptType = 'legacy' | 'segwit' | 'native-segwit' | 'taproot'
 const scriptTypeDerivationMap = {
-  'legacy': 44,
-  'segwit': 49,
-  'native-segwit': 84,
-  'taproot': 86,
+  'legacy': {
+    purpose: 44,
+    extendedKey: 'xpub',
+  },
+  'segwit': {
+    purpose: 49,
+    extendedKey: 'ypub',
+  },
+  'native-segwit': {
+    purpose: 84,
+    extendedKey: 'zpub',
+  },
+  'taproot': {
+    purpose: 86,
+    extendedKey: 'zpub',
+  },
 }
 
-const key = ref('')
-const qrCode = useQRCode(key)
+const xpub = ref('')
+const qrCode = useQRCode(xpub)
 
 const manualDerivationPath = ref(false)
 
 const scriptType = ref<ScriptType>('native-segwit')
 const withPassphrase = ref(false)
 
-const purpose = ref<number>(scriptTypeDerivationMap[scriptType.value])
+const purpose = ref<number>(scriptTypeDerivationMap[scriptType.value].purpose)
 const account = ref<number>(0)
 
 const fingerprint = ref('000000')
 
 function derivationPathBuilder({ purpose, account }: { purpose?: number; account?: number }) {
-  return `m/${purpose ?? scriptTypeDerivationMap?.[scriptType.value] ?? 0}'/0'/0'/${account ?? 0}`
+  return `m/${purpose ?? scriptTypeDerivationMap?.[scriptType.value].purpose ?? 0}'/0'/0'/${account ?? 0}`
 }
 
 const derivationPath = computed(() => {
@@ -36,36 +49,28 @@ const derivationPathManualPlaceholder = computed(() => {
 })
 
 watch(scriptType, (type) => {
-  purpose.value = scriptTypeDerivationMap[type]
+  purpose.value = scriptTypeDerivationMap[type].purpose
 })
 
-const xpubValid = computed(() => {
-  const regex = /^xpub[1-9A-HJ-NP-Za-km-z]{107}$/
-  return regex.test(key.value)
-})
-const derivationValid = computed(() => {
-  const regex = /^m\/84'?(\/0'?)?(\/0'?)?(\/0'?)?$/
-  return regex.test(derivationPathManual.value)
-})
-const fingerprintValid = computed(() => {
-  const regex = /^[0-9a-fA-F]{6}$/
-  return regex.test(fingerprint.value)
-})
+const xpubValid = computed(() => validateXpub(xpub.value))
+const derivationValid = computed(() => validateDerivation(derivationPathManual.value))
+const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
 </script>
 
 <template>
   <div>
     <div>
-      <h2 class="text-3xl">
+      <h2 class="text-4xl">
         Add wallet
       </h2>
     </div>
-    <div class="mt-4 grid grid-cols-3 gap-8">
+
+    <div class="mt-8 grid grid-cols-3 gap-8">
       <div class="flex flex-col gap-9">
         <div>
           <p class="mb-1 font-medium text-gray-700 dark:text-gray-200 text-sm" />
-          <UFormGroup label="xpub" hint="Extended private key" :error="!xpubValid && !!key.length">
-            <UTextarea v-model="key" size="md" color="gray" placeholder="xpub" autoresize />
+          <UFormGroup label="xpub" hint="Extended private key" :error="!xpubValid && !!xpub.length">
+            <UTextarea v-model="xpub" size="md" color="gray" placeholder="xpub" />
           </UFormGroup>
         </div>
 
@@ -90,8 +95,8 @@ const fingerprintValid = computed(() => {
             >
               <div class="flex gap-4 items-center mt-3">
                 <UToggle v-model="manualDerivationPath" />
-                <p class="font-medium text-gray-700 dark:text-gray-200 text-sm">
-                  Enter manually
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  Manual
                 </p>
               </div>
             </UFormGroup>
@@ -145,7 +150,7 @@ const fingerprintValid = computed(() => {
       </div>
 
       <div>
-        <div v-if="key" class="flex items-center justify-center">
+        <div v-if="xpub" class="flex items-center justify-center">
           <img :src="qrCode">
         </div>
       </div>
