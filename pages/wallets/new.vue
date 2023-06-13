@@ -5,22 +5,39 @@ import { validateDerivation, validateFingerprint, validateXpub } from '~/utils'
 type ScriptType = 'legacy' | 'segwit' | 'native-segwit' | 'taproot'
 const scriptTypeDerivationMap = {
   'legacy': {
-    purpose: 44,
+    branch: 44,
     extendedKey: 'xpub',
+    label: 'Legacy',
+    addressFormat: '1',
   },
   'segwit': {
-    purpose: 49,
+    branch: 49,
     extendedKey: 'ypub',
+    label: 'Segwit',
+    addressFormat: '3',
+
   },
   'native-segwit': {
-    purpose: 84,
+    branch: 84,
     extendedKey: 'zpub',
+    label: 'Native Segwit',
+    addressFormat: 'bc1q',
   },
   'taproot': {
-    purpose: 86,
+    branch: 86,
     extendedKey: 'zpub',
+    label: 'Taproot',
+    addressFormat: 'bc1p',
   },
 }
+
+const walletTypes = computed(() => {
+  return (Object.keys(scriptTypeDerivationMap) as ScriptType[]).map(key => ({
+    label: key,
+    id: key,
+    help: `Address starts with ${scriptTypeDerivationMap[key].addressFormat}`,
+  }))
+})
 
 const xpub = ref('')
 const qrCode = useQRCode(xpub)
@@ -30,13 +47,13 @@ const manualDerivationPath = ref(false)
 const scriptType = ref<ScriptType>('native-segwit')
 const withPassphrase = ref(false)
 
-const purpose = ref<number>(scriptTypeDerivationMap[scriptType.value].purpose)
+const purpose = ref<number>(scriptTypeDerivationMap[scriptType.value].branch)
 const account = ref<number>(0)
 
 const fingerprint = ref('000000')
 
 function derivationPathBuilder({ purpose, account }: { purpose?: number; account?: number }) {
-  return `m/${purpose ?? scriptTypeDerivationMap?.[scriptType.value].purpose ?? 0}'/0'/0'/${account ?? 0}`
+  return `m/${purpose ?? scriptTypeDerivationMap?.[scriptType.value].branch ?? 0}'/0'/0'/${account ?? 0}`
 }
 
 const derivationPath = computed(() => {
@@ -48,8 +65,15 @@ const derivationPathManualPlaceholder = computed(() => {
   return derivationPathBuilder({ purpose: purpose.value, account: 0 })
 })
 
+whenever(manualDerivationPath, () => {
+  derivationPathManual.value = derivationPath.value
+  const p = scriptTypeDerivationMap[scriptType.value].branch
+  purpose.value = p
+})
+
 watch(scriptType, (type) => {
-  purpose.value = scriptTypeDerivationMap[type].purpose
+  const p = scriptTypeDerivationMap[scriptType.value].branch
+  purpose.value = p
 })
 
 const xpubValid = computed(() => validateXpub(xpub.value))
@@ -103,15 +127,9 @@ const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
           </div>
 
           <div v-show="!manualDerivationPath" class="flex flex-col gap-4">
-            <div class="flex gap-2">
-              <UFormGroup label="Purpose">
-                <UInput v-model="purpose" size="md" type="number" color="gray" placeholder="84" />
-              </UFormGroup>
-
-              <UFormGroup label="Account number">
-                <UInput v-model="account" :min="0" size="md" type="number" color="gray" placeholder="0" />
-              </UFormGroup>
-            </div>
+            <UFormGroup label="Account number">
+              <UInput v-model.number.trim="account" :min="0" size="md" type="number" color="gray" placeholder="0" />
+            </UFormGroup>
 
             <UFormGroup
               label="Derivation path"
@@ -144,7 +162,12 @@ const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
 
         <div class="flex gap-4 items-center">
           <UFormGroup label="Passphrase protected">
-            <UToggle v-model="withPassphrase" on-icon="i-heroicons-check-20-solid" off-icon="i-heroicons-x-mark-20-solid" class="mt-2" />
+            <UToggle
+              v-model="withPassphrase"
+              on-icon="i-heroicons-lock-closed"
+              off-icon="i-heroicons-lock-open"
+              class="mt-2"
+            />
           </UFormGroup>
         </div>
       </div>

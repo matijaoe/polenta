@@ -22,14 +22,14 @@
     "xpub-converter": "^1.0.2"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "0.39.3",
+    "@antfu/eslint-config": "0.39.5",
     "@iconify-json/heroicons": "^1.1.11",
     "@nuxt/devtools": "^0.5.5",
-    "@nuxthq/ui": "^2.2.1",
+    "@nuxthq/ui": "^2.3.0",
     "@pinia/nuxt": "^0.4.11",
     "@vueuse/nuxt": "10.1.2",
-    "eslint": "8.41.0",
-    "nuxt": "3.5.1",
-    "typescript": "^5.0.4"
+    "eslint": "8.42.0",
+    "nuxt": "3.5.3",
+    "typescript": "^5.1.3"
   }
 }
