@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useQRCode } from '@vueuse/integrations/useQRCode'
-import { validateDerivation, validateFingerprint, validateXpub } from '~/utils'
+import { validateFingerprint, validateWalletDerivation, validateXpub } from '~/utils'
 import type { WalletScriptType } from '~/models'
 
 const name = ref('')
@@ -23,7 +23,7 @@ const account = ref<number>(0)
 const fingerprint = ref('00000000')
 
 function derivationPathBuilder({ purpose, account }: { purpose?: number; account?: number }) {
-  return `m/${purpose ?? scriptType.value.branch ?? 0}'/0'/${account ?? 0}'/0`
+  return `m/${purpose ?? scriptType.value.branch ?? 0}'/0'/${account ?? 0}'`
 }
 
 const derivationPath = computed(() => {
@@ -45,7 +45,7 @@ watch(scriptType, (wallet) => {
 })
 
 const xpubValid = computed(() => validateXpub(xpub.value))
-const derivationValid = computed(() => validateDerivation(derivationPathManual.value))
+const derivationValid = computed(() => validateWalletDerivation(derivationPathManual.value))
 const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
 </script>
 

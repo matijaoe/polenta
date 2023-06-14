@@ -5,10 +5,11 @@ export function validateXpub(value?: string) {
   return regex.test(value)
 }
 
-export function validateDerivation(value?: string) {
+export function validateWalletDerivation(value?: string) {
   if (!value)
     return false
-  const regex = /^m\/[0-9]+'?\/[0-9]+'?\/[0-9]+'?\/[0-9]+'?$/
+  const regex = /^m\/[0-9]+'?\/[0-9]+'?\/[0-9]+'?$/
+  // same regex, but witout last character
   return regex.test(value)
 }
 
