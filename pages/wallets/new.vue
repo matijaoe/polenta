@@ -23,7 +23,7 @@ const account = ref<number>(0)
 const fingerprint = ref('00000000')
 
 function derivationPathBuilder({ purpose, account }: { purpose?: number; account?: number }) {
-  return `m/${purpose ?? scriptType.value.branch ?? 0}'/0'/0'/${account ?? 0}`
+  return `m/${purpose ?? scriptType.value.branch ?? 0}'/0'/${account ?? 0}'/0`
 }
 
 const derivationPath = computed(() => {
