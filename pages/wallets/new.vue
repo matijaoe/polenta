@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { validateFingerprint, validateWalletDerivation, validateXpub } from '~/utils'
-import type { WalletScriptType } from '~/models'
 
 const name = ref('')
 const description = ref('')
@@ -9,44 +8,54 @@ const description = ref('')
 const xpub = ref('')
 const qrCode = useQRCode(xpub)
 
-const { scriptTypeDerivationMap, walletTypes } = useWalletType()
+const { walletTypes, getWalletByType } = useWalletType()
 
 const manualDerivationPathEnabled = ref(false)
 
-const scriptTypeId = ref<WalletScriptType>('native-segwit')
-const scriptType = computed(() => scriptTypeDerivationMap[scriptTypeId.value])
+const selectedScript = ref(getWalletByType('native-segwit')!)
 const withPassphrase = ref(false)
 
-const purpose = ref<number>(scriptType.value.branch)
+const scriptBranch = ref<number>(selectedScript.value.branch)
 const account = ref<number>(0)
 
 const fingerprint = ref('00000000')
 
 function derivationPathBuilder({ purpose, account }: { purpose?: number; account?: number }) {
-  return `m/${purpose ?? scriptType.value.branch ?? 0}'/0'/${account ?? 0}'`
+  return `m/${purpose ?? selectedScript.value.branch ?? 0}'/0'/${account ?? 0}'`
 }
 
 const derivationPath = computed(() => {
-  return derivationPathBuilder({ purpose: purpose.value, account: account.value })
+  return derivationPathBuilder({ purpose: scriptBranch.value, account: account.value })
 })
 
 const derivationPathManual = ref('')
 const derivationPathManualPlaceholder = computed(() => {
-  return derivationPathBuilder({ purpose: purpose.value, account: 0 })
+  return derivationPathBuilder({ purpose: scriptBranch.value, account: 0 })
 })
 
-whenever(manualDerivationPathEnabled, () => {
-  derivationPathManual.value = derivationPath.value
-  purpose.value = scriptType.value.branch
-})
-
-watch(scriptType, (wallet) => {
-  purpose.value = wallet.branch
+watch(selectedScript, (wallet) => {
+  scriptBranch.value = wallet.branch
 })
 
 const xpubValid = computed(() => validateXpub(xpub.value))
-const derivationValid = computed(() => validateWalletDerivation(derivationPathManual.value))
+const derivationValid = computed(() => validateWalletDerivation(derivationPath.value))
+const derivationManualValid = computed(() => validateWalletDerivation(derivationPathManual.value))
 const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
+const accountValid = computed(() => isDefined(account) && account.value >= 0)
+
+watch(manualDerivationPathEnabled, (enabled) => {
+  if (enabled) {
+    derivationPathManual.value = derivationPath.value
+    scriptBranch.value = selectedScript.value.branch
+  } else if (!enabled && derivationManualValid.value) {
+    const parts = derivationPathManual.value.split('/')
+    const parsedAccount = parts[3].split('\'')[0]
+    if (account != null)
+      account.value = Number.parseInt(parsedAccount)
+  } else {
+    account.value = 0
+  }
+})
 </script>
 
 <template>
@@ -71,20 +80,11 @@ const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
           <UFormGroup label="xpub" description="Extended private key" :error="!xpubValid && !!xpub.length">
             <UTextarea v-model="xpub" color="gray" placeholder="xpub" />
           </UFormGroup>
-        </div>
 
-        <div class="flex flex-col gap-4">
           <UFormGroup label="Wallet type">
-            <div class="mt-2 flex flex-col gap-2">
-              <URadio
-                v-for="type in walletTypes"
-                :key="type.id"
-                v-model="scriptTypeId"
-                :label="type.label"
-                :value="type.id"
-                :help="type.help"
-              />
-            </div>
+            <USelectMenu
+              v-model="selectedScript" :options="walletTypes"
+            />
           </UFormGroup>
         </div>
 
@@ -107,13 +107,18 @@ const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
 
           <div v-show="!manualDerivationPathEnabled" class="flex flex-col gap-4">
             <div class="flex gap-2">
-              <UFormGroup label="Account number" class="w-[150px]">
+              <UFormGroup
+                label="Account number"
+                class="w-[150px]"
+                :error="!accountValid"
+              >
                 <UInput v-model.number.trim="account" :min="0" type="number" color="gray" placeholder="0" />
               </UFormGroup>
 
               <UFormGroup
                 class="flex-1"
                 label="Derivation path"
+                :error="!derivationValid"
               >
                 <UInput v-model="derivationPath" readonly error :placeholder="derivationPathManualPlaceholder" />
               </UFormGroup>
@@ -123,7 +128,7 @@ const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
           <div v-show="manualDerivationPathEnabled">
             <UFormGroup
               help="m / purpose' / coin_type' / account' / change / index"
-              :error="!derivationValid"
+              :error="!derivationManualValid"
             >
               <UInput v-model="derivationPathManual" color="gray" :placeholder="derivationPathManualPlaceholder" />
             </UFormGroup>
