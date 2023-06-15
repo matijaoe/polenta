@@ -67,7 +67,7 @@ const tags = ref([
   { id: 'light-kyc', label: 'Light KYC' },
   { id: 'compromised', label: 'compromised' },
   { id: 'old', label: 'old' },
-  { id: 'inactive', label: 'inacetive' },
+  { id: 'inactive', label: 'inactive' },
   { id: 'stolen', label: 'stolen' },
   { id: 'testnet', label: 'testnet' },
 ])
@@ -85,16 +85,16 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
     <div class="mt-8 grid grid-cols-3 gap-8">
       <div class="flex flex-col gap-12">
         <div class="flex flex-col gap-4">
-          <UFormGroup label="Name">
-            <UInput v-model="name" color="gray" />
+          <UFormGroup label="Wallet name">
+            <UInput v-model="name" />
           </UFormGroup>
 
-          <UFormGroup label="Description">
-            <UInput v-model="description" color="gray" />
+          <UFormGroup label="Wallet description">
+            <UInput v-model="description" />
           </UFormGroup>
 
-          <UFormGroup label="xpub" description="Extended private key" :error="!xpubValid && !!xpub.length">
-            <UTextarea v-model="xpub" color="gray" placeholder="xpub" />
+          <UFormGroup label="xpub" hint="Extended private key" :error="!xpubValid && !!xpub.length">
+            <UTextarea v-model="xpub" placeholder="xpub" />
           </UFormGroup>
 
           <UFormGroup label="Wallet type">
@@ -105,20 +105,11 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
         </div>
 
         <div class="flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <p class="font-medium text-gray-700 dark:text-gray-200 text-sm" />
-
-            <UFormGroup
-              label="Derivation"
-              description="The derivation path to the xpub from the master private key."
-            >
-              <div class="flex gap-4 items-center mt-3">
-                <UToggle v-model="manualDerivationPathEnabled" />
-                <p class="text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Manual
-                </p>
-              </div>
-            </UFormGroup>
+          <div class="flex gap-4 items-center">
+            <UToggle v-model="manualDerivationPathEnabled" />
+            <p class="text-sm font-medium text-gray-700 dark:text-gray-200">
+              Manual
+            </p>
           </div>
 
           <div v-show="!manualDerivationPathEnabled" class="flex flex-col gap-4">
@@ -126,27 +117,22 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
               <UFormGroup
                 label="Account number"
                 :error="!accountValid"
-                :help="accountValid ? derivationPath : undefined"
+                :hint=" derivationValid ? derivationPath : undefined"
               >
-                <UInput v-model.number.trim="account" :min="0" type="number" color="gray" placeholder="0" />
+                <UInput v-model.number.trim="account" :min="0" type="number" placeholder="0" />
               </UFormGroup>
-
-              <!-- <UFormGroup
-                class="flex-1"
-                label="Derivation path"
-                :error="!derivationValid"
-              >
-                <UInput v-model="derivationPath" readonly error :placeholder="derivationPathManualPlaceholder" />
-              </UFormGroup> -->
             </div>
+            <div />
           </div>
 
           <div v-show="manualDerivationPathEnabled">
             <UFormGroup
+              label="Derivation"
+              description="The derivation path to the xpub from the master private key"
               help="m / purpose' / coin_type' / account'"
               :error="!derivationManualValid"
             >
-              <UInput v-model="derivationPathManual" color="gray" :placeholder="derivationPathManualPlaceholder" />
+              <UInput v-model="derivationPathManual" :placeholder="derivationPathManualPlaceholder" />
             </UFormGroup>
           </div>
         </div>
@@ -204,6 +190,7 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
               creatable
               :options="tags"
               placeholder="Select tags"
+              searchable-placeholder="Search"
             >
               <template #label>
                 <div v-if="selectedTags?.length" class="flex gap-2 overflow-x-auto hide-scrollbar" size="xs">
@@ -216,7 +203,7 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
                   </UBadge>
                 </div>
                 <div v-else>
-                  &ThinSpace;
+                  Select tags
                 </div>
               </template>
             </USelectMenu>
