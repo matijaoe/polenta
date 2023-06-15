@@ -2,6 +2,8 @@
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { validateFingerprint, validateWalletDerivation, validateXpub } from '~/utils'
 
+const deviceStore = useDeviceStore()
+
 const name = ref('')
 const description = ref('')
 
@@ -56,6 +58,20 @@ watch(manualDerivationPathEnabled, (enabled) => {
     account.value = 0
   }
 })
+
+const selectedDevice = ref<{ id: string; label: string }>()
+
+const tags = ref([
+  { id: 'kyc', label: 'KYC' },
+  { id: 'no-kyc', label: 'NO KYC' },
+  { id: 'light-kyc', label: 'Light KYC' },
+  { id: 'compromised', label: 'compromised' },
+  { id: 'old', label: 'old' },
+  { id: 'inactive', label: 'inacetive' },
+  { id: 'stolen', label: 'stolen' },
+  { id: 'testnet', label: 'testnet' },
+])
+const selectedTags = ref<{ id: string; label: string }[]>([])
 </script>
 
 <template>
@@ -67,7 +83,7 @@ watch(manualDerivationPathEnabled, (enabled) => {
     </div>
 
     <div class="mt-8 grid grid-cols-3 gap-8">
-      <div class="flex flex-col gap-14">
+      <div class="flex flex-col gap-12">
         <div class="flex flex-col gap-4">
           <UFormGroup label="Name">
             <UInput v-model="name" color="gray" />
@@ -106,28 +122,28 @@ watch(manualDerivationPathEnabled, (enabled) => {
           </div>
 
           <div v-show="!manualDerivationPathEnabled" class="flex flex-col gap-4">
-            <div class="flex gap-2">
+            <div>
               <UFormGroup
                 label="Account number"
-                class="w-[150px]"
                 :error="!accountValid"
+                :help="accountValid ? derivationPath : undefined"
               >
                 <UInput v-model.number.trim="account" :min="0" type="number" color="gray" placeholder="0" />
               </UFormGroup>
 
-              <UFormGroup
+              <!-- <UFormGroup
                 class="flex-1"
                 label="Derivation path"
                 :error="!derivationValid"
               >
                 <UInput v-model="derivationPath" readonly error :placeholder="derivationPathManualPlaceholder" />
-              </UFormGroup>
+              </UFormGroup> -->
             </div>
           </div>
 
           <div v-show="manualDerivationPathEnabled">
             <UFormGroup
-              help="m / purpose' / coin_type' / account' / change / index"
+              help="m / purpose' / coin_type' / account'"
               :error="!derivationManualValid"
             >
               <UInput v-model="derivationPathManual" color="gray" :placeholder="derivationPathManualPlaceholder" />
@@ -168,10 +184,50 @@ watch(manualDerivationPathEnabled, (enabled) => {
         </div>
       </div>
 
-      <div>
-        <div v-if="xpub" class="flex items-center justify-center">
-          <img :src="qrCode">
+      <div class="flex flex-col gap-12">
+        <div class="flex flex-col gap-4">
+          <UFormGroup label="Device">
+            <USelectMenu
+              v-model="selectedDevice"
+              searchable
+              creatable
+              :options="deviceStore.devices"
+              placeholder="Select devices"
+            />
+          </UFormGroup>
+
+          <UFormGroup label="Tags">
+            <USelectMenu
+              v-model="selectedTags"
+              searchable
+              multiple
+              creatable
+              :options="tags"
+              placeholder="Select tags"
+            >
+              <template #label>
+                <div v-if="selectedTags?.length" class="flex gap-2 overflow-x-auto hide-scrollbar" size="xs">
+                  <UBadge
+                    v-for="tag in selectedTags"
+                    :key="tag.id" class="shrink-0"
+                    size="xs"
+                  >
+                    {{ tag.label }}
+                  </UBadge>
+                </div>
+                <div v-else>
+                  &ThinSpace;
+                </div>
+              </template>
+            </USelectMenu>
+          </UFormGroup>
         </div>
+      </div>
+
+      <div class="flex flex-col gap-12">
+        <UCard v-if="xpubValid" class="flex items-center justify-center">
+          <img :src="qrCode">
+        </UCard>
       </div>
     </div>
   </div>

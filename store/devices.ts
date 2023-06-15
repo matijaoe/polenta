@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import type { Device } from '~/models'
 
-export const useDevicesStore = defineStore('devices', () => {
+export const useDeviceStore = defineStore('devices', () => {
   const devices: Device[] = [
     {
-      label: 'COLDCARD',
+      label: 'COLDCARD mk4',
       id: 'MELJOV0SusBuhIsYBwlB7',
     },
     {
-      label: 'COLDCARD backup',
+      label: 'COLDCARD mk3',
       id: 'BvxHbZz64t9V1J73fIj77',
     },
     {

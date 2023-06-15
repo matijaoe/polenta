@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const walletsStore = useWalletsStore()
-const devicesStore = useDevicesStore()
+const devicesStore = useDeviceStore()
 
 const wallets = computed(() => walletsStore.wallets.map((wallet) => {
   return {

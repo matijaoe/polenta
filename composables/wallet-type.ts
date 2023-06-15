@@ -1,7 +1,7 @@
 import type { WalletScriptModel, WalletScriptType } from '~/models'
 
 export function useWalletType() {
-  const scriptTypeDerivationMap = {
+  const scriptTypeMap = {
     'legacy': {
       branch: 44,
       extendedKey: 'xpub',
@@ -30,12 +30,12 @@ export function useWalletType() {
   }
 
   const walletTypes = computed(() => {
-    return (Object.keys(scriptTypeDerivationMap) as WalletScriptType[]).map((key) => {
-      const wallet = scriptTypeDerivationMap[key]
+    return (Object.keys(scriptTypeMap) as WalletScriptType[]).map((key) => {
+      const wallet = scriptTypeMap[key]
       return {
         ...wallet,
         id: key,
-        help: `Address starts with ${scriptTypeDerivationMap[key].addressFormat}`,
+        help: `Address starts with ${scriptTypeMap[key].addressFormat}`,
       } as WalletScriptModel
     })
   })
@@ -45,7 +45,6 @@ export function useWalletType() {
   }
 
   return {
-    scriptTypeDerivationMap,
     walletTypes,
     getWalletByType,
   }
