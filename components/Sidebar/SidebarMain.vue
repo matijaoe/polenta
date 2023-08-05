@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const walletsStore = useWalletsStore()
-const devicesStore = useDevicesStore()
+const devicesStore = useDeviceStore()
 
 const wallets = computed(() => walletsStore.wallets.map((wallet) => {
   return {
@@ -35,6 +35,14 @@ const links = [
     },
   },
 ]
+
+function onAddWallet() {
+  navigateTo({ name: 'wallets-new' })
+}
+
+function onAddDevice() {
+  navigateTo({ name: 'devices-new' })
+}
 </script>
 
 <template>
@@ -49,19 +57,25 @@ const links = [
 
       <div class="mt-8 space-y-10">
         <section>
-          <UButton
-            :ui="{
-              font: 'font-bold',
-            }"
-            :padded="false"
-            size="lg"
-            variant="link"
-            color="black"
-            :to="{ name: 'wallets' }"
-            class="font-bold"
-          >
-            Wallets
-          </UButton>
+          <div class="flex items-center justify-between">
+            <UButton
+              :ui="{
+                font: 'font-bold',
+              }"
+              :padded="false"
+              size="lg"
+              variant="link"
+              color="black"
+              :to="{ name: 'wallets' }"
+              class="font-bold"
+            >
+              Wallets
+            </UButton>
+
+            <UTooltip text="Add wallet">
+              <UButton size="xs" icon="i-heroicons-plus" square color="white" @click="onAddWallet" />
+            </UTooltip>
+          </div>
 
           <UVerticalNavigation
             :links="wallets"
@@ -70,19 +84,25 @@ const links = [
         </section>
 
         <section>
-          <UButton
-            :ui="{
-              font: 'font-bold',
-            }"
-            :padded="false"
-            size="lg"
-            variant="link"
-            color="black"
-            :to="{ name: 'devices' }"
-            class="font-bold"
-          >
-            Devices
-          </UButton>
+          <div class="flex items-center justify-between">
+            <UButton
+              :ui="{
+                font: 'font-bold',
+              }"
+              :padded="false"
+              size="lg"
+              variant="link"
+              color="black"
+              :to="{ name: 'devices' }"
+              class="font-bold"
+            >
+              Devices
+            </UButton>
+
+            <UTooltip text="Add device">
+              <UButton size="xs" icon="i-heroicons-plus" square color="white" @click="onAddDevice" />
+            </UTooltip>
+          </div>
 
           <UVerticalNavigation
             :links="devices"

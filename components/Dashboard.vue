@@ -20,8 +20,8 @@ function toggleDark() {
           Bitcoin account tracker
         </p>
       </div>
-      <UButton color="white" variant="solid" @click="toggleDark">
-        Toggle theme
+      <UButton square color="white" variant="solid" @click="toggleDark">
+        <UIcon :name=" isDark ? 'i-heroicons-sun' : 'i-heroicons-moon'" />
       </UButton>
     </div>
 

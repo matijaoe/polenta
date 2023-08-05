@@ -2,7 +2,7 @@
 const route = useRoute()
 const deviceId = computed(() => (route.params as { deviceId: string }).deviceId)
 
-const devicesStore = useDevicesStore()
+const devicesStore = useDeviceStore()
 
 const device = computed(() => devicesStore.getDevice(deviceId.value))
 </script>
