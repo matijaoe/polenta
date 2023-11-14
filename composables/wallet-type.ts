@@ -1,4 +1,4 @@
-import type { WalletScriptModel, WalletScriptType } from '~/models'
+import type { Wallet, WalletScriptModel, WalletScriptType } from '~/models'
 
 export function useWalletType() {
   const scriptTypeMap = {
@@ -29,7 +29,7 @@ export function useWalletType() {
     },
   }
 
-  const walletTypes = computed(() => {
+  const walletTypes = computed<WalletScriptModel[]>(() => {
     return (Object.keys(scriptTypeMap) as WalletScriptType[]).map((key) => {
       const wallet = scriptTypeMap[key]
       return {
@@ -41,7 +41,7 @@ export function useWalletType() {
   })
 
   const getWalletByType = (type: WalletScriptType) => {
-    return walletTypes.value.find(wallet => wallet.id === type)
+    return walletTypes.value.find((wallet:WalletScriptModel) => wallet.id === type)
   }
 
   return {

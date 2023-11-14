@@ -5,34 +5,34 @@ const devicesStore = useDeviceStore()
 const wallets = computed(() => walletsStore.wallets.map((wallet) => {
   return {
     label: wallet.label,
-    to: {
+    click: () => navigateTo({
       name: 'wallets-walletId',
       params: { walletId: wallet.id },
-    },
+    }),
   }
 }))
 const devices = computed(() => devicesStore.devices.map((device) => {
   return {
     label: device.label,
-    to: {
+    click: () => navigateTo({
       name: 'devices-deviceId',
       params: { deviceId: device.id },
-    },
+    }),
   }
 }))
 
 const links = [
   {
     label: 'Dashboard',
-    to: {
+    click: () => ({
       name: 'index',
-    },
+    }),
   },
   {
     label: 'Accounts',
-    to: {
+    click: () => ({
       name: 'accounts',
-    },
+    }),
   },
 ]
 

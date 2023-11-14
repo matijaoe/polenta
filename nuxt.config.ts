@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@pinia/nuxt',
     '@nuxt/devtools',
-    '@nuxthq/ui',
+    '@nuxt/ui',
   ],
 
   experimental: {
@@ -25,6 +25,11 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
+   ui: {
+    global: true,
+    icons: ['heroicons'],
+  },
+
   typescript: {
     tsConfig: {
       compilerOptions: {
@@ -37,9 +42,6 @@ export default defineNuxtConfig({
     dirs: [
       'composables/**',
       'store/**',
-    ],
-    presets: [
-      'pinia',
     ],
   },
 

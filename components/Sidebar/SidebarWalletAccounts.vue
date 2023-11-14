@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { ScriptConfig } from '~/models';
+
 const { walletId } = defineProps<{
   walletId: string
 }>()
@@ -6,15 +8,20 @@ const { walletId } = defineProps<{
 const accountsStore = useAccountsStore()
 
 const accounts = computed(() => {
-  const walletAccounts = accountsStore.getAccountWallets(walletId)
+  const walletAccounts = accountsStore.getWalletAccounts(walletId)
 
   return walletAccounts.map(account => ({
     label: account.label,
-    badge: account.scriptType,
-    to: {
-      name: 'wallets-walletId-accountId',
-      params: { walletId: account.walletId, accountId: account.id },
-    },
+    badge: ScriptConfig[account.scriptType].label.toLowerCase(),
+    click: () => {
+      navigateTo({
+        name: 'wallets-walletId-accountId',
+        params: {
+          walletId: account.walletId,
+          accountId: account.id
+        },
+      })
+    }
   }))
 })
 </script>
@@ -29,10 +36,7 @@ const accounts = computed(() => {
           </h2>
         </div>
 
-        <UVerticalNavigation
-          :links="accounts"
-          class="-mx-3 mt-2"
-        />
+        <UVerticalNavigation :links="accounts" class="-mx-3 mt-2" />
       </section>
     </menu>
   </SidebarBase>
