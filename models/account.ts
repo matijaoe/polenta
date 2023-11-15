@@ -5,13 +5,17 @@ export enum ScriptType {
   Taproot = 'taproot',
 }
 
+export type BitcoinNetwork = 'bitcoin' | 'testnet'
+
+export type BitcoinScriptCode = 'p2pkh' | 'p2sh-p2wpkh' | 'p2wpkh' | 'p2tr'
+
 export const ScriptConfig: Record<ScriptType, {
   label: string
   label_long: string
   address_format: string
   default_derivation_path: string
   name: string
-  name_short: string
+  code: BitcoinScriptCode
 }> = {
   legacy: {
     label: "Legacy",
@@ -19,7 +23,7 @@ export const ScriptConfig: Record<ScriptType, {
     address_format: "1",
     default_derivation_path: "m/44'/0'/0'",
     name: "Pay-to-Public-Key-Hash",
-    name_short: "P2PKH",
+    code: "p2pkh",
   },
   segwit: {
     label: "SegWit",
@@ -27,7 +31,7 @@ export const ScriptConfig: Record<ScriptType, {
     address_format: "3",
     default_derivation_path: "m/49'/0'/0'",
     name: "Pay-to-Witness-Public-Key-Hash nested in Pay-to-Script-Hash",
-    name_short: "P2SH-P2WPKH",
+    code: "p2sh-p2wpkh",
   },
   "native-segwit": {
     label: "Native SegWit",
@@ -35,7 +39,7 @@ export const ScriptConfig: Record<ScriptType, {
     address_format: "bc1q",
     default_derivation_path: "m/84'/0'/0'",
     name: "Pay-to-Witness-Public-Key-Hash",
-    name_short: "P2WPKH",
+    code: "p2wpkh",
   },
   taproot: {
     label: "Taproot",
@@ -43,7 +47,7 @@ export const ScriptConfig: Record<ScriptType, {
     address_format: "bc1p",
     default_derivation_path: "m/86'/0'/0'",
     name: "Pay-to-Taproot",
-    name_short: "P2TR",
+    code: "p2tr",
   }
 }
 

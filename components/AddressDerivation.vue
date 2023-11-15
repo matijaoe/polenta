@@ -1,28 +1,30 @@
 <script lang="ts" setup>
-import type { AddressBalance, AddressBasic } from '~/models'
+import type { AddressBalance } from '~/models';
 
-const key = ref('xpub6Ea8xeCW1XVEf9qTggAkUHrK4tJPAcPo7Y3EwodMazzMwXzga6e4Fbg7sp1NwvdhtbvANjyrBXHCWUjeqBARthg2fhBh7WCGWVquBVNxP2C')
+const key = ref('')
 const keyBuffer = ref(key.value)
 
-const { data: addresses, pending: addressesPending } = await useFetch<AddressBasic[]>(() => `/api/addresses/${key.value}`)
-const rawAddresses = computed(() => addresses.value?.map(address => address.address) ?? [])
+const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[] }>(() => `/api/addresses/${key.value}`)
+
+const addresses = computed(() => {
+  return addressesResponse.value?.addresses ?? []
+})
 
 const balances = ref<Record<string, AddressBalance>>({})
 
 const addressesWithBalances = computed(() => {
-  return addresses.value?.map(address => ({
-    ...address,
-    balance: balances.value?.[address.address] ?? null,
+  return addresses.value.map(address => ({
+    address,
+    balance: balances.value?.[address] ?? null,
   })) ?? []
 })
 
-async function fetchBalances() {
-  const addresses = rawAddresses.value
-  if (!addresses.length)
+const fetchBalances = async () => {
+  if (!addresses.value?.length)
     return {}
 
   const url = new URL('https://blockchain.info/balance')
-  url.searchParams.set('active', addresses.join('|'))
+  url.searchParams.set('active', addresses.value.join('|'))
 
   try {
     const res = await $fetch<Record<string, AddressBalance>>(url.href)
@@ -33,7 +35,7 @@ async function fetchBalances() {
   }
 }
 
-whenever(rawAddresses, async () => {
+whenever(addresses, async () => {
   balances.value = await fetchBalances() ?? {}
 }, { immediate: true })
 
@@ -45,17 +47,8 @@ function onKeySubmit() {
 <template>
   <form @submit.prevent="onKeySubmit">
     <div class="flex items-center gap-4">
-      <UInput
-        v-model="keyBuffer"
-        size="xl"
-        type="text"
-        class="w-full"
-      />
-      <UButton
-        size="xl"
-        type="submit"
-        :loading="addressesPending"
-      >
+      <UInput v-model="keyBuffer" size="xl" type="text" class="w-full" />
+      <UButton size="xl" type="submit" :loading="addressesPending">
         submit
       </UButton>
     </div>
