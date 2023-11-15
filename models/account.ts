@@ -5,8 +5,6 @@ export enum ScriptType {
   Taproot = 'taproot',
 }
 
-export type BitcoinNetwork = 'bitcoin' | 'testnet'
-
 export type BitcoinScriptCode = 'p2pkh' | 'p2sh-p2wpkh' | 'p2wpkh' | 'p2tr'
 
 export const ScriptConfig: Record<ScriptType, {

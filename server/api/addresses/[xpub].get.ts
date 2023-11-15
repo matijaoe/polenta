@@ -1,71 +1,36 @@
-import BIP32Factory, { BIP32API } from 'bip32';
-import * as bitcoin from 'bitcoinjs-lib';
-import * as ecc from 'tiny-secp256k1';
 import { z } from 'zod';
-import { BitcoinNetwork, BitcoinScriptCode } from '~/models';
-import { formatZodValidationErrorMessage, generateIndices, useQueryParams } from '~/server/utils';
+import { BitcoinScriptCode } from '~/models';
+import { formatZodValidationErrorMessage, useQueryParams } from '~/server/utils';
+import { HARD_ADDRESS_COUNT_LIMIT, generateAddressesFromXpub } from '~/server/utils/bitcoin';
 
-const zodSchema = z.object({
-  network: z.enum(['mainnet', 'testnet']).optional().default('mainnet'),
-  script: z.enum(['p2pkh', 'p2sh-p2wpkh', 'p2wpkh', 'p2tr']).optional().default('p2wpkh'),
-  limit: z.number().min(1).max(100).optional().default(10),
-  gap: z.number().min(0).optional().default(0),
-  type: z.enum(['receive', 'change']).optional().default('receive')
-});
-
-type QueryParams = {
-  network?: BitcoinNetwork,
-  script?: BitcoinScriptCode,
-  limit?: number,
-  gap?: number
-  type?: 'receive' | 'change'
+export type QueryParams = {
+  script: BitcoinScriptCode,
+  type: 'receive' | 'change'
+  limit: number,
+  gap: number
 }
 
-const HARD_ADDRESS_COUNT_LIMIT = 100;
+const zodSchema = z.object({
+  script: z.enum(['p2pkh', 'p2sh-p2wpkh', 'p2wpkh', 'p2tr']).optional().default('p2wpkh'),
+  type: z.enum(['receive', 'change']).optional().default('receive'),
+  limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
+  gap: z.number().min(0).optional().default(0),
+});
 
 export default defineEventHandler(async (event) => {
   const { xpub } = event.context.params as { xpub: string }
-  const rawParams = useQueryParams<QueryParams>(event)
+  const rawParams = useQueryParams<Partial<QueryParams>>(event)
 
   try {
-    const params = zodSchema.parse(rawParams);
+    const { script, type, gap, limit } = zodSchema.parse(rawParams);
 
-
-    // @ts-ignore
-    const BIP32 = BIP32Factory.default(ecc) as BIP32API
-    const network = bitcoin.networks.bitcoin;
-    const xpubKey = BIP32.fromBase58(xpub, network);
-
-    const addrLevel = params.type === 'change' ? 1 : 0;
-
-    const generatePayment = (addressIndex: number) => {
-      const { publicKey: pubkey } = xpubKey.derive(addrLevel).derive(addressIndex)
-
-      if (params.script === 'p2sh-p2wpkh') {
-        // Wrap P2WPKH in a P2SH (Pay-to-Script-Hash) payment script
-        const pw2pkhPayment = bitcoin.payments.p2wpkh({ pubkey, network });
-        return bitcoin.payments.p2sh({
-          redeem: pw2pkhPayment,
-        });
-      }
-
-      return bitcoin.payments[params.script]({ pubkey, network });
-    }
-
-
-    const addresses: string[] = [];
-
-    const count = Math.min(params.limit, HARD_ADDRESS_COUNT_LIMIT);
-    generateIndices({ start: params.gap, count }).forEach((_, i) => {
-      const payment = generatePayment(i);
-      if (!payment?.address) return;
-
-      addresses.push(payment.address);
-    });
+    const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit });
 
     return {
       xpub,
-      addresses
+      addresses,
+      type,
+      script,
     }
   } catch (err: any) {
     if (err instanceof z.ZodError) {
