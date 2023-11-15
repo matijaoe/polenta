@@ -24,13 +24,13 @@ const devices = computed(() => devicesStore.devices.map((device) => {
 const links = [
   {
     label: 'Dashboard',
-    click: () => ({
+    click: () => navigateTo({
       name: 'index',
     }),
   },
   {
     label: 'Accounts',
-    click: () => ({
+    click: () => navigateTo({
       name: 'accounts',
     }),
   },
@@ -49,26 +49,15 @@ function onAddDevice() {
   <SidebarBase>
     <menu>
       <nav class="flex flex-col gap-2">
-        <UVerticalNavigation
-          :links="links"
-          class="-mx-3"
-        />
+        <UVerticalNavigation :links="links" class="-mx-3" />
       </nav>
 
       <div class="mt-8 space-y-10">
         <section>
           <div class="flex items-center justify-between">
-            <UButton
-              :ui="{
-                font: 'font-bold',
-              }"
-              :padded="false"
-              size="lg"
-              variant="link"
-              color="black"
-              :to="{ name: 'wallets' }"
-              class="font-bold"
-            >
+            <UButton :ui="{
+              font: 'font-bold',
+            }" :padded="false" size="lg" variant="link" color="black" :to="{ name: 'wallets' }" class="font-bold">
               Wallets
             </UButton>
 
@@ -77,25 +66,14 @@ function onAddDevice() {
             </UTooltip>
           </div>
 
-          <UVerticalNavigation
-            :links="wallets"
-            class="-mx-3 mt-2"
-          />
+          <UVerticalNavigation :links="wallets" class="-mx-3 mt-2" />
         </section>
 
         <section>
           <div class="flex items-center justify-between">
-            <UButton
-              :ui="{
-                font: 'font-bold',
-              }"
-              :padded="false"
-              size="lg"
-              variant="link"
-              color="black"
-              :to="{ name: 'devices' }"
-              class="font-bold"
-            >
+            <UButton :ui="{
+              font: 'font-bold',
+            }" :padded="false" size="lg" variant="link" color="black" :to="{ name: 'devices' }" class="font-bold">
               Devices
             </UButton>
 
@@ -104,10 +82,7 @@ function onAddDevice() {
             </UTooltip>
           </div>
 
-          <UVerticalNavigation
-            :links="devices"
-            class="-mx-3 mt-1"
-          />
+          <UVerticalNavigation :links="devices" class="-mx-3 mt-1" />
         </section>
       </div>
     </menu>

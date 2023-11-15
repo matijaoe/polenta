@@ -4,7 +4,9 @@ import type { AddressBalance } from '~/models';
 const key = ref('')
 const keyBuffer = ref(key.value)
 
-const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[] }>(() => `/api/addresses/${key.value}`)
+const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[], xpub: string }>(() => `/api/addresses/${key.value}`, {
+  pick: ['addresses'],
+})
 
 const addresses = computed(() => {
   return addressesResponse.value?.addresses ?? []

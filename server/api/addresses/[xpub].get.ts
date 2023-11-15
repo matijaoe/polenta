@@ -8,8 +8,9 @@ import { formatZodValidationErrorMessage, generateIndices, useQueryParams } from
 const zodSchema = z.object({
   network: z.enum(['mainnet', 'testnet']).optional().default('mainnet'),
   script: z.enum(['p2pkh', 'p2sh-p2wpkh', 'p2wpkh', 'p2tr']).optional().default('p2wpkh'),
-  limit: z.number().min(20).max(100).optional().default(20),
+  limit: z.number().min(1).max(100).optional().default(10),
   gap: z.number().min(0).optional().default(0),
+  type: z.enum(['receive', 'change']).optional().default('receive')
 });
 
 type QueryParams = {
@@ -17,6 +18,7 @@ type QueryParams = {
   script?: BitcoinScriptCode,
   limit?: number,
   gap?: number
+  type?: 'receive' | 'change'
 }
 
 const HARD_ADDRESS_COUNT_LIMIT = 100;
@@ -28,15 +30,16 @@ export default defineEventHandler(async (event) => {
   try {
     const params = zodSchema.parse(rawParams);
 
+
     // @ts-ignore
     const BIP32 = BIP32Factory.default(ecc) as BIP32API
-
     const network = bitcoin.networks.bitcoin;
-
     const xpubKey = BIP32.fromBase58(xpub, network);
 
+    const addrLevel = params.type === 'change' ? 1 : 0;
+
     const generatePayment = (addressIndex: number) => {
-      const pubkey = xpubKey.derive(addressIndex).publicKey;
+      const { publicKey: pubkey } = xpubKey.derive(addrLevel).derive(addressIndex)
 
       if (params.script === 'p2sh-p2wpkh') {
         // Wrap P2WPKH in a P2SH (Pay-to-Script-Hash) payment script
@@ -61,6 +64,7 @@ export default defineEventHandler(async (event) => {
     });
 
     return {
+      xpub,
       addresses
     }
   } catch (err: any) {
