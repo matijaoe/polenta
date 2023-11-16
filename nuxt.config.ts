@@ -14,6 +14,13 @@ export default defineNuxtConfig({
     icons: ['ph', 'simple-icons'],
   },
 
+  imports: {
+    dirs: [
+      'composables/**',
+      'store/**',
+    ],
+  },
+
   experimental: {
     typedPages: true,
   },

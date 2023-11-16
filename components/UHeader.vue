@@ -14,12 +14,12 @@ const mobileMenuOpen = ref(false)
 
 <template>
   <header class="bg-background/75 backdrop-blur border-b -mb-px sticky top-0 z-50 border-gray-200 dark:border-gray-800">
-    <UContainer class="w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 h-[--header-height]">
+    <div class="w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 h-[--header-height]">
       <div class=" lg:flex-1 flex items-center gap-1.5">
         <slot name="left" />
       </div>
 
-      <ul class="items-center gap-x-8 hidden lg:flex">
+      <!-- <ul class="items-center gap-x-8 hidden lg:flex">
         <li v-for="(link, i) in links" :key="i">
           <NuxtLink
             active-class="text-primary"
@@ -29,7 +29,7 @@ const mobileMenuOpen = ref(false)
             {{ link.label }}
           </NuxtLink>
         </li>
-      </ul>
+      </ul> -->
 
       <div class="flex items-center justify-end lg:flex-1 gap-1.5">
         <slot name="right" />
@@ -47,12 +47,12 @@ const mobileMenuOpen = ref(false)
           />
         </button>
       </div>
-    </UContainer>
+    </div>
   </header>
 </template>
 
 <style lang="postcss">
 :root {
-  --header-height: 64px;
+  --header-height: 55px;
 }
 </style>

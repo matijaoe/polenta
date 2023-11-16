@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteLocationRaw } from '#ui-colors/vue-router-stub'
+import type { RouteLocationRaw } from 'vue-router'
 
 const colorMode = useColorMode()
 const { openCommandPalette } = useCommandPalette()
@@ -28,7 +28,9 @@ const { metaSymbol } = useShortcuts()
   <UHeader :links="links">
     <template #left>
       <NuxtLink to="/">
-        <Logo />
+        <p class="font-mono text-2xl underline decoration-dashed underline-offset-2 decoration-gray-300 dark:decoration-gray-600">
+          xpubhub
+        </p>
       </NuxtLink>
     </template>
 

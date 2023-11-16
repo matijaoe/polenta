@@ -1,7 +1,5 @@
 import { z } from 'zod'
 import { ScriptType } from '~/models'
-import { formatZodValidationErrorMessage, useQueryParams } from '~/server/utils'
-import { HARD_ADDRESS_COUNT_LIMIT, generateAddressesFromXpub } from '~/server/utils/bitcoin'
 
 export type QueryParams = {
   script: ScriptType

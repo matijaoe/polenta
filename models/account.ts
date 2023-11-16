@@ -5,13 +5,17 @@ export enum ScriptType {
   taproot = 'p2tr',
 }
 
-export const SCRIPT_CONFIG: Record<string, {
+export type ScriptTypeKey = 'legacy' | 'segwit' | 'native-segwit' | 'taproot'
+
+export type ScriptTypeConfig = {
   branch: number
   extendedKey: string
   label: string
   addressFormat: string
   code: ScriptType
-}> = {
+}
+
+export const SCRIPT_CONFIG: Record<ScriptTypeKey, ScriptTypeConfig> = {
   'legacy': {
     branch: 44,
     extendedKey: 'xpub',
@@ -42,8 +46,6 @@ export const SCRIPT_CONFIG: Record<string, {
     code: ScriptType.taproot
   },
 }
-
-export type ScriptTypeKey = keyof typeof SCRIPT_CONFIG
 
 export type Account = {
   label: string

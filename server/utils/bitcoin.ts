@@ -1,10 +1,9 @@
+import { Buffer } from 'node:buffer'
 import type { BIP32API, BIP32Interface } from 'bip32'
 import BIP32Factory from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
-import { Buffer } from 'bitcoinjs-lib/src/types'
 import * as ecc from 'tiny-secp256k1'
 import type { ScriptType } from '~/models'
-import { generateIndices } from '~/server/utils'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
 
