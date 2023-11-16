@@ -1,53 +1,49 @@
 export enum ScriptType {
-  Legacy = 'legacy',
-  SegWit = 'segwit',
-  NativeSegWit = 'native-segwit',
-  Taproot = 'taproot',
+  legacy = 'p2pkh',
+  segwit = 'p2sh-p2wpkh',
+  native_segwit = 'p2wpkh',
+  taproot = 'p2tr',
 }
 
-export type BitcoinScriptCode = 'p2pkh' | 'p2sh-p2wpkh' | 'p2wpkh' | 'p2tr'
-
-export const ScriptConfig: Record<ScriptType, {
+export const SCRIPT_CONFIG: Record<string, {
+  branch: number
+  extendedKey: string
   label: string
-  label_long: string
-  address_format: string
-  default_derivation_path: string
-  name: string
-  code: BitcoinScriptCode
+  addressFormat: string
+  code: ScriptType
 }> = {
-  legacy: {
-    label: "Legacy",
-    label_long: "Legacy",
-    address_format: "1",
-    default_derivation_path: "m/44'/0'/0'",
-    name: "Pay-to-Public-Key-Hash",
-    code: "p2pkh",
+  'legacy': {
+    branch: 44,
+    extendedKey: 'xpub',
+    label: 'Legacy',
+    addressFormat: '1',
+    code: ScriptType.legacy
   },
-  segwit: {
-    label: "SegWit",
-    label_long: "Segregated Witness",
-    address_format: "3",
-    default_derivation_path: "m/49'/0'/0'",
-    name: "Pay-to-Witness-Public-Key-Hash nested in Pay-to-Script-Hash",
-    code: "p2sh-p2wpkh",
+  'segwit': {
+    branch: 49,
+    extendedKey: 'ypub',
+    label: 'Segwit',
+    addressFormat: '3',
+    code: ScriptType.segwit
+
   },
-  "native-segwit": {
-    label: "Native SegWit",
-    label_long: "Native Segregated Witness",
-    address_format: "bc1q",
-    default_derivation_path: "m/84'/0'/0'",
-    name: "Pay-to-Witness-Public-Key-Hash",
-    code: "p2wpkh",
+  'native-segwit': {
+    branch: 84,
+    extendedKey: 'zpub',
+    label: 'Native Segwit',
+    addressFormat: 'bc1q',
+    code: ScriptType.native_segwit
   },
-  taproot: {
-    label: "Taproot",
-    label_long: "Taproot",
-    address_format: "bc1p",
-    default_derivation_path: "m/86'/0'/0'",
-    name: "Pay-to-Taproot",
-    code: "p2tr",
-  }
+  'taproot': {
+    branch: 86,
+    extendedKey: 'zpub',
+    label: 'Taproot',
+    addressFormat: 'bc1p',
+    code: ScriptType.taproot
+  },
 }
+
+export type ScriptTypeKey = keyof typeof SCRIPT_CONFIG
 
 export type Account = {
   label: string

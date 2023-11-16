@@ -7,8 +7,9 @@ export default defineEventHandler(async (event) => {
 
   const addresses = query.addresses ?? []
 
-  if (!addresses.length)
+  if (!addresses.length) {
     return {}
+  }
 
   const url = new URL('https://blockchain.info/balance')
   url.searchParams.set('active', addresses.join('|'))

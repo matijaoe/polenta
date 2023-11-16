@@ -1,5 +1,7 @@
-# 🌽 xpubhub
+# 🧚🏻 Nuxt 3 starter template
 
+> Minimal Nuxt 3 starter with Nuxt UI
+>
 ## Setup
 
 ```bash
@@ -18,3 +20,8 @@ pnpm build
 # locally preview production build
 pnpm preview
 ```
+
+## Related
+
+- 👽 [`vue-starter`](https://github.com/matijaoe/vue-starter)
+- 🔮 [`vue-anu-starter`](https://github.com/matijaoe/vue-anu-starter)

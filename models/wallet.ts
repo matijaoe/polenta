@@ -1,13 +1,13 @@
+import type { ScriptType } from './account'
+
 export type Wallet = {
   label: string
   id: string
 }
 
-export type WalletScriptType = 'legacy' | 'segwit' | 'native-segwit' | 'taproot'
-
 export type WalletScriptModel = {
+  id: ScriptType
   label: string
-  id: WalletScriptType
   branch: number
   extendedKey: string
   addressFormat: string
