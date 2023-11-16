@@ -1,15 +1,40 @@
-import { defineNuxtConfig } from 'nuxt/config'
-
 export default defineNuxtConfig({
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
+    '@nuxt/image',
     '@nuxt/devtools',
     '@nuxt/ui',
+    '@nuxtjs/google-fonts',
+    '@nuxtjs/fontaine',
   ],
+
+  ui: {
+    global: true,
+    icons: ['ph', 'simple-icons'],
+  },
+
+  imports: {
+    dirs: [
+      'composables/**',
+      'store/**',
+    ],
+  },
 
   experimental: {
     typedPages: true,
+  },
+
+  fontMetrics: {
+    fonts: ['Inter'],
+  },
+
+  googleFonts: {
+    display: 'swap',
+    download: true,
+    families: {
+      Inter: [400, 500, 600, 700],
+    },
   },
 
   vite: {
@@ -21,33 +46,19 @@ export default defineNuxtConfig({
     },
   },
 
-  devtools: {
-    enabled: true,
-  },
-
-   ui: {
-    global: true,
-    icons: ['heroicons'],
-  },
-
-  typescript: {
-    tsConfig: {
-      compilerOptions: {
-        moduleResolution: 'bundler',
-      },
+  postcss: {
+    plugins: {
+      'postcss-nesting': {},
     },
-  },
-
-  imports: {
-    dirs: [
-      'composables/**',
-      'store/**',
-    ],
   },
 
   app: {
     head: {
-      title: 'xpubhub',
+      title: 'Nuxt UI Starter',
     },
+  },
+
+  devtools: {
+    enabled: true,
   },
 })

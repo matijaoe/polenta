@@ -3,4 +3,3 @@
     <slot />
   </LayoutBase>
 </template>
-a

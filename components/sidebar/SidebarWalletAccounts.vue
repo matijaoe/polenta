@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ScriptConfig } from '~/models';
+import { SCRIPT_CONFIG } from '~/models'
 
 const { walletId } = defineProps<{
   walletId: string
@@ -12,7 +12,7 @@ const accounts = computed(() => {
 
   return walletAccounts.map(account => ({
     label: account.label,
-    badge: ScriptConfig[account.scriptType].label.toLowerCase(),
+    // badge: SCRIPT_CONFIG[account.scriptType].label.toLowerCase(),
     click: () => {
       navigateTo({
         name: 'wallets-walletId-accountId',

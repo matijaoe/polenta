@@ -36,11 +36,11 @@ const links = [
   },
 ]
 
-function onAddWallet() {
+const onAddWallet = () => {
   navigateTo({ name: 'wallets-new' })
 }
 
-function onAddDevice() {
+const onAddDevice = () => {
   navigateTo({ name: 'devices-new' })
 }
 </script>
@@ -55,9 +55,17 @@ function onAddDevice() {
       <div class="mt-8 space-y-10">
         <section>
           <div class="flex items-center justify-between">
-            <UButton :ui="{
-              font: 'font-bold',
-            }" :padded="false" size="lg" variant="link" color="black" :to="{ name: 'wallets' }" class="font-bold">
+            <UButton
+              :ui="{
+                font: 'font-bold',
+              }"
+              :padded="false"
+              size="lg"
+              variant="link"
+              color="black"
+              :to="{ name: 'wallets' }"
+              class="font-bold"
+            >
               Wallets
             </UButton>
 
@@ -71,9 +79,17 @@ function onAddDevice() {
 
         <section>
           <div class="flex items-center justify-between">
-            <UButton :ui="{
-              font: 'font-bold',
-            }" :padded="false" size="lg" variant="link" color="black" :to="{ name: 'devices' }" class="font-bold">
+            <UButton
+              :ui="{
+                font: 'font-bold',
+              }"
+              :padded="false"
+              size="lg"
+              variant="link"
+              color="black"
+              :to="{ name: 'devices' }"
+              class="font-bold"
+            >
               Devices
             </UButton>
 

@@ -1,9 +1,10 @@
-import { z } from 'zod';
-import queryString, { ParseOptions } from 'query-string';
-import { H3Event, EventHandlerRequest } from 'h3'
+import type { z } from 'zod'
+import type { ParseOptions } from 'query-string'
+import queryString from 'query-string'
+import type { EventHandlerRequest, H3Event } from 'h3'
 
-export const generateIndices = ({ start = 0, count }: { start: number, count: number }) => {
-  return Array.from({ length: count }).map((_, i) => start + i);
+export const generateIndices = ({ start = 0, count }: { start: number; count: number }) => {
+  return Array.from({ length: count }).map((_, i) => start + i)
 }
 
 export const formatZodValidationErrorMessage = (err: z.ZodError) => {
@@ -18,7 +19,7 @@ export const formatZodValidationErrorMessage = (err: z.ZodError) => {
 export const useQueryParams = <T extends Record<string, any>>(event: H3Event<EventHandlerRequest>, options: ParseOptions = { parseNumbers: true }) => {
   const params = getQuery<T>(event)
 
-  const parsedParams = queryString.parse(queryString.stringify(params), options);
+  const parsedParams = queryString.parse(queryString.stringify(params), options)
 
-  return parsedParams as T;
+  return parsedParams as T
 }

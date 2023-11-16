@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { useQRCode } from '@vueuse/integrations/useQRCode'
-import { validateFingerprint, validateWalletDerivation, validateXpub } from '~/utils'
+// import { useQRCode } from '@vueuse/integrations/useQRCode'
+import { ScriptType } from '~/models'
 
 const deviceStore = useDeviceStore()
 
@@ -8,13 +8,13 @@ const name = ref('')
 const description = ref('')
 
 const xpub = ref('')
-const qrCode = useQRCode(xpub)
+// const qrCode = useQRCode(xpub)
 
 const { walletTypes, getWalletByType } = useWalletType()
 
 const manualDerivationPathEnabled = ref(false)
 
-const selectedScript = ref(getWalletByType('native-segwit')!)
+const selectedScript = ref(getWalletByType(ScriptType.native_segwit)!)
 const withPassphrase = ref(false)
 
 const scriptBranch = ref<number>(selectedScript.value.branch)
@@ -52,8 +52,9 @@ watch(manualDerivationPathEnabled, (enabled) => {
   } else if (!enabled && derivationManualValid.value) {
     const parts = derivationPathManual.value.split('/')
     const parsedAccount = parts[3].split('\'')[0]
-    if (account != null)
+    if (account != null) {
       account.value = Number.parseInt(parsedAccount)
+    }
   } else {
     account.value = 0
   }
@@ -71,6 +72,7 @@ const tags = ref([
   { id: 'stolen', label: 'stolen' },
   { id: 'testnet', label: 'testnet' },
 ])
+
 const selectedTags = ref<{ id: string; label: string }[]>([])
 </script>
 
@@ -99,7 +101,8 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
 
           <UFormGroup label="Wallet type">
             <USelectMenu
-              v-model="selectedScript" :options="walletTypes"
+              v-model="selectedScript"
+              :options="walletTypes"
             />
           </UFormGroup>
         </div>
@@ -196,7 +199,8 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
                 <div v-if="selectedTags?.length" class="flex gap-2 overflow-x-auto hide-scrollbar" size="xs">
                   <UBadge
                     v-for="tag in selectedTags"
-                    :key="tag.id" class="shrink-0"
+                    :key="tag.id"
+                    class="shrink-0"
                     size="xs"
                   >
                     {{ tag.label }}
@@ -211,11 +215,11 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
         </div>
       </div>
 
-      <div class="flex flex-col gap-12">
+      <!-- <div class="flex flex-col gap-12">
         <UCard v-if="xpubValid" class="flex items-center justify-center">
           <img :src="qrCode">
         </UCard>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

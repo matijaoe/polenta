@@ -1,30 +1,28 @@
-import { z } from 'zod';
-import { BitcoinScriptCode } from '~/models';
-import { formatZodValidationErrorMessage, useQueryParams } from '~/server/utils';
-import { HARD_ADDRESS_COUNT_LIMIT, generateAddressesFromXpub } from '~/server/utils/bitcoin';
+import { z } from 'zod'
+import { ScriptType } from '~/models'
 
 export type QueryParams = {
-  script: BitcoinScriptCode,
+  script: ScriptType
   type: 'receive' | 'change'
-  limit: number,
+  limit: number
   gap: number
 }
 
 const zodSchema = z.object({
-  script: z.enum(['p2pkh', 'p2sh-p2wpkh', 'p2wpkh', 'p2tr']).optional().default('p2wpkh'),
+  script: z.nativeEnum(ScriptType).optional().default(ScriptType.native_segwit),
   type: z.enum(['receive', 'change']).optional().default('receive'),
   limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
   gap: z.number().min(0).optional().default(0),
-});
+})
 
 export default defineEventHandler(async (event) => {
   const { xpub } = event.context.params as { xpub: string }
   const rawParams = useQueryParams<Partial<QueryParams>>(event)
 
   try {
-    const { script, type, gap, limit } = zodSchema.parse(rawParams);
+    const { script, type, gap, limit } = zodSchema.parse(rawParams)
 
-    const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit });
+    const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit })
 
     return {
       xpub,
@@ -47,4 +45,3 @@ export default defineEventHandler(async (event) => {
     })
   }
 })
-

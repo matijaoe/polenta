@@ -2,16 +2,40 @@
   "files.associations": {
     "*.css": "tailwindcss"
   },
+
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+
+  "tailwindCSS.experimental.configFile": "tailwind.config.ts",
+  "tailwindCSS.experimental.classRegex": [
+    [
+      "ui:\\s*{([^)]*)\\s*}",
+      "[\"'`]([^\"'`]*).*?[\"'`]"
+    ],
+    [
+      "/\\*ui\\*/\\s*{([^;]*)}",
+      ":\\s*[\"'`]([^\"'`]*).*?[\"'`]"
+    ]
+  ],
+  "tailwindCSS.classAttributes": [
+    "class",
+    "ui"
+  ],
+
   // Enable the ESlint flat config support
   "eslint.experimental.useFlatConfig": true,
+
   // Disable the default formatter, use eslint instead
   "prettier.enable": false,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
+
   // Auto fix
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true,
     "source.organizeImports": false
   },
+
   // Silent the stylistic rules in you IDE, but still auto fix them
   "eslint.rules.customizations": [
     {
@@ -51,6 +75,7 @@
       "severity": "off"
     }
   ],
+
   // Enable eslint for all supported languages
   "eslint.validate": [
     "javascript",

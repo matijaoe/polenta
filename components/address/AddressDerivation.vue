@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import type { AddressBalance } from '~/models';
+import type { AddressBalance } from '~/models'
 
 const key = ref('')
 const keyBuffer = ref(key.value)
 
-const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[], xpub: string }>(() => `/api/addresses/${key.value}`, {
+const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/addresses/${key.value}`, {
   pick: ['addresses'],
+  immediate: false,
 })
 
 const addresses = computed(() => {
@@ -22,8 +23,9 @@ const addressesWithBalances = computed(() => {
 })
 
 const fetchBalances = async () => {
-  if (!addresses.value?.length)
+  if (!addresses.value?.length) {
     return {}
+  }
 
   const url = new URL('https://blockchain.info/balance')
   url.searchParams.set('active', addresses.value.join('|'))
