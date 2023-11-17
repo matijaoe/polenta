@@ -29,7 +29,7 @@ const { metaSymbol } = useShortcuts()
     <template #left>
       <NuxtLink to="/">
         <div class="flex items-center gap-2.5">
-         <Logo />
+          <Logo />
         </div>
       </NuxtLink>
     </template>
@@ -54,7 +54,7 @@ const { metaSymbol } = useShortcuts()
 
       <UTooltip text="GitHub">
         <UButton
-          to="https://github.com/matijaoe/xpubhub"
+          to="https://github.com/matijaoe/polenta"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
