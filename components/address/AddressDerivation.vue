@@ -35,6 +35,8 @@ const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
 
 watchImmediate(addresses, async (newAddresses) => {
   const promises = newAddresses.map(address => $fetch(`/api/address/${address}`))
+  // This is the type of the resolved Promise
+
   try {
     addressStatsArr.value = await Promise.all(promises)
   } catch (err) {
@@ -95,7 +97,8 @@ const totalSatsFormatted = computed(() => {
   return `${formatNumber(totalSats.value)} sats`
 })
 const toggleSatsFormatStyle = () => {
-  satsFormatStyle.value = satsFormatStyle.value === 'sats' ? 'btc' : 'sats'
+  const format = satsFormatStyle.value === 'sats' ? 'btc' : 'sats'
+  set(satsFormatStyle, format)
 }
 
 const totalValue = computed(() => {
@@ -119,20 +122,20 @@ const onKeySubmit = () => {
   if (!isValidFormat) {
     return
   }
-  xpub.value = xpubBuffer.value
+  set(xpub, xpubBuffer.value)
 }
 
 watch(xpub, (newXpub) => {
   if (newXpub !== xpubBuffer.value) {
-    xpubBuffer.value = newXpub
+    set(xpubBuffer, newXpub)
   }
 })
 
 const xpubInputEl = ref<HTMLInputElement | null>(null)
 
 const setNewXpub = () => {
-  xpub.value = ''
-  xpubBuffer.value = ''
+  set(xpub, '')
+  // TODO: not working
   setImmediate(() => {
     xpubInputEl.value?.focus()
   })

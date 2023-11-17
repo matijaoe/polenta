@@ -36,7 +36,7 @@ const derivationPathManualPlaceholder = computed(() => {
 })
 
 watch(selectedScript, (wallet) => {
-  scriptBranch.value = wallet.branch
+  set(scriptBranch, wallet.branch)
 })
 
 const xpubValid = computed(() => validateXpub(xpub.value))
@@ -47,16 +47,16 @@ const accountValid = computed(() => isDefined(account) && account.value >= 0)
 
 watch(manualDerivationPathEnabled, (enabled) => {
   if (enabled) {
-    derivationPathManual.value = derivationPath.value
-    scriptBranch.value = selectedScript.value.branch
+    set(derivationPathManual, derivationPath.value)
+    set(scriptBranch, selectedScript.value.branch)
   } else if (!enabled && derivationManualValid.value) {
     const parts = derivationPathManual.value.split('/')
     const parsedAccount = parts[3].split('\'')[0]
     if (account != null) {
-      account.value = Number.parseInt(parsedAccount)
+      set(account, Number.parseInt(parsedAccount))
     }
   } else {
-    account.value = 0
+    set(account, 0)
   }
 })
 

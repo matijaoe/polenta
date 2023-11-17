@@ -6,14 +6,16 @@ export const useCurrencySwitcher = () => {
   const shownCurrency = ref<Currency>(currencyStore.currency)
 
   watch(() => currencyStore.currency, (newCurrency) => {
-    shownCurrency.value = newCurrency
+    set(shownCurrency, newCurrency)
   })
 
   const cycleShownCurrency = () => {
     const { currencies } = currencyStore
     const index = currencies.indexOf(shownCurrency.value)
     const nextIndex = (index + 1) % currencies.length
-    shownCurrency.value = currencies.at(nextIndex) ?? 'USD'
+
+    const nextCurrency = currencies.at(nextIndex) ?? 'USD'
+    set(shownCurrency, nextCurrency)
   }
 
   return {

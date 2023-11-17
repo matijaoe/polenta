@@ -6,7 +6,10 @@ export const useCurrencyStore = defineStore('currency', () => {
   const currency = ref<Currency>('USD')
 
   const setCurrency = (newCurrency: Currency) => {
-    currency.value = newCurrency
+    if (!currencies.value.includes(newCurrency)) {
+      throw new Error(`Invalid currency ${newCurrency}`)
+    }
+    set(currency, newCurrency)
   }
   const getCurrency = computed(() => currency.value)
 

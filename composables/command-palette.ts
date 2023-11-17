@@ -2,15 +2,15 @@ export const useCommandPalette = () => {
   const isCommandPaletteOpen = useState('command-palette', () => false)
 
   const openCommandPalette = () => {
-    isCommandPaletteOpen.value = true
+    set(isCommandPaletteOpen, true)
   }
 
   const closeCommandPalette = () => {
-    isCommandPaletteOpen.value = false
+    set(isCommandPaletteOpen, true)
   }
 
   const toggleCommandPalette = () => {
-    isCommandPaletteOpen.value = !isCommandPaletteOpen.value
+    set(isCommandPaletteOpen, !isCommandPaletteOpen.value)
   }
 
   return {

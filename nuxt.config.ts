@@ -19,6 +19,17 @@ export default defineNuxtConfig({
       'composables/**',
       'store/**',
     ],
+    presets: [
+      {
+        imports: [
+          {
+            from: '@vueuse/core',
+            name: 'set',
+            as: 'set'
+          }
+        ]
+      }
+    ]
   },
 
   experimental: {
