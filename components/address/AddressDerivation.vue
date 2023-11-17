@@ -37,28 +37,60 @@ watchImmediate(addresses, async (newAddresses) => {
   }
 })
 
+const { floatRate } = useExchangeRate('USD')
+// value:
+
 const rows = computed(() => {
   return addressStatsArr.value.map((addrData) => {
     return {
       address: addrData.address,
       balance: `${formatNumber(addrData.stats?.balance ?? 0)} sats`,
       txCount: addrData.stats?.txCount ?? 0,
+      value: ''
     }
   })
 })
 
+const rowsWithValue = computed(() => rows.value.map((row) => {
+  if (!floatRate.value) {
+    return row
+  }
+
+  const addr = addressStatsArr.value.find(addr => addr.address === row.address)
+  if (!addr) {
+    return row
+  }
+
+  const balance = addr.stats?.balance ?? 0
+
+  const value = formatCurrency(satsToBtc(balance) * floatRate.value, { maximumFractionDigits: 0 })
+
+  return {
+    ...row,
+    value,
+  }
+}))
+
 type AddressRow = typeof rows.value[0]
 
-const columns = ref([{
-  key: 'address',
-  label: 'Address',
-}, {
-  key: 'balance',
-  label: 'Balance',
-}, {
-  key: 'txCount',
-  label: 'Tx',
-}])
+const columns = ref([
+  {
+    key: 'address',
+    label: 'Address',
+  },
+  {
+    key: 'balance',
+    label: 'Balance',
+  },
+  {
+    key: 'value',
+    label: 'value'
+  },
+  {
+    key: 'txCount',
+    label: 'Tx',
+  }
+])
 
 const navigateToBlockExplorer = (row: AddressRow) => {
   const url = blockExplorerAddressUrl(row.address)
@@ -84,7 +116,7 @@ const onKeySubmit = () => {
 
   <div>
     <UTable
-      :rows="rows"
+      :rows="rowsWithValue"
       :columns="columns"
       :loading="isLoading"
       @select="navigateToBlockExplorer"
