@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { AddressOptionalStatsResponse } from '~/models'
 
-const xpub = ref('')
+const xpub = useState(() => '')
 const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
@@ -10,12 +10,20 @@ const {
   data: addressesResponse,
   pending: addressesPending,
   error: invalidXpub,
+  refresh: fetchXpubAddresses
 } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${xpub.value}`, {
-  key: 'addresses',
-  pick: ['addresses'],
+  key: `xpub_addresses`,
   immediate: isXpubDefined.value,
+  // so it does not fetches when xpub is empty on clicking new xpub input
+  watch: false,
   getCachedData(key) {
-    return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+    const cache = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+    if (cache?.xpub === xpub.value) {
+      console.log('✅ return cache')
+      return cache
+    }
+    console.log('❌ do not cache')
+    return null
   }
 })
 
@@ -96,6 +104,7 @@ const totalSatsFormatted = computed(() => {
   }
   return `${formatNumber(totalSats.value)} sats`
 })
+
 const toggleSatsFormatStyle = () => {
   const format = satsFormatStyle.value === 'sats' ? 'btc' : 'sats'
   set(satsFormatStyle, format)
@@ -125,29 +134,32 @@ const onKeySubmit = () => {
   set(xpub, xpubBuffer.value)
 }
 
+const xpubInputEl = ref<HTMLInputElement | null>(null)
+
 watch(xpub, (newXpub) => {
   if (newXpub !== xpubBuffer.value) {
     set(xpubBuffer, newXpub)
   }
+  if (newXpub) {
+    fetchXpubAddresses()
+  }
 })
 
-const xpubInputEl = ref<HTMLInputElement | null>(null)
-
-const setNewXpub = () => {
+const setNewXpubInput = () => {
   set(xpub, '')
-  // TODO: not working
-  setImmediate(() => {
-    xpubInputEl.value?.focus()
-  })
+  // TODO: focus input
+  // TODO: somehow clear addresses so on new xpub submit there wont be a split second of old addresses and balances
 }
 
 const isXpubValueInvalid = computed(() => {
   if (xpubBuffer.value && !validateXpub(xpubBuffer.value)) {
     return true
   }
-  if (xpubBuffer.value && invalidXpub.value) {
+  // TODO: something aint right
+  if (invalidXpub.value && !xpubBuffer.value) {
     return true
   }
+
   return false
 })
 </script>
@@ -166,7 +178,7 @@ const isXpubValueInvalid = computed(() => {
 
           <template v-else>
             <UInput :value="xpub" size="lg" type="text" class="w-full" readonly />
-            <UButton size="lg" type="submit" @click="setNewXpub">
+            <UButton size="lg" type="submit" @click="setNewXpubInput">
               new
             </UButton>
           </template>
@@ -189,7 +201,7 @@ const isXpubValueInvalid = computed(() => {
           </button>
         </div>
 
-        <AddressTable :rows="rowsWithValue" :loading="areAddressesLoading" />
+        <AddressTable class="mt-4" :rows="rowsWithValue" :loading="areAddressesLoading" />
       </UCard>
     </template>
   </div>

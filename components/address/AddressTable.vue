@@ -42,7 +42,6 @@ const navigateToBlockExplorer = (row: AddressRow) => {
 
 <template>
   <UTable
-    class="mt-4"
     :rows="rows"
     :columns="columns"
     :loading="loading"
