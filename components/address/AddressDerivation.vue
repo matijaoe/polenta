@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import type { AddressOptionalStatsResponse } from '~/models'
 
-const key = ref('')
-const keyBuffer = ref(key.value)
-const isXpubDefined = computed(() => key.value !== '')
+const xpub = ref('')
+const xpubBuffer = ref(xpub.value)
+const isXpubDefined = computed(() => xpub.value !== '')
 
 const nuxtApp = useNuxtApp()
 const {
   data: addressesResponse,
   pending: addressesPending,
   error: invalidXpub,
-} = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${key.value}`, {
+} = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${xpub.value}`, {
   pick: ['addresses'],
   immediate: isXpubDefined.value,
   getCachedData(key) {
@@ -37,8 +37,8 @@ watchImmediate(addresses, async (newAddresses) => {
   }
 })
 
-const { floatRate } = useExchangeRate('USD')
-// value:
+const currencyStore = useCurrencyStore()
+const { floatRate } = useExchangeRate(toRef(currencyStore, 'currency'))
 
 const rows = computed(() => {
   return addressStatsArr.value.map((addrData) => {
@@ -61,15 +61,44 @@ const rowsWithValue = computed(() => rows.value.map((row) => {
     return row
   }
 
-  const balance = addr.stats?.balance ?? 0
+  const satsBalance = addr.stats?.balance ?? 0
+  const btcBalance = satsToBtc(satsBalance) * floatRate.value
+  const value = useFormatCurrency(btcBalance, { maximumFractionDigits: 0 }).value
 
-  const value = formatCurrency(satsToBtc(balance) * floatRate.value, { maximumFractionDigits: 0 })
-
-  return {
-    ...row,
-    value,
-  }
+  return { ...row, value }
 }))
+
+const totalSats = computed(() => {
+  return rowsWithValue.value.reduce((acc, row) => {
+    const satsBalance = addressStatsArr.value.find(addr => addr.address === row.address)?.stats?.balance ?? 0
+    return acc + satsBalance
+  }, 0)
+})
+
+const satsFormatStyle = ref<'sats' | 'btc'>('sats')
+const totalSatsFormatted = computed(() => {
+  if (satsFormatStyle.value === 'btc') {
+    return `₿${formatNumber(satsToBtc(totalSats.value), {
+      maximumFractionDigits: 8,
+    })}`
+  }
+  return `${formatNumber(totalSats.value)} sats`
+})
+const toggleSatsFormatStyle = () => {
+  satsFormatStyle.value = satsFormatStyle.value === 'sats' ? 'btc' : 'sats'
+}
+
+const totalValue = computed(() => {
+  if (!floatRate.value) {
+    return 0
+  }
+
+  return satsToBtc(totalSats.value) * floatRate.value
+})
+
+const totalValueFormatted = computed(() => {
+  return useFormatCurrency(totalValue.value, { maximumFractionDigits: 2, minimumFractionDigits: 2 }).value
+})
 
 type AddressRow = typeof rows.value[0]
 
@@ -98,23 +127,46 @@ const navigateToBlockExplorer = (row: AddressRow) => {
 }
 
 const onKeySubmit = () => {
-  key.value = keyBuffer.value
+  xpub.value = xpubBuffer.value
 }
 </script>
 
 <template>
-  <form @submit.prevent="onKeySubmit">
-    <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
-      <div class="flex items-center gap-4">
-        <UInput v-model="keyBuffer" size="lg" type="text" class="w-full" placeholder="xpub" />
-        <UButton size="lg" type="submit" :loading="isLoading">
-          derive addresses
-        </UButton>
-      </div>
-    </UFormGroup>
-  </form>
+  <div class="space-y-8">
+    <form @submit.prevent="onKeySubmit">
+      <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
+        <div class="flex items-center gap-4">
+          <template v-if="isXpubDefined">
+            <UInput :value="xpub" size="lg" type="text" class="w-full" readonly />
+            <UButton size="lg" type="submit" :loading="isLoading">
+              new
+            </UButton>
+          </template>
 
-  <div>
+          <template v-else>
+            <UInput v-model="xpubBuffer" size="lg" type="text" class="w-full" placeholder="xpub" />
+            <UButton size="lg" type="submit" :loading="isLoading">
+              derive addresses
+            </UButton>
+          </template>
+        </div>
+      </UFormGroup>
+    </form>
+
+    <UCard>
+      <div class="flex items-center justify-between gap-3">
+        <button @click="toggleSatsFormatStyle">
+          <p class="text-2xl font-bold">
+            {{ totalSatsFormatted }}
+          </p>
+        </button>
+
+        <p class="text-2xl font-bold">
+          {{ totalValueFormatted }}
+        </p>
+      </div>
+    </UCard>
+
     <UTable
       :rows="rowsWithValue"
       :columns="columns"

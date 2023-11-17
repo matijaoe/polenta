@@ -1,7 +1,6 @@
-import type { BitcoinPriceResponseModel, BitcoinPriceResponseModelCurrencyKey } from '~/models'
+import type { BitcoinPriceResponseModel, Currency } from '~/models'
 
-// TODO: store for default user currency/currencies
-export const useExchangeRate = (currency: MaybeRef<BitcoinPriceResponseModelCurrencyKey>) => {
+export const useExchangeRate = (currency: MaybeRef<Currency>) => {
   const { data } = useNuxtData<BitcoinPriceResponseModel>('bitcoin-exchange-rate')
 
   const selectedCurrency = computed(() => unref(currency))
@@ -40,7 +39,7 @@ export const useExchangeRate = (currency: MaybeRef<BitcoinPriceResponseModelCurr
       return ''
     }
 
-    return `Updated ${lastUpdated.value} ago`
+    return `Updated ${lastUpdated.value}`
   })
 
   return {

@@ -11,8 +11,6 @@ export type BitcoinPriceResponseModelBpi = {
   EUR: BitcoinPriceResponseModelCurrency
 }
 
-export type BitcoinPriceResponseModelCurrencyKey = 'USD' | 'GBP' | 'EUR'
-
 export type BitcoinPriceResponseModelCurrency = {
   code: string
   symbol: string

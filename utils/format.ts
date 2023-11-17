@@ -1,7 +1,9 @@
 import { formatDistanceToNow } from 'date-fns'
 
-export const formatNumber = (value: number) => {
-  return new Intl.NumberFormat('en-US').format(value)
+export const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => {
+  return new Intl.NumberFormat('en-US', {
+    ...options
+  }).format(value)
 }
 
 export const formatCurrency = (value: number, options?: Intl.NumberFormatOptions) => {

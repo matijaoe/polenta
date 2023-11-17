@@ -1,29 +1,36 @@
 <script lang="ts" setup>
-import type { BitcoinPriceResponseModelCurrencyKey } from '~/models'
+import type { Currency } from '~/models'
 
 const {
   pending: isRatePending,
   refresh: refreshRate,
-} = await useFetch('/api/exchange-rate', {
+} = await useFetch('/api/bitcoin/exchange-rate', {
   lazy: true,
   pick: ['bpi', 'time'],
   key: 'bitcoin-exchange-rate',
 })
 
+const currencyStore = useCurrencyStore()
+
+const REFRESH_RATE_MINUTES = 3
 useIntervalFn(() => {
   refreshRate()
-}, 2 * 60 * 1000) // refresh every 2 minutes
+}, REFRESH_RATE_MINUTES * 60 * 1000)
 
-const currencies: BitcoinPriceResponseModelCurrencyKey[] = ['USD', 'EUR', 'GBP']
-const selectedCurrency = ref<BitcoinPriceResponseModelCurrencyKey>('USD')
+const shownCurrencyRate = ref<Currency>('USD')
 
-const cycleCurrency = () => {
-  const index = currencies.indexOf(selectedCurrency.value)
+watch(() => currencyStore.currency, (val) => {
+  shownCurrencyRate.value = val
+})
+
+const cycleShownCurrency = () => {
+  const { currencies } = currencyStore
+  const index = currencies.indexOf(shownCurrencyRate.value)
   const nextIndex = (index + 1) % currencies.length
-  selectedCurrency.value = currencies.at(nextIndex) ?? 'USD'
+  shownCurrencyRate.value = currencies.at(nextIndex) ?? 'USD'
 }
 
-const { formattedRate, lastUpdatedLabel } = useExchangeRate(selectedCurrency)
+const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrencyRate)
 </script>
 
 <template>
@@ -46,7 +53,7 @@ const { formattedRate, lastUpdatedLabel } = useExchangeRate(selectedCurrency)
                 class="i-ph-arrows-clockwise-bold text-[15px] hidden group-hover:flex"
               />
             </button>
-            <button @click="cycleCurrency">
+            <button @click="cycleShownCurrency">
               <USkeleton v-if="isRatePending && !formattedRate" class="h-4 w-[70px]" />
               <span v-else-if="formattedRate">{{ formattedRate }}</span>
             </button>

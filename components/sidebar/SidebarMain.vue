@@ -34,6 +34,12 @@ const links = [
       name: 'accounts',
     }),
   },
+  {
+    label: 'Settings',
+    click: () => navigateTo({
+      name: 'settings',
+    }),
+  },
 ]
 
 const onAddWallet = () => {
