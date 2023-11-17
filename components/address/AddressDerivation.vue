@@ -39,6 +39,34 @@ const blockExplorerUrl = (address: string) => {
   return `${blockExplorer}/${address}`
 }
 
+const rows = computed(() => {
+  return addressStatsArr.value.map((addrData) => {
+    return {
+      address: addrData.address,
+      balance: `${formatNumber(addrData.stats?.balance ?? 0)} sats`,
+      txCount: addrData.stats?.txCount ?? 0,
+    }
+  })
+})
+
+type AddressRow = typeof rows.value[0]
+
+const columns = ref([{
+  key: 'address',
+  label: 'Address',
+}, {
+  key: 'balance',
+  label: 'Balance',
+}, {
+  key: 'txCount',
+  label: 'Tx',
+}])
+
+const navigateToBlockExplorer = (row: AddressRow) => {
+  const url = blockExplorerUrl(row.address)
+  navigateTo(url, { external: true, open: { target: '_blank' } })
+}
+
 const onKeySubmit = () => {
   key.value = keyBuffer.value
 }
@@ -60,16 +88,7 @@ const onKeySubmit = () => {
     </UFormGroup>
   </form>
 
-  <div v-if="addressStatsArr" class="mt-4">
-    <div v-for="addrData in addressStatsArr" :key="addrData.address" class="py-2 text-base font-mono">
-      <UTooltip text="See on block explorer" :popper="{ placement: 'left' }">
-        <NuxtLink :to="blockExplorerUrl(addrData.address)" external target="_blank" class="hover:text-primary">
-          {{ addrData.address }}
-        </NuxtLink>
-      </UTooltip>
-      <template v-if="addrData.stats">
-        - {{ formatNumber(addrData.stats?.balance ?? 0) }} sats
-      </template>
-    </div>
+  <div>
+    <UTable :rows="rows" :columns="columns" :loading="isLoading" @select="navigateToBlockExplorer" />
   </div>
 </template>
