@@ -6,7 +6,11 @@ const keyBuffer = ref(key.value)
 
 const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/addresses/${key.value}`, {
   pick: ['addresses'],
-  immediate: false,
+  immediate: key.value !== '',
+})
+
+const isLoading = computed(() => {
+  return addressesPending.value && key.value !== ''
 })
 
 const addresses = computed(() => {
@@ -50,9 +54,12 @@ function onKeySubmit() {
 
 <template>
   <form @submit.prevent="onKeySubmit">
+    <h1 class="mb-4 text-xl">
+      Derive addresses
+    </h1>
     <div class="flex items-center gap-4">
-      <UInput v-model="keyBuffer" size="xl" type="text" class="w-full" />
-      <UButton size="xl" type="submit" :loading="addressesPending">
+      <UInput v-model="keyBuffer" size="xl" type="text" class="w-full" placeholder="xpub" />
+      <UButton size="xl" type="submit" :loading="isLoading">
         submit
       </UButton>
     </div>

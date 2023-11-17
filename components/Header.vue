@@ -28,9 +28,12 @@ const { metaSymbol } = useShortcuts()
   <UHeader :links="links">
     <template #left>
       <NuxtLink to="/">
-        <p class="font-mono text-2xl underline decoration-dashed underline-offset-2 decoration-gray-300 dark:decoration-gray-600">
-          xpubhub
-        </p>
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">🌽</span>
+          <p class="text-2xl font-sans">
+            Polenta
+          </p>
+        </div>
       </NuxtLink>
     </template>
 
@@ -54,7 +57,7 @@ const { metaSymbol } = useShortcuts()
 
       <UTooltip text="GitHub">
         <UButton
-          to="https://github.com/nuxt/ui"
+          to="https://github.com/matijaoe/xpubhub"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
