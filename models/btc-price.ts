@@ -1,17 +1,19 @@
 export type BitcoinPriceResponseModel = {
-  time: Time
+  time: BitcoinPriceResponseModelTime
   disclaimer: string
   chartName: string
-  bpi: Bpi
+  bpi: BitcoinPriceResponseModelBpi
 }
 
-type Bpi = {
-  USD: Eur
-  GBP: Eur
-  EUR: Eur
+export type BitcoinPriceResponseModelBpi = {
+  USD: BitcoinPriceResponseModelCurrency
+  GBP: BitcoinPriceResponseModelCurrency
+  EUR: BitcoinPriceResponseModelCurrency
 }
 
-type Eur = {
+export type BitcoinPriceResponseModelCurrencyKey = 'USD' | 'GBP' | 'EUR'
+
+export type BitcoinPriceResponseModelCurrency = {
   code: string
   symbol: string
   rate: string
@@ -19,7 +21,7 @@ type Eur = {
   rate_float: number
 }
 
-type Time = {
+export type BitcoinPriceResponseModelTime = {
   updated: string
   updatedISO: string
   updateduk: string

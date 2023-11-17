@@ -3,14 +3,23 @@ import type { AddressOptionalStatsResponse } from '~/models'
 
 const key = ref('')
 const keyBuffer = ref(key.value)
+const isXpubDefined = computed(() => key.value !== '')
 
-const { data: addressesResponse, pending: addressesPending, error: invalidXpub } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${key.value}`, {
+const nuxtApp = useNuxtApp()
+const {
+  data: addressesResponse,
+  pending: addressesPending,
+  error: invalidXpub
+} = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${key.value}`, {
   pick: ['addresses'],
-  immediate: key.value !== '',
+  immediate: isXpubDefined.value,
+  getCachedData(key) {
+    return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+  }
 })
 
 const isLoading = computed(() => {
-  return addressesPending.value && key.value !== ''
+  return addressesPending.value && isXpubDefined.value
 })
 
 const addresses = computed(() => {
@@ -19,14 +28,14 @@ const addresses = computed(() => {
 
 const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
 
-whenever(addresses, async (newAddresses) => {
+watchImmediate(addresses, async (newAddresses) => {
   const promises = newAddresses.map(address => $fetch(`/api/address/${address}`))
   try {
     addressStatsArr.value = await Promise.all(promises)
   } catch (err) {
     addressStatsArr.value = newAddresses.map(address => ({ address }))
   }
-}, { immediate: true })
+})
 
 const rows = computed(() => {
   return addressStatsArr.value.map((addrData) => {
@@ -62,6 +71,8 @@ const onKeySubmit = () => {
 </script>
 
 <template>
+  <pre class="text-blue-300">{{ nuxtApp.payload }}</pre>
+  <pre class="text-orange-300">{{ nuxtApp.static }}</pre>
   <form @submit.prevent="onKeySubmit">
     <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
       <div class="flex items-center gap-4">
@@ -74,6 +85,11 @@ const onKeySubmit = () => {
   </form>
 
   <div>
-    <UTable :rows="rows" :columns="columns" :loading="isLoading" @select="navigateToBlockExplorer" />
+    <UTable
+      :rows="rows"
+      :columns="columns"
+      :loading="isLoading"
+      @select="navigateToBlockExplorer"
+    />
   </div>
 </template>
