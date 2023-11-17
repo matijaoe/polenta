@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { AddressOptionalStatsResponse, AddressStats } from '~/models'
+import type { AddressOptionalStatsResponse } from '~/models'
 
 const key = ref('')
 const keyBuffer = ref(key.value)
@@ -20,24 +20,13 @@ const addresses = computed(() => {
 const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
 
 whenever(addresses, async (newAddresses) => {
-  // for every address in _adresses, fetch the stats and fdill out address stats arr, but do it with Promise.all, using $fetch
   const promises = newAddresses.map(address => $fetch(`/api/address/${address}`))
   try {
-    const addressStats = await Promise.all(promises)
-    addressStatsArr.value = addressStats
+    addressStatsArr.value = await Promise.all(promises)
   } catch (err) {
     addressStatsArr.value = newAddresses.map(address => ({ address }))
   }
 }, { immediate: true })
-
-const formatNumber = (value: number) => {
-  return new Intl.NumberFormat('en-US').format(value)
-}
-
-const blockExplorerUrl = (address: string) => {
-  const blockExplorer = 'https://mempool.space/address'
-  return `${blockExplorer}/${address}`
-}
 
 const rows = computed(() => {
   return addressStatsArr.value.map((addrData) => {
@@ -63,7 +52,7 @@ const columns = ref([{
 }])
 
 const navigateToBlockExplorer = (row: AddressRow) => {
-  const url = blockExplorerUrl(row.address)
+  const url = blockExplorerAddressUrl(row.address)
   navigateTo(url, { external: true, open: { target: '_blank' } })
 }
 
@@ -74,15 +63,11 @@ const onKeySubmit = () => {
 
 <template>
   <form @submit.prevent="onKeySubmit">
-    <h1 class="mb-4 text-xl">
-      Derive addresses
-    </h1>
-
     <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
       <div class="flex items-center gap-4">
-        <UInput v-model="keyBuffer" size="xl" type="text" class="w-full" placeholder="xpub" />
-        <UButton size="xl" type="submit" :loading="isLoading">
-          submit
+        <UInput v-model="keyBuffer" size="lg" type="text" class="w-full" placeholder="xpub" />
+        <UButton size="lg" type="submit" :loading="isLoading">
+          derive addresses
         </UButton>
       </div>
     </UFormGroup>
