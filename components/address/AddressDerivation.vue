@@ -4,7 +4,7 @@ import type { AddressOptionalStatsResponse, AddressStats } from '~/models'
 const key = ref('')
 const keyBuffer = ref(key.value)
 
-const { data: addressesResponse, pending: addressesPending, error: invalidXpub } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/addresses/${key.value}`, {
+const { data: addressesResponse, pending: addressesPending, error: invalidXpub } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${key.value}`, {
   pick: ['addresses'],
   immediate: key.value !== '',
 })

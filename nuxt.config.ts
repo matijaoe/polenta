@@ -33,8 +33,8 @@ export default defineNuxtConfig({
     display: 'swap',
     download: true,
     families: {
-      'Manrope': true,
-      'Victor+Mono': true,
+      'Manrope': [400, 500, 600, 700],
+      'Victor+Mono': [400, 500, 600, 700],
     },
   },
 
