@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import type { AddressBalance } from '~/models'
+import type { AddressOptionalStatsResponse, AddressStats } from '~/models'
 
 const key = ref('')
 const keyBuffer = ref(key.value)
 
-const { data: addressesResponse, pending: addressesPending } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/addresses/${key.value}`, {
+const { data: addressesResponse, pending: addressesPending, error: invalidXpub } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/addresses/${key.value}`, {
   pick: ['addresses'],
   immediate: key.value !== '',
 })
@@ -17,37 +17,29 @@ const addresses = computed(() => {
   return addressesResponse.value?.addresses ?? []
 })
 
-const balances = ref<Record<string, AddressBalance>>({})
+const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
 
-const addressesWithBalances = computed(() => {
-  return addresses.value.map(address => ({
-    address,
-    balance: balances.value?.[address] ?? null,
-  })) ?? []
-})
-
-const fetchBalances = async () => {
-  if (!addresses.value?.length) {
-    return {}
-  }
-
-  const url = new URL('https://blockchain.info/balance')
-  url.searchParams.set('active', addresses.value.join('|'))
-
+whenever(addresses, async (newAddresses) => {
+  // for every address in _adresses, fetch the stats and fdill out address stats arr, but do it with Promise.all, using $fetch
+  const promises = newAddresses.map(address => $fetch(`/api/address/${address}`))
   try {
-    const res = await $fetch<Record<string, AddressBalance>>(url.href)
-    return res as Record<string, AddressBalance>
-  } catch (error) {
-    console.error(error)
-    return {}
+    const addressStats = await Promise.all(promises)
+    addressStatsArr.value = addressStats
+  } catch (err) {
+    addressStatsArr.value = newAddresses.map(address => ({ address }))
   }
-}
-
-whenever(addresses, async () => {
-  balances.value = await fetchBalances() ?? {}
 }, { immediate: true })
 
-function onKeySubmit() {
+const formatNumber = (value: number) => {
+  return new Intl.NumberFormat('en-US').format(value)
+}
+
+const blockExplorerUrl = (address: string) => {
+  const blockExplorer = 'https://mempool.space/address'
+  return `${blockExplorer}/${address}`
+}
+
+const onKeySubmit = () => {
   key.value = keyBuffer.value
 }
 </script>
@@ -57,17 +49,27 @@ function onKeySubmit() {
     <h1 class="mb-4 text-xl">
       Derive addresses
     </h1>
-    <div class="flex items-center gap-4">
-      <UInput v-model="keyBuffer" size="xl" type="text" class="w-full" placeholder="xpub" />
-      <UButton size="xl" type="submit" :loading="isLoading">
-        submit
-      </UButton>
-    </div>
+
+    <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
+      <div class="flex items-center gap-4">
+        <UInput v-model="keyBuffer" size="xl" type="text" class="w-full" placeholder="xpub" />
+        <UButton size="xl" type="submit" :loading="isLoading">
+          submit
+        </UButton>
+      </div>
+    </UFormGroup>
   </form>
 
-  <div v-if="addressesWithBalances" class="mt-4">
-    <div v-for="address in addressesWithBalances" :key="address.address" class="py-2 text-sm">
-      {{ address.address }} - {{ address.balance?.final_balance?.toLocaleString() ?? 0 }} sats
+  <div v-if="addressStatsArr" class="mt-4">
+    <div v-for="addrData in addressStatsArr" :key="addrData.address" class="py-2 text-base font-mono">
+      <UTooltip text="See on block explorer" :popper="{ placement: 'left' }">
+        <NuxtLink :to="blockExplorerUrl(addrData.address)" external target="_blank" class="hover:text-primary">
+          {{ addrData.address }}
+        </NuxtLink>
+      </UTooltip>
+      <template v-if="addrData.stats">
+        - {{ formatNumber(addrData.stats?.balance ?? 0) }} sats
+      </template>
     </div>
   </div>
 </template>

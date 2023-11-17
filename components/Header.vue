@@ -29,10 +29,7 @@ const { metaSymbol } = useShortcuts()
     <template #left>
       <NuxtLink to="/">
         <div class="flex items-center gap-2.5">
-          <span class="text-xl">🌽</span>
-          <p class="text-2xl font-sans">
-            Polenta
-          </p>
+         <Logo />
         </div>
       </NuxtLink>
     </template>

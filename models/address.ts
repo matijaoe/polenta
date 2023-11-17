@@ -1,10 +1,18 @@
-export type AddressBasic = {
-  path: string
+export type AddressStatsResponse = {
   address: string
+  stats: AddressStats
 }
 
-export type AddressBalance = {
-  final_balance: string
-  n_tx: string
-  total_received: string
+export type AddressOptionalStatsResponse = {
+  address: string
+  stats?: AddressStats
+}
+
+export type AddressStats = {
+  balance: number
+  spentTxoCount: number
+  spentTxoSum: number
+  fundedTxoCount: number
+  fundedTxoSum: number
+  txCount: number
 }
