@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { Currency } from '~/models'
-
 const {
   pending: isRatePending,
   refresh: refreshRate,
@@ -10,27 +8,13 @@ const {
   key: 'bitcoin-exchange-rate',
 })
 
-const currencyStore = useCurrencyStore()
-
 const REFRESH_RATE_MINUTES = 3
 useIntervalFn(() => {
   refreshRate()
 }, REFRESH_RATE_MINUTES * 60 * 1000)
 
-const shownCurrencyRate = ref<Currency>('USD')
-
-watch(() => currencyStore.currency, (val) => {
-  shownCurrencyRate.value = val
-})
-
-const cycleShownCurrency = () => {
-  const { currencies } = currencyStore
-  const index = currencies.indexOf(shownCurrencyRate.value)
-  const nextIndex = (index + 1) % currencies.length
-  shownCurrencyRate.value = currencies.at(nextIndex) ?? 'USD'
-}
-
-const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrencyRate)
+const { shownCurrency, cycleShownCurrency } = useSharedCurrencySwitcher()
+const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrency)
 </script>
 
 <template>

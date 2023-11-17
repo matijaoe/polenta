@@ -11,6 +11,7 @@ const {
   pending: addressesPending,
   error: invalidXpub,
 } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${xpub.value}`, {
+  key: 'addresses',
   pick: ['addresses'],
   immediate: isXpubDefined.value,
   getCachedData(key) {
@@ -18,12 +19,16 @@ const {
   }
 })
 
-const isLoading = computed(() => {
+const areAddressesLoading = computed(() => {
   return addressesPending.value && isXpubDefined.value
 })
 
 const addresses = computed(() => {
   return addressesResponse.value?.addresses ?? []
+})
+
+const hasAddresses = computed(() => {
+  return addresses.value.length > 0
 })
 
 const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
@@ -37,15 +42,17 @@ watchImmediate(addresses, async (newAddresses) => {
   }
 })
 
-const currencyStore = useCurrencyStore()
-const { floatRate } = useExchangeRate(toRef(currencyStore, 'currency'))
+const { shownCurrency, cycleShownCurrency } = useSharedCurrencySwitcher()
+const { floatRate } = useExchangeRate(shownCurrency)
 
 const rows = computed(() => {
   return addressStatsArr.value.map((addrData) => {
+    const { address, stats } = addrData
     return {
-      address: addrData.address,
-      balance: `${formatNumber(addrData.stats?.balance ?? 0)} sats`,
-      txCount: addrData.stats?.txCount ?? 0,
+      key: address,
+      address,
+      balance: `${formatNumber(stats?.balance ?? 0)} sats`,
+      txCount: stats?.txCount ?? 0,
       value: ''
     }
   })
@@ -63,7 +70,10 @@ const rowsWithValue = computed(() => rows.value.map((row) => {
 
   const satsBalance = addr.stats?.balance ?? 0
   const btcBalance = satsToBtc(satsBalance) * floatRate.value
-  const value = useFormatCurrency(btcBalance, { maximumFractionDigits: 0 }).value
+  const value = formatCurrency(btcBalance, {
+    currency: shownCurrency.value,
+    maximumFractionDigits: 2
+  })
 
   return { ...row, value }
 }))
@@ -97,81 +107,87 @@ const totalValue = computed(() => {
 })
 
 const totalValueFormatted = computed(() => {
-  return useFormatCurrency(totalValue.value, { maximumFractionDigits: 2, minimumFractionDigits: 2 }).value
+  return formatCurrency(totalValue.value, {
+    currency: shownCurrency.value,
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  })
 })
 
-type AddressRow = typeof rows.value[0]
-
-const columns = ref([
-  {
-    key: 'address',
-    label: 'Address',
-  },
-  {
-    key: 'balance',
-    label: 'Balance',
-  },
-  {
-    key: 'value',
-    label: 'value'
-  },
-  {
-    key: 'txCount',
-    label: 'Tx',
-  }
-])
-
-const navigateToBlockExplorer = (row: AddressRow) => {
-  const url = blockExplorerAddressUrl(row.address)
-  navigateTo(url, { external: true, open: { target: '_blank' } })
-}
-
 const onKeySubmit = () => {
+  const isValidFormat = validateXpub(xpubBuffer.value)
+  if (!isValidFormat) {
+    return
+  }
   xpub.value = xpubBuffer.value
 }
+
+watch(xpub, (newXpub) => {
+  if (newXpub !== xpubBuffer.value) {
+    xpubBuffer.value = newXpub
+  }
+})
+
+const xpubInputEl = ref<HTMLInputElement | null>(null)
+
+const setNewXpub = () => {
+  xpub.value = ''
+  xpubBuffer.value = ''
+  setImmediate(() => {
+    xpubInputEl.value?.focus()
+  })
+}
+
+const isXpubValueInvalid = computed(() => {
+  if (xpubBuffer.value && !validateXpub(xpubBuffer.value)) {
+    return true
+  }
+  if (xpubBuffer.value && invalidXpub.value) {
+    return true
+  }
+  return false
+})
 </script>
 
 <template>
   <div class="space-y-8">
     <form @submit.prevent="onKeySubmit">
-      <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
+      <UFormGroup label="XPUB" :error="isXpubValueInvalid ? 'Invalid xpub' : undefined">
         <div class="flex items-center gap-4">
-          <template v-if="isXpubDefined">
-            <UInput :value="xpub" size="lg" type="text" class="w-full" readonly />
-            <UButton size="lg" type="submit" :loading="isLoading">
-              new
+          <template v-if="!isXpubDefined">
+            <UInput ref="xpubInputEl" v-model="xpubBuffer" size="lg" type="text" class="w-full" placeholder="xpub" />
+            <UButton size="lg" type="submit" :loading="areAddressesLoading">
+              derive addresses
             </UButton>
           </template>
 
           <template v-else>
-            <UInput v-model="xpubBuffer" size="lg" type="text" class="w-full" placeholder="xpub" />
-            <UButton size="lg" type="submit" :loading="isLoading">
-              derive addresses
+            <UInput :value="xpub" size="lg" type="text" class="w-full" readonly />
+            <UButton size="lg" type="submit" @click="setNewXpub">
+              new
             </UButton>
           </template>
         </div>
       </UFormGroup>
     </form>
+    <template v-if="isXpubDefined && hasAddresses">
+      <UCard>
+        <div class="flex items-center justify-between gap-3">
+          <button @click="toggleSatsFormatStyle">
+            <p class="text-2xl font-bold">
+              {{ totalSatsFormatted }}
+            </p>
+          </button>
 
-    <UCard>
-      <div class="flex items-center justify-between gap-3">
-        <button @click="toggleSatsFormatStyle">
-          <p class="text-2xl font-bold">
-            {{ totalSatsFormatted }}
-          </p>
-        </button>
+          <button @click="cycleShownCurrency">
+            <p class="text-2xl font-bold">
+              {{ totalValueFormatted }}
+            </p>
+          </button>
+        </div>
 
-        <p class="text-2xl font-bold">
-          {{ totalValueFormatted }}
-        </p>
-      </div>
-    </UCard>
-
-    <UTable
-      :rows="rowsWithValue"
-      :columns="columns"
-      :loading="isLoading"
-      @select="navigateToBlockExplorer"
-    />
+        <AddressTable :rows="rowsWithValue" :loading="areAddressesLoading" />
+      </UCard>
+    </template>
   </div>
 </template>
