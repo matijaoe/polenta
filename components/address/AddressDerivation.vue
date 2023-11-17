@@ -9,7 +9,7 @@ const nuxtApp = useNuxtApp()
 const {
   data: addressesResponse,
   pending: addressesPending,
-  error: invalidXpub
+  error: invalidXpub,
 } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${key.value}`, {
   pick: ['addresses'],
   immediate: isXpubDefined.value,
@@ -71,8 +71,6 @@ const onKeySubmit = () => {
 </script>
 
 <template>
-  <pre class="text-blue-300">{{ nuxtApp.payload }}</pre>
-  <pre class="text-orange-300">{{ nuxtApp.static }}</pre>
   <form @submit.prevent="onKeySubmit">
     <UFormGroup label="XPUB" :error="invalidXpub ? 'Invalid xpub' : undefined">
       <div class="flex items-center gap-4">
