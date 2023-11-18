@@ -1,7 +1,7 @@
 import { formatDuration, formatISO, intervalToDuration, secondsToMilliseconds } from 'date-fns'
 import type { CacheEntry, CachedData } from '~/models/cache'
 
-const cache = new Map<string, CacheEntry>()
+export const CACHE = new Map<string, CacheEntry>()
 
 const DEFAULT_RATE_LIMIT_SECONDS = 15
 
@@ -37,7 +37,7 @@ export const useCache = async <T = any>(
 ): Promise<CachedData<T>> => {
   const rateLimitMsg = `rate limit: ${options.rateLimit}s`
   const currentTime = Date.now()
-  const cacheEntry = cache.get(cacheKey)
+  const cacheEntry = CACHE.get(cacheKey)
 
   if (cacheEntry && currentTime - cacheEntry.cachedAt < secondsToMilliseconds(options.rateLimit)) {
     const duration = intervalToDuration({ start: cacheEntry.cachedAt, end: currentTime }) || { seconds: 0 }
@@ -53,7 +53,7 @@ export const useCache = async <T = any>(
   }
 
   const newData = await fetchData()
-  cache.set(cacheKey, {
+  CACHE.set(cacheKey, {
     data: newData,
     cachedAt: currentTime,
   })
