@@ -66,7 +66,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Nuxt UI Starter',
+      title: 'Polenta',
     },
   },
 
