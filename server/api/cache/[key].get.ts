@@ -1,7 +1,8 @@
 export default defineEventHandler(() => {
   const { key } = useParams<{ key: string }>()
 
-  const entry = CACHE.get(key)
+  const cache = getCache()
+  const entry = cache.get(key)
 
   if (entry) {
     return {
