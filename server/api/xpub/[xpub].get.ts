@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
 import { Script } from '~/models'
+import { calculateFingerprint } from '~/server/utils/bitcoin'
 
 export type QueryParams = {
   script: Script
@@ -25,7 +26,10 @@ export default defineEventHandler(async (event) => {
 
     const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit })
 
+    const xfp = calculateFingerprint(xpub)
+
     return {
+      xfp,
       xpub,
       addresses,
       type,

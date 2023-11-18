@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer'
+import crypto from 'node:crypto'
 import type { BIP32API, BIP32Interface } from 'bip32'
 import BIP32Factory from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
@@ -7,9 +8,10 @@ import type { Script } from '~/models'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
 
+// @ts-ignore
+export const BIP32 = BIP32Factory.default(ecc) as BIP32API
+
 export const generateXpubKey = (xpub: string) => {
-  // @ts-ignore
-  const BIP32 = BIP32Factory.default(ecc) as BIP32API
   const network = bitcoin.networks.bitcoin
   return BIP32.fromBase58(xpub, network)
 }
@@ -77,4 +79,11 @@ export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, ty
     const address = generateAddressFromXpubKey(xpubKey, { script, type, index })
     return address ?? null
   }).filter(Boolean) as string[]
+}
+
+// TODO: not getting the result I want
+export function calculateFingerprint(xpub: string) {
+  const hdPublicKey = BIP32.fromBase58(xpub)
+  const fingerprint = hdPublicKey.parentFingerprint.toString(16)
+  return fingerprint
 }

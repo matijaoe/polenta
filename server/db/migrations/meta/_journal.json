@@ -8,6 +8,27 @@
       "when": 1700340864929,
       "tag": "0000_square_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1700343261859,
+      "tag": "0001_majestic_yellow_claw",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1700343321048,
+      "tag": "0002_confused_naoko",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1700344719274,
+      "tag": "0003_cuddly_fallen_one",
+      "breakpoints": true
     }
   ]
 }

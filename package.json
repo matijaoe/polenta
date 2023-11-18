@@ -14,7 +14,7 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-  "format": "eslint . --fix",
+    "format": "eslint . --fix",
     "studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate:sqlite",
     "db:push": "drizzle-kit push:sqlite"
@@ -34,6 +34,7 @@
     "@nuxtjs/fontaine": "^0.4.1",
     "@nuxtjs/google-fonts": "^3.0.2",
     "@pinia/nuxt": "^0.5.1",
+    "@types/better-sqlite3": "^7.6.7",
     "@vueuse/nuxt": "10.6.1",
     "bip32": "^4.0.0",
     "bitcoinjs-lib": "^6.1.5",
