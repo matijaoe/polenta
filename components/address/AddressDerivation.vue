@@ -43,13 +43,17 @@ const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
 
 watchImmediate(addresses, async (newAddresses) => {
   const promises = newAddresses.map(address => $fetch(`/api/address/${address}`))
-  // This is the type of the resolved Promise
+
+  type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+  type FetchedType = Awaited<typeof promises[0]>
+  let res: WithOptional<FetchedType, 'stats'>[] = []
 
   try {
-    addressStatsArr.value = await Promise.all(promises)
+    res = await Promise.all(promises)
   } catch (err) {
-    addressStatsArr.value = newAddresses.map(address => ({ address }))
+    res = newAddresses.map(address => ({ address }))
   }
+  set(addressStatsArr, res)
 })
 
 const { shownCurrency, cycleShownCurrency } = useSharedCurrencySwitcher()
