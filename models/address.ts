@@ -1,16 +1,20 @@
+import type { CachedData } from './cache'
 import type { WithOptional } from '.'
 
 export type XpubAddressesResponse = {
   addresses: string[]
   xpub: string
+
 }
 
-export type AddressStatsResponse = {
+export type AddressStatsResponse = CachedData<AddressStatsData[]>
+
+export type AddressStatsData = {
   address: string
   stats: AddressStats
 }
 
-export type AddressOptionalStatsResponse = WithOptional<AddressStatsResponse, 'stats'>
+export type AddressOptionalStatsData = WithOptional<AddressStatsData, 'stats'>
 
 export type AddressStats = {
   balance: number

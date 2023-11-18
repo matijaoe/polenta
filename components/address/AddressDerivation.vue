@@ -1,11 +1,15 @@
 <script lang="ts" setup>
-import type { AddressOptionalStatsResponse, XpubAddressesResponse } from '~/models'
+import type { AddressOptionalStatsData, AddressStatsData, AddressStatsResponse, XpubAddressesResponse } from '~/models'
 
-const xpub = useState(() => '')
+const xpub = useState(() => 'xpub6Bqmh9NHTkQiTmrCjPkQj7BTQoZojpRedWVJWeLEXoxRuZZwdW93TmAhSa6hKjfsWEM78AjHm4tJugcEnReKMuG8apEP2eXR1GnnJDc44Gn')
 const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
 const nuxtApp = useNuxtApp()
+const _setPayloadData = (key: string, value: any) => {
+  nuxtApp.payload.data[key] = value
+  nuxtApp.static.data[key] = value
+}
 const retrieveCached = <T = any>(key: string): T | null => {
   const value = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
   if (!value) {
@@ -20,6 +24,7 @@ const {
   error: invalidXpub,
   refresh: fetchXpubAddresses
 } = await useFetch<XpubAddressesResponse>(() => `/api/xpub/${xpub.value}`, {
+  key: 'xpub_addresses',
   immediate: isXpubDefined.value,
   // do not fetch when xpub is empty on clicking new xpub input
   watch: false,
@@ -45,37 +50,23 @@ const hasAddresses = computed(() => {
   return addresses.value.length > 0
 })
 
-const setPayloadData = (key: string, value: any) => {
-  nuxtApp.payload.data[key] = value
-  nuxtApp.static.data[key] = value
-}
-
-const buildXpubStatsKey = (xpub: string) => `${xpub}_stats`
-const getCachedAddrStats = () => {
-  const key = buildXpubStatsKey(xpub.value)
-  return retrieveCached(key)
-}
-
 const isRefetchStatsRequested = ref(false)
-const { data: _addressStatsRes, refresh: _refetchAddressStats } = await useAsyncData<AddressOptionalStatsResponse[]>(async () => {
-  if (!isRefetchStatsRequested.value) {
-    const cached = getCachedAddrStats()
-    if (cached) {
-      return cached
+const { data: _addressStatsRes, refresh: _refetchAddressStats } = await useFetch<Pick<AddressStatsResponse, 'data'>>('/api/address/stats', {
+  key: 'xpub_addresses_stats',
+  method: 'POST',
+  body: {
+    addresses,
+  },
+  pick: ['data'],
+  immediate: hasAddresses.value,
+  getCachedData(key) {
+    const cachedStats = retrieveCached<AddressStatsData[]>(key)
+    const cachedAddresses = retrieveCached<XpubAddressesResponse>('xpub_addresses')
+    const firstAddressMatches = cachedStats?.at(0)?.address === cachedAddresses?.addresses.at(0)
+    if (firstAddressMatches) {
+      return cachedStats as any
     }
-  }
-
-  const promises = addresses.value.map(address => $fetch(`/api/address/${address}`))
-
-  try {
-    return await Promise.all(promises)
-  } catch (err) {
-    return addresses.value.map(address => ({ address }))
-  }
-}, {
-  watch: [addresses],
-  getCachedData() {
-    return getCachedAddrStats()
+    return null
   },
 })
 
@@ -85,16 +76,11 @@ const refetchAddressStats = () => {
   set(isRefetchStatsRequested, false)
 }
 
-whenever(_addressStatsRes, (newRes) => {
-  if (!newRes || !xpub.value) {
-    return
-  }
-  const keyStats = buildXpubStatsKey(xpub.value)
-  setPayloadData(keyStats, newRes)
-})
-
 const addressStatsArr = computed(() => {
-  return _addressStatsRes.value ?? []
+  return _addressStatsRes.value?.data as AddressStatsData[] ?? addresses.value.map(address => ({
+    address,
+    stats: undefined,
+  })) as AddressOptionalStatsData[]
 })
 
 const { shownCurrency, cycleShownCurrency } = useSharedCurrencySwitcher()
