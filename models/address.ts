@@ -1,10 +1,14 @@
+import type { WithOptional } from '.'
+
+export type XpubAddressesResponse = {
+  addresses: string[]
+  xpub: string
+}
+
 export type AddressStatsResponse = {
   address: string
   stats: AddressStats
 }
-
-type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-
 
 export type AddressOptionalStatsResponse = WithOptional<AddressStatsResponse, 'stats'>
 

@@ -1,25 +1,26 @@
 <script lang="ts" setup>
-import type { AddressOptionalStatsResponse } from '~/models'
+import type { AddressOptionalStatsResponse, XpubAddressesResponse } from '~/models'
 
 const xpub = useState(() => '')
 const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
 const nuxtApp = useNuxtApp()
+
 const {
   data: addressesResponse,
   pending: addressesPending,
   error: invalidXpub,
   refresh: fetchXpubAddresses
-} = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${xpub.value}`, {
-  key: `xpub_addresses`,
+} = await useFetch<XpubAddressesResponse>(() => `/api/xpub/${xpub.value}`, {
   immediate: isXpubDefined.value,
   // do not fetch when xpub is empty on clicking new xpub input
   watch: false,
   getCachedData(key) {
-    const cache = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
-    if (cache?.xpub === xpub.value) {
-      return cache
+    const cache = retrieveCached<XpubAddressesResponse>(key)
+    const cachedXpubMatchesCurrent = cache?.xpub === xpub.value
+    if (cachedXpubMatchesCurrent) {
+      return cache as any
     }
     return null
   }
@@ -37,19 +38,15 @@ const hasAddresses = computed(() => {
   return addresses.value.length > 0
 })
 
-const addPayloadData = (key: string, value: any) => {
+const setPayloadData = (key: string, value: any) => {
   nuxtApp.payload.data[key] = value
   nuxtApp.static.data[key] = value
 }
 
 const buildXpubStatsKey = (xpub: string) => `${xpub}_stats`
-
 const getCachedAddrStats = () => {
-  const keyStats = buildXpubStatsKey(xpub.value)
-  if (nuxtApp.payload.data[keyStats]) {
-    return nuxtApp.payload.data[keyStats]
-  }
-  return null
+  const key = buildXpubStatsKey(xpub.value)
+  return retrieveCached(key)
 }
 
 const isRefetchStatsRequested = ref(false)
@@ -70,7 +67,7 @@ const { data: _addressStatsRes, refresh: _refetchAddressStats } = await useAsync
   }
 }, {
   watch: [addresses],
-  getCachedData(_key) {
+  getCachedData() {
     return getCachedAddrStats()
   },
 })
@@ -86,7 +83,7 @@ whenever(_addressStatsRes, (newRes) => {
     return
   }
   const keyStats = buildXpubStatsKey(xpub.value)
-  addPayloadData(keyStats, newRes)
+  setPayloadData(keyStats, newRes)
 })
 
 const addressStatsArr = computed(() => {

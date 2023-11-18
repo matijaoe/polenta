@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { XpubAddressesResponse } from '~/models'
 import { ScriptType } from '~/models'
 
 export type QueryParams = {
@@ -29,7 +30,7 @@ export default defineEventHandler(async (event) => {
       addresses,
       type,
       script,
-    }
+    } as XpubAddressesResponse
   } catch (err: any) {
     if (err instanceof z.ZodError) {
       const message = formatZodValidationErrorMessage(err)
