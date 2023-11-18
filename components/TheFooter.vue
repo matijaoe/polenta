@@ -8,7 +8,7 @@ const {
   key: 'bitcoin-exchange-rate',
 })
 
-const REFRESH_RATE_MINUTES = 3
+const REFRESH_RATE_MINUTES = 1
 useIntervalFn(() => {
   refreshRate()
 }, REFRESH_RATE_MINUTES * 60 * 1000)

@@ -1,15 +1,12 @@
 <script lang="ts" setup>
 import type { AddressOptionalStatsData, AddressStatsData, AddressStatsResponse, XpubAddressesResponse } from '~/models'
 
-const xpub = useState(() => 'xpub6Bqmh9NHTkQiTmrCjPkQj7BTQoZojpRedWVJWeLEXoxRuZZwdW93TmAhSa6hKjfsWEM78AjHm4tJugcEnReKMuG8apEP2eXR1GnnJDc44Gn')
+const xpub = useState(() => '')
 const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
 const nuxtApp = useNuxtApp()
-const _setPayloadData = (key: string, value: any) => {
-  nuxtApp.payload.data[key] = value
-  nuxtApp.static.data[key] = value
-}
+
 const retrieveCached = <T = any>(key: string): T | null => {
   const value = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
   if (!value) {
@@ -60,9 +57,9 @@ const { data: _addressStatsRes, refresh: _refetchAddressStats } = await useFetch
   pick: ['data'],
   immediate: hasAddresses.value,
   getCachedData(key) {
-    const cachedStats = retrieveCached<AddressStatsData[]>(key)
+    const cachedStats = retrieveCached<Pick<AddressStatsResponse, 'data'>>(key)
     const cachedAddresses = retrieveCached<XpubAddressesResponse>('xpub_addresses')
-    const firstAddressMatches = cachedStats?.at(0)?.address === cachedAddresses?.addresses.at(0)
+    const firstAddressMatches = cachedStats?.data?.at(0)?.address === cachedAddresses?.addresses.at(0)
     if (firstAddressMatches) {
       return cachedStats as any
     }

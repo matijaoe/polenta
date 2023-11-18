@@ -3,7 +3,7 @@ import type { CacheEntry, CachedData } from '~/models/cache'
 
 export const CACHE = new Map<string, CacheEntry>()
 
-const DEFAULT_RATE_LIMIT_SECONDS = 15
+const DEFAULT_RATE_LIMIT_SECONDS = 30
 
 const formatCachedAt = (cachedAt?: number) => {
   return formatISO(cachedAt ? new Date(cachedAt) : new Date())
@@ -53,6 +53,7 @@ export const useCache = async <T = any>(
   }
 
   const newData = await fetchData()
+  console.log('🔐 key', cacheKey)
   CACHE.set(cacheKey, {
     data: newData,
     cachedAt: currentTime,
