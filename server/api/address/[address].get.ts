@@ -1,11 +1,11 @@
-import { address } from 'bitcoinjs-lib'
 import type { AddressStatsData } from '../../../models'
+import { useParams } from '~/server/utils'
 import { useCache } from '~/server/utils/cache'
 import { mempool } from '~/server/utils/mempool-space'
 import { createHash } from '~/utils/hash'
 
-export default defineEventHandler(async (event) => {
-  const { address: addressParam } = event.context.params as { address: string }
+export default defineEventHandler(async () => {
+  const { address: addressParam } = useParams<{ address: string }>()
 
   try {
     const fetchAddressStats = async () => {

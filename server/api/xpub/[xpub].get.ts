@@ -16,10 +16,9 @@ const zodSchema = z.object({
   gap: z.number().min(0).optional().default(0),
 })
 
-
 export default defineEventHandler(async (event) => {
   const { xpub } = event.context.params as { xpub: string }
-  const rawParams = useQueryParams<Partial<QueryParams>>(event)
+  const rawParams = useQueryParams<Partial<QueryParams>>()
 
   try {
     const { script, type, gap, limit } = zodSchema.parse(rawParams)

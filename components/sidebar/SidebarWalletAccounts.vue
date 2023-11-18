@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { SCRIPT_CONFIG } from '~/models'
-
 const { walletId } = defineProps<{
   walletId: string
 }>()

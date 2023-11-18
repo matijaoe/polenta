@@ -1,24 +1,44 @@
 /**
- * Represents cached data
+ * Represents a cache entry.
+ */
+export type CacheEntry<T = any> = {
+  /**
+   * The data stored in the cache entry.
+   */
+  data: T
+  /**
+   * The timestamp when the data was cached.
+   */
+  cachedAt: number
+}
+
+/**
+ * Defines the structure for data returned by the useCache function.
  */
 export type CachedData<T> = {
   /**
-   * Whether the data was retrieved from cache
+   * Indicates if the data is stale (true if fetched from cache).
    */
-  cached: boolean
+  isStale: boolean
 
   /**
-   * The timestamp of the cached data
+   * ISO string timestamp of when the data was last fetched.
    */
-  cachedAt: string
+  lastFetched: string
 
   /**
-   * A message associated with the cached data
+   * Descriptive message about the data retrieval status.
    */
   message: string
 
   /**
-   * The actual data
+   * Time elapsed since the data was last fetched, formatted as a string.
+   * Optional: only present if applicable.
+   */
+  timeSinceLastFetch?: string
+
+  /**
+   * The actual data returned, of type T.
    */
   data: T
 }

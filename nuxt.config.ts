@@ -36,6 +36,12 @@ export default defineNuxtConfig({
     typedPages: true,
   },
 
+  nitro: {
+    experimental: {
+      asyncContext: true
+    }
+  },
+
   fontMetrics: {
     fonts: ['Manrope', 'Victor Mono'],
   },
