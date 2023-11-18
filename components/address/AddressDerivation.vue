@@ -5,12 +5,6 @@ const xpub = useState(() => '')
 const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
-const { data: xpubAddressesCached } = useNuxtData<{ xpub: string; addresses: string[] }>('xpub_addresses')
-const currentXpubMatchesCached = computed(() => {
-  const areBothDefined = isXpubDefined.value && xpubAddressesCached.value?.xpub
-  return areBothDefined && xpubAddressesCached.value?.xpub === xpub.value
-})
-
 const nuxtApp = useNuxtApp()
 const {
   data: addressesResponse,
@@ -29,6 +23,12 @@ const {
     }
     return null
   }
+})
+
+const { data: xpubAddressesCached } = useNuxtData<typeof addressesResponse.value>('xpub_addresses')
+const currentXpubMatchesCached = computed(() => {
+  const areBothDefined = isXpubDefined.value && xpubAddressesCached.value?.xpub
+  return areBothDefined && xpubAddressesCached.value?.xpub === xpub.value
 })
 
 const areAddressesLoading = computed(() => {
@@ -50,7 +50,7 @@ const addPayloadData = (key: string, value: any) => {
   nuxtApp.static.data[key] = value
 }
 
-const fetchAddressBalances = async (addresses: string[]) => {
+const fetchAddressStats = async (addresses: string[]) => {
   const promises = addresses.map(address => $fetch(`/api/address/${address}`))
 
   type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
@@ -67,10 +67,10 @@ const fetchAddressBalances = async (addresses: string[]) => {
 }
 
 const ensureAddressStats = async (addresses: string[]) => {
-  const res = await fetchAddressBalances(addresses)
+  const res = await fetchAddressStats(addresses)
   set(addressStatsArr, res)
   if (xpub.value) {
-    addPayloadData(`${xpub.value}_balances`, addresses)
+    addPayloadData(`${xpub.value}_balances`, res)
   }
 }
 
@@ -219,7 +219,7 @@ const isXpubValueInvalid = computed(() => {
               type="button"
               @click="ensureAddressStats(addresses)"
             >
-              refetch balances
+              refetch stats
             </UButton>
             <UButton
               size="lg"
