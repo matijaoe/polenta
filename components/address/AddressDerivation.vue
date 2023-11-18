@@ -6,6 +6,13 @@ const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
 const nuxtApp = useNuxtApp()
+const retrieveCached = <T = any>(key: string): T | null => {
+  const value = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+  if (!value) {
+    return null
+  }
+  return value as T
+}
 
 const {
   data: addressesResponse,
