@@ -1,16 +1,16 @@
 import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
-import { ScriptType } from '~/models'
+import { Script } from '~/models'
 
 export type QueryParams = {
-  script: ScriptType
+  script: Script
   type: 'receive' | 'change'
   limit: number
   gap: number
 }
 
 const zodSchema = z.object({
-  script: z.nativeEnum(ScriptType).optional().default(ScriptType.native_segwit),
+  script: z.nativeEnum(Script).optional().default(Script.native_segwit),
   type: z.enum(['receive', 'change']).optional().default('receive'),
   limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
   gap: z.number().min(0).optional().default(0),

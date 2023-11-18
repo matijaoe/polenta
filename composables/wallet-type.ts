@@ -1,4 +1,4 @@
-import type { ScriptType, ScriptTypeKey, WalletScriptModel } from '~/models'
+import type { Script, ScriptTypeKey, WalletScriptModel } from '~/models'
 import { SCRIPT_CONFIG } from '~/models'
 
 export function useWalletType() {
@@ -16,7 +16,7 @@ export function useWalletType() {
     })
   })
 
-  const getWalletByType = (type: ScriptType) => {
+  const getWalletByType = (type: Script) => {
     return walletTypes.value.find((wallet: WalletScriptModel) => wallet.id === type)
   }
 

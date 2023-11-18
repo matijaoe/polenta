@@ -1,4 +1,4 @@
-import type { ScriptType } from './account'
+import type { Script } from './account'
 
 export type Wallet = {
   label: string
@@ -6,7 +6,7 @@ export type Wallet = {
 }
 
 export type WalletScriptModel = {
-  id: ScriptType
+  id: Script
   label: string
   branch: number
   extendedKey: string

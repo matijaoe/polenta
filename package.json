@@ -14,7 +14,14 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "format": "eslint . --fix"
+  "format": "eslint . --fix",
+    "studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "db:push": "drizzle-kit push:sqlite"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.1.1",
+    "drizzle-orm": "^0.29.0"
   },
   "devDependencies": {
     "@iconify-json/ph": "^1.1.6",
@@ -31,6 +38,7 @@
     "bip32": "^4.0.0",
     "bitcoinjs-lib": "^6.1.5",
     "date-fns": "^2.30.0",
+    "drizzle-kit": "^0.20.4",
     "eslint": "^8.53.0",
     "mempool.js": "link:@types/@mempool/mempool.js",
     "nuxt": "^3.8.1",

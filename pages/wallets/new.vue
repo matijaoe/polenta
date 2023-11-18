@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 // import { useQRCode } from '@vueuse/integrations/useQRCode'
-import { ScriptType } from '~/models'
+import { Script } from '~/models'
 
 const deviceStore = useDeviceStore()
 
@@ -14,7 +14,7 @@ const { walletTypes, getWalletByType } = useWalletType()
 
 const manualDerivationPathEnabled = ref(false)
 
-const selectedScript = ref(getWalletByType(ScriptType.native_segwit)!)
+const selectedScript = ref(getWalletByType(Script.native_segwit)!)
 const withPassphrase = ref(false)
 
 const scriptBranch = ref<number>(selectedScript.value.branch)

@@ -3,7 +3,7 @@ import type { BIP32API, BIP32Interface } from 'bip32'
 import BIP32Factory from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
 import * as ecc from 'tiny-secp256k1'
-import type { ScriptType } from '~/models'
+import type { Script } from '~/models'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
 
@@ -15,7 +15,7 @@ export const generateXpubKey = (xpub: string) => {
 }
 
 export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, type, index }: {
-  script: ScriptType
+  script: Script
   type: 'receive' | 'change'
   index: number
 }) => {
@@ -64,7 +64,7 @@ export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, ty
 }
 
 export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, type }: {
-  script: ScriptType
+  script: Script
   limit: number
   gap: number
   type: 'receive' | 'change'
