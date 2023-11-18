@@ -5,6 +5,12 @@ const xpub = useState(() => '')
 const xpubBuffer = ref(xpub.value)
 const isXpubDefined = computed(() => xpub.value !== '')
 
+const { data: xpubAddressesCached } = useNuxtData<{ xpub: string; addresses: string[] }>('xpub_addresses')
+const currentXpubMatchesCached = computed(() => {
+  const areBothDefined = isXpubDefined.value && xpubAddressesCached.value?.xpub
+  return areBothDefined && xpubAddressesCached.value?.xpub === xpub.value
+})
+
 const nuxtApp = useNuxtApp()
 const {
   data: addressesResponse,
@@ -14,15 +20,13 @@ const {
 } = await useFetch<{ addresses: string[]; xpub: string }>(() => `/api/xpub/${xpub.value}`, {
   key: `xpub_addresses`,
   immediate: isXpubDefined.value,
-  // so it does not fetches when xpub is empty on clicking new xpub input
+  // do not fetch when xpub is empty on clicking new xpub input
   watch: false,
   getCachedData(key) {
     const cache = nuxtApp.payload.data[key] || nuxtApp.static.data[key]
     if (cache?.xpub === xpub.value) {
-      console.log('✅ return cache')
       return cache
     }
-    console.log('❌ do not cache')
     return null
   }
 })
@@ -41,8 +45,13 @@ const hasAddresses = computed(() => {
 
 const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
 
-watchImmediate(addresses, async (newAddresses) => {
-  const promises = newAddresses.map(address => $fetch(`/api/address/${address}`))
+const addPayloadData = (key: string, value: any) => {
+  nuxtApp.payload.data[key] = value
+  nuxtApp.static.data[key] = value
+}
+
+const fetchAddressBalances = async (addresses: string[]) => {
+  const promises = addresses.map(address => $fetch(`/api/address/${address}`))
 
   type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
   type FetchedType = Awaited<typeof promises[0]>
@@ -51,9 +60,31 @@ watchImmediate(addresses, async (newAddresses) => {
   try {
     res = await Promise.all(promises)
   } catch (err) {
-    res = newAddresses.map(address => ({ address }))
+    res = addresses.map(address => ({ address }))
   }
+
+  return res
+}
+
+const ensureAddressStats = async (addresses: string[]) => {
+  const res = await fetchAddressBalances(addresses)
   set(addressStatsArr, res)
+  if (xpub.value) {
+    addPayloadData(`${xpub.value}_balances`, addresses)
+  }
+}
+
+watchImmediate(addresses, async (newAddresses) => {
+  if (currentXpubMatchesCached.value) {
+    const keyBalances = `${xpubAddressesCached.value!.xpub}_balances`
+    const cached = nuxtApp.payload.data[keyBalances] || nuxtApp.static.data[keyBalances]
+    if (cached) {
+      set(addressStatsArr, cached)
+      return
+    }
+  }
+
+  ensureAddressStats(newAddresses)
 })
 
 const { shownCurrency, cycleShownCurrency } = useSharedCurrencySwitcher()
@@ -72,25 +103,26 @@ const rows = computed(() => {
   })
 })
 
-const rowsWithValue = computed(() => rows.value.map((row) => {
+const rowsWithValue = computed(() => {
   if (!floatRate.value) {
-    return row
+    return rows.value
   }
+  return rows.value.map((row) => {
+    const addr = addressStatsArr.value.find(addr => addr.address === row.address)
+    if (!addr) {
+      return row
+    }
 
-  const addr = addressStatsArr.value.find(addr => addr.address === row.address)
-  if (!addr) {
-    return row
-  }
+    const satsBalance = addr.stats?.balance ?? 0
+    const btcBalance = satsToBtc(satsBalance) * floatRate.value!
+    const value = formatCurrency(btcBalance, {
+      currency: shownCurrency.value,
+      maximumFractionDigits: 2
+    })
 
-  const satsBalance = addr.stats?.balance ?? 0
-  const btcBalance = satsToBtc(satsBalance) * floatRate.value
-  const value = formatCurrency(btcBalance, {
-    currency: shownCurrency.value,
-    maximumFractionDigits: 2
+    return { ...row, value }
   })
-
-  return { ...row, value }
-}))
+})
 
 const totalSats = computed(() => {
   return rowsWithValue.value.reduce((acc, row) => {
@@ -130,12 +162,11 @@ const totalValueFormatted = computed(() => {
   })
 })
 
-const onKeySubmit = () => {
+const assignXpub = () => {
   const isValidFormat = validateXpub(xpubBuffer.value)
-  if (!isValidFormat) {
-    return
+  if (isValidFormat) {
+    set(xpub, xpubBuffer.value)
   }
-  set(xpub, xpubBuffer.value)
 }
 
 const xpubInputEl = ref<HTMLInputElement | null>(null)
@@ -170,7 +201,7 @@ const isXpubValueInvalid = computed(() => {
 
 <template>
   <div class="space-y-8">
-    <form @submit.prevent="onKeySubmit">
+    <form @submit.prevent="assignXpub">
       <UFormGroup label="XPUB" :error="isXpubValueInvalid ? 'Invalid xpub' : undefined">
         <div class="flex items-center gap-4">
           <template v-if="!isXpubDefined">
@@ -182,7 +213,19 @@ const isXpubValueInvalid = computed(() => {
 
           <template v-else>
             <UInput :value="xpub" size="lg" type="text" class="w-full" readonly />
-            <UButton size="lg" type="submit" @click="setNewXpubInput">
+            <UButton
+              size="lg"
+              variant="outline"
+              type="button"
+              @click="ensureAddressStats(addresses)"
+            >
+              refetch balances
+            </UButton>
+            <UButton
+              size="lg"
+              type="submit"
+              @click="setNewXpubInput"
+            >
               new
             </UButton>
           </template>
@@ -205,7 +248,11 @@ const isXpubValueInvalid = computed(() => {
           </button>
         </div>
 
-        <AddressTable class="mt-4" :rows="rowsWithValue" :loading="areAddressesLoading" />
+        <AddressTable
+          class="mt-4"
+          :rows="rowsWithValue"
+          :loading="areAddressesLoading"
+        />
       </UCard>
     </template>
   </div>
