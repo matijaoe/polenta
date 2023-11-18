@@ -25,12 +25,6 @@ const {
   }
 })
 
-const { data: xpubAddressesCached } = useNuxtData<typeof addressesResponse.value>('xpub_addresses')
-const currentXpubMatchesCached = computed(() => {
-  const areBothDefined = isXpubDefined.value && xpubAddressesCached.value?.xpub
-  return areBothDefined && xpubAddressesCached.value?.xpub === xpub.value
-})
-
 const areAddressesLoading = computed(() => {
   return addressesPending.value && isXpubDefined.value
 })
@@ -43,56 +37,67 @@ const hasAddresses = computed(() => {
   return addresses.value.length > 0
 })
 
-const addressStatsArr = ref<AddressOptionalStatsResponse[]>([])
-
 const addPayloadData = (key: string, value: any) => {
   nuxtApp.payload.data[key] = value
   nuxtApp.static.data[key] = value
 }
 
-const fetchAddressStats = async (addresses: string[]) => {
-  const promises = addresses.map(address => $fetch(`/api/address/${address}`))
+const buildXpubStatsKey = (xpub: string) => `${xpub}_stats`
 
-  type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-  type FetchedType = Awaited<typeof promises[0]>
-  let res: WithOptional<FetchedType, 'stats'>[] = []
-
-  try {
-    res = await Promise.all(promises)
-  } catch (err) {
-    res = addresses.map(address => ({ address }))
+const getCachedAddrStats = () => {
+  const keyStats = buildXpubStatsKey(xpub.value)
+  if (nuxtApp.payload.data[keyStats]) {
+    return nuxtApp.payload.data[keyStats]
   }
-
-  return res
+  return null
 }
 
-const ensureAddressStats = async (addresses: string[]) => {
-  const res = await fetchAddressStats(addresses)
-  set(addressStatsArr, res)
-  if (xpub.value) {
-    addPayloadData(`${xpub.value}_balances`, res)
-  }
-}
-
-watchImmediate(addresses, async (newAddresses) => {
-  if (currentXpubMatchesCached.value) {
-    const keyBalances = `${xpubAddressesCached.value!.xpub}_balances`
-    const cached = nuxtApp.payload.data[keyBalances] || nuxtApp.static.data[keyBalances]
+const isRefetchStatsRequested = ref(false)
+const { data: _addressStatsRes, refresh: _refetchAddressStats } = await useAsyncData<AddressOptionalStatsResponse[]>(async () => {
+  if (!isRefetchStatsRequested.value) {
+    const cached = getCachedAddrStats()
     if (cached) {
-      set(addressStatsArr, cached)
-      return
+      return cached
     }
   }
 
-  ensureAddressStats(newAddresses)
+  const promises = addresses.value.map(address => $fetch(`/api/address/${address}`))
+
+  try {
+    return await Promise.all(promises)
+  } catch (err) {
+    return addresses.value.map(address => ({ address }))
+  }
+}, {
+  watch: [addresses],
+  getCachedData(_key) {
+    return getCachedAddrStats()
+  },
+})
+
+const refetchAddressStats = () => {
+  set(isRefetchStatsRequested, true)
+  _refetchAddressStats()
+  set(isRefetchStatsRequested, false)
+}
+
+whenever(_addressStatsRes, (newRes) => {
+  if (!newRes || !xpub.value) {
+    return
+  }
+  const keyStats = buildXpubStatsKey(xpub.value)
+  addPayloadData(keyStats, newRes)
+})
+
+const addressStatsArr = computed(() => {
+  return _addressStatsRes.value ?? []
 })
 
 const { shownCurrency, cycleShownCurrency } = useSharedCurrencySwitcher()
 const { floatRate } = useExchangeRate(shownCurrency)
 
 const rows = computed(() => {
-  return addressStatsArr.value.map((addrData) => {
-    const { address, stats } = addrData
+  return addressStatsArr.value.map(({ address, stats }) => {
     return {
       key: address,
       address,
@@ -217,7 +222,7 @@ const isXpubValueInvalid = computed(() => {
               size="lg"
               variant="outline"
               type="button"
-              @click="ensureAddressStats(addresses)"
+              @click="refetchAddressStats()"
             >
               refetch stats
             </UButton>

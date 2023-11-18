@@ -3,10 +3,10 @@ export type AddressStatsResponse = {
   stats: AddressStats
 }
 
-export type AddressOptionalStatsResponse = {
-  address: string
-  stats?: AddressStats
-}
+type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
+
+
+export type AddressOptionalStatsResponse = WithOptional<AddressStatsResponse, 'stats'>
 
 export type AddressStats = {
   balance: number
