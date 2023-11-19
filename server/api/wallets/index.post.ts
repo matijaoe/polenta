@@ -12,6 +12,9 @@ export default defineEventHandler(async (event) => {
     account: Omit<AccountInsert, 'walletId'>
   }>(event)
 
+  // Store the original error caught inside the transaction block
+  let originalError: any = null
+
   try {
     const validatedWallet = walletSchema.parse(body.wallet)
 
@@ -41,15 +44,18 @@ export default defineEventHandler(async (event) => {
           account: createdAccount,
         }
       } catch (err: any) {
-        console.error(err.code)
+        console.error('inner', err.code)
+        originalError = err
         tx.rollback()
-
-        // TODO: not working
-        throw err
       }
     })
+
     return res
   } catch (err: any) {
+    if (originalError) {
+      // eslint-disable-next-line no-ex-assign
+      err = originalError
+    }
     if (err instanceof z.ZodError) {
       throw createError({
         statusCode: 400,
