@@ -1,4 +1,5 @@
 import type { AddressStatsData } from '../../../models'
+import { ErrorCode } from '~/models/errors'
 import { createHash } from '~/utils/hash'
 
 const fetchAddressStats = async (address: string) => {
@@ -41,13 +42,16 @@ export default defineEventHandler(async () => {
   } catch (err: any) {
     if (err?.response?.data) {
       throw createError({
-        status: 400,
+        statusCode: 400,
         statusMessage: err.response?.data,
       })
     } else {
       throw createError({
-        status: 500,
-        message: err.message
+        statusCode: 500,
+        message: err.message,
+        data: {
+          errorCode: ErrorCode.UNKNOWN_ERROR
+        }
       })
     }
   }

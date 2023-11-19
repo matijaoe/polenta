@@ -1,4 +1,7 @@
+import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
+import { SQLiteTransaction } from 'drizzle-orm/sqlite-core'
 import { z } from 'zod'
+import { ErrorCode } from '~/models/errors'
 import { accountSchema } from '~/schema/account'
 import { walletSchema } from '~/schema/wallet'
 import type { AccountInsert, WalletInsert } from '~/server/db/schema'
@@ -44,7 +47,6 @@ export default defineEventHandler(async (event) => {
           account: createdAccount,
         }
       } catch (err: any) {
-        console.error('inner', err.code)
         originalError = err
         tx.rollback()
       }
@@ -61,6 +63,10 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         statusMessage: 'Validation error',
         message: extractZodErrorMessage(err),
+        data: {
+          errorCode: ErrorCode.VALIDATION_ERROR,
+        }
+
       })
     }
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
@@ -68,11 +74,17 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         statusMessage: 'Duplicate account',
         message: 'Account with provided XPUB already exists',
+        data: {
+          errorCode: ErrorCode.DUPLICATE_ACCOUNT,
+        }
       })
     }
     throw createError({
       statusCode: 500,
       statusMessage: err.message,
+      data: {
+        errorCode: ErrorCode.UNKNOWN_ERROR,
+      }
     })
   }
 })

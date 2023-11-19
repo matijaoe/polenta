@@ -1,5 +1,6 @@
 import type { AddressStatsData } from '~/models'
 import type { CachedData } from '~/models/cache'
+import { ErrorCode } from '~/models/errors'
 
 const fetchAddressStats = async (address: string) => {
   return $fetch<CachedData<AddressStatsData>>(`/api/address/${address}`)
@@ -14,15 +15,19 @@ export default defineEventHandler(async (event) => {
 
     return res.map(r => r.data)
   } catch (err: any) {
+    // TODO: error isn't being caught
     if (err?.response?.data) {
       throw createError({
-        status: 400,
+        statusCode: 400,
         statusMessage: err.response?.data,
       })
     } else {
       throw createError({
-        status: 500,
-        message: err.message
+        statusCode: 500,
+        message: err.message,
+        data: {
+          errorCode: ErrorCode.UNKNOWN_ERROR
+        }
       })
     }
   }

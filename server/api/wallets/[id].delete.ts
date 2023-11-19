@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { ErrorCode } from '~/models/errors'
 import { wallets } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
@@ -11,6 +12,9 @@ export default defineEventHandler(async () => {
       statusCode: 400,
       statusMessage: 'Validation error',
       message: 'Invalid ID',
+      data: {
+        errorCode: ErrorCode.VALIDATION_ERROR
+      }
     })
   }
 
@@ -21,6 +25,9 @@ export default defineEventHandler(async () => {
       statusCode: 404,
       message: 'Wallet not found',
       name: 'WalletNotFoundError',
+      data: {
+        errorCode: ErrorCode.NOT_FOUND
+      }
     })
   }
 

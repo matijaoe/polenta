@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
 import { Script } from '~/models'
+import { ErrorCode } from '~/models/errors'
 
 export type QueryParams = {
   script: Script
@@ -37,12 +38,18 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation error',
-        message
+        message,
+        data: {
+          errorCode: ErrorCode.VALIDATION_ERROR
+        }
       })
     }
     throw createError({
       statusCode: 500,
-      message: err.message
+      message: err.message,
+      data: {
+        errorCode: ErrorCode.UNKNOWN_ERROR
+      }
     })
   }
 })
