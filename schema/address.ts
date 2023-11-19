@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { validateAddress } from '~/server/utils/bitcoin'
 
 export const addressSchema = z.object({
   id: z.number(),

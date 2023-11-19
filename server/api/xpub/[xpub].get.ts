@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
 import { Script } from '~/models'
-import { calculateFingerprint } from '~/server/utils/bitcoin'
 
 export type QueryParams = {
   script: Script
@@ -26,10 +25,7 @@ export default defineEventHandler(async (event) => {
 
     const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit })
 
-    const xfp = calculateFingerprint(xpub)
-
     return {
-      xfp,
       xpub,
       addresses,
       type,
@@ -37,7 +33,7 @@ export default defineEventHandler(async (event) => {
     } as XpubAddressesResponse
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      const message = formatZodValidationErrorMessage(err)
+      const message = extractZodErrorMessage(err)
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation error',

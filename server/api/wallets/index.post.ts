@@ -1,40 +1,67 @@
 import { z } from 'zod'
+import { accountSchema } from '~/schema/account'
 import { walletSchema } from '~/schema/wallet'
+import type { AccountInsert, WalletInsert } from '~/server/db/schema'
 import { accounts, wallets } from '~/server/db/schema'
+import { extractZodErrorMessage } from '~/server/utils'
 import { db } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const body = await readBody<{
+    wallet: WalletInsert
+    account: Omit<AccountInsert, 'walletId'>
+  }>(event)
+
   try {
-    const validatedWallet = walletSchema.parse(body)
+    const validatedWallet = walletSchema.parse(body.wallet)
 
     const res = await db.transaction(async (tx) => {
-      const createdWallet = tx.insert(wallets).values(validatedWallet).returning().get()
+      try {
+        const createdWallet = tx
+          .insert(wallets)
+          .values(validatedWallet)
+          .returning()
+          .get()
 
-      const createdAccount = tx.insert(accounts).values({
-        walletId: createdWallet.id,
-        index: 0,
-        name: `First account ${createdWallet.name}`,
-      }).returning().get()
+        const accountDto = {
+          ...body.account,
+          walletId: createdWallet.id,
+        }
 
-      return {
-        wallet: createdWallet,
-        account: createdAccount,
+        const validatedAccount = accountSchema.parse(accountDto)
+
+        const createdAccount = tx
+          .insert(accounts)
+          .values(validatedAccount)
+          .returning()
+          .get()
+
+        return {
+          wallet: createdWallet,
+          account: createdAccount,
+        }
+      } catch (err: any) {
+        console.error(err.code)
+        tx.rollback()
+
+        // TODO: not working
+        throw err
       }
     })
     return res
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      const errorMessages = err.errors.map((error: z.ZodIssue) => {
-        if (!error.path?.length) {
-          return error.message
-        }
-        return `Field <${error.path.join('.')}>: ${error.message}`
-      })
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation error',
-        message: errorMessages.join('; '),
+        message: extractZodErrorMessage(err),
+      })
+    }
+    if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Duplicate account',
+        message: 'Account with provided XPUB already exists',
       })
     }
     throw createError({

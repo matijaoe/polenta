@@ -13,7 +13,7 @@ export type DatabaseSchema = {
 // ----------------------------------------------------------------------------
 
 export const wallets = sqliteTable('wallets', {
-  id: integer('id', { mode: 'number' }).primaryKey(),
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   description: text('description'),
   scriptType: text('script_type').notNull(),
@@ -30,8 +30,10 @@ export type WalletField = keyof Wallet
 // ----------------------------------------------------------------------------
 
 export const accounts = sqliteTable('accounts', {
-  id: integer('id', { mode: 'number' }).primaryKey(),
-  walletId: integer('wallet_id').references(() => wallets.id).notNull(),
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  walletId: integer('wallet_id').references(() => wallets.id, {
+    onDelete: 'cascade',
+  }).notNull(),
   xpub: text('xpub').notNull().unique(),
   fingerprint: text('fingerprint').notNull().default('00000000'),
   derivationPath: text('derivation_path').notNull(),
@@ -49,8 +51,10 @@ export type AccountField = keyof Account
 // ----------------------------------------------------------------------------
 
 export const addresses = sqliteTable('address', {
-  id: integer('id', { mode: 'number' }).primaryKey(),
-  accountId: integer('account_id').references(() => accounts.id).notNull(),
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  accountId: integer('account_id').references(() => accounts.id, {
+    onDelete: 'cascade',
+  }).notNull(),
   type: integer('address_type').notNull(), // 0 for receiving, 1 for change
   index: integer('address_index').notNull(), // The index in the derivation path
   address: text('address').notNull().unique(),
@@ -66,8 +70,10 @@ export type AddressField = keyof Address
 // ----------------------------------------------------------------------------
 
 export const addressStats = sqliteTable('address_stats', {
-  id: integer('id', { mode: 'number' }).primaryKey(),
-  addressId: integer('address_id').references(() => addresses.id).notNull(),
+  id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
+  addressId: integer('address_id').references(() => addresses.id, {
+    onDelete: 'cascade',
+  }).notNull(),
   spentTxoCount: integer('spent_txo_count').notNull(),
   spentTxoSum: real('spent_txo_sum').notNull(),
   fundedTxoCount: integer('funded_txo_count').notNull(),

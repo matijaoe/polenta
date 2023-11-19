@@ -2,7 +2,6 @@ import type { CachedData } from './cache'
 import type { WithOptional } from '.'
 
 export type XpubAddressesResponse = {
-  xfp: string
   xpub: string
   addresses: string[]
 }

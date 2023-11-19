@@ -1,15 +1,15 @@
 import { z } from 'zod'
-import { validateXpub } from '~/server/utils/bitcoin'
+import { derivationPathRegex, fingerprintRegex } from '~/utils/validators'
+import { createUpdateSchema } from '~/utils/zod'
 
 export const accountSchema = z.object({
-  id: z.number(),
   walletId: z.number(),
   xpub: z.string()
     .refine(validateXpub, 'Invalid xpub'),
   fingerprint: z
     .string()
     .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
-    .transform(fp => fp.toUpperCase())
+    .transform(fp => fp.toLowerCase())
     .optional(),
   derivationPath: z.string().regex(derivationPathRegex, 'Invalid derivation path'),
   name: z.string(),
@@ -19,9 +19,9 @@ export const accountSchema = z.object({
 
 export const accountUpdateSchema = createUpdateSchema(accountSchema, {
   omit: [
-    'id',
     'xpub',
     'derivationPath',
-    'createdAt'
+    'createdAt',
+    'walletId'
   ],
 })
