@@ -4,7 +4,9 @@ import { accounts, wallets } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
-  const { accounts: includeAccounts } = useQueryParams<{ accounts: boolean }>()
+  const { accounts: includeAccounts } = useQueryParams<{ accounts: boolean }>({
+    parseBooleans: true
+  })
 
   const parsedId = Number.parseInt(id, 10)
 

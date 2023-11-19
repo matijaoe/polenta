@@ -36,10 +36,10 @@ export default defineEventHandler(async (event) => {
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       throw createError({
         statusCode: 400,
-        statusMessage: err.message,
-        message: err.message.includes('xpub')
+        statusMessage: err.message.includes('xpub')
           ? 'Account with provided XPUB already exists'
           : 'Account with provided derivation path already exists',
+        message: err.message,
         data: {
           errorCode: ErrorCode.DUPLICATE_ACCOUNT,
         }
