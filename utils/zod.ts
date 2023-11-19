@@ -15,3 +15,15 @@ export const createUpdateSchema = <T extends z.ZodObject<any, any>>(schema: T, o
   }
   return z.object(newFields) as T
 }
+
+// omitFromSchema helpers
+export const omitFromSchema = <T extends z.ZodObject<any, any>>(schema: T, fields: Array<keyof T['shape']>) => {
+  const newFields: Record<string, z.ZodTypeAny> = {}
+  for (const key in schema.shape) {
+    if (fields.includes(key as keyof T['shape'])) {
+      continue
+    }
+    newFields[key] = schema.shape[key]
+  }
+  return z.object(newFields) as T
+}

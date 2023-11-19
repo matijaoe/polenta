@@ -8,11 +8,20 @@ export const accountSchema = z.object({
     .refine(validateXpub, 'Invalid xpub'),
   fingerprint: z
     .string()
-    .regex(/^[0-9A-Fa-f]{8}$/, 'Fingerprint must be in hex format with 8 characters')
+    .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
     .transform(fp => fp.toUpperCase())
     .optional(),
-  derivationPath: z.string(),
+  derivationPath: z.string().regex(derivationPathRegex, 'Invalid derivation path'),
   name: z.string(),
   description: z.string().optional(),
   createdAt: z.string().optional(),
+})
+
+export const accountUpdateSchema = createUpdateSchema(accountSchema, {
+  omit: [
+    'id',
+    'xpub',
+    'derivationPath',
+    'createdAt'
+  ],
 })

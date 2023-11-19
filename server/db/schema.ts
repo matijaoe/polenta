@@ -16,8 +16,9 @@ export const wallets = sqliteTable('wallets', {
   id: integer('id', { mode: 'number' }).primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
-  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  scriptType: text('script_type').notNull(),
   passphraseProtected: integer('passphrase_protected', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 })
 
 export type Wallet = typeof wallets.$inferSelect

@@ -1,0 +1,1 @@
+ALTER TABLE wallets ADD `script_type` text NOT NULL;

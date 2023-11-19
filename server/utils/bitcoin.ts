@@ -16,9 +16,18 @@ export const generateXpubKey = (xpub: string) => {
 
 export const validateXpub = (xpub: string) => {
   try {
-    BIP32.fromBase58(xpub, network)
+    generateXpubKey(xpub)
     return true
   } catch (err) {
+    return false
+  }
+}
+
+export const validateAddress = (address: string) => {
+  try {
+    bitcoin.address.toOutputScript(address)
+    return true
+  } catch (e) {
     return false
   }
 }
@@ -84,11 +93,4 @@ export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, ty
     const address = generateAddressFromXpubKey(xpubKey, { script, type, index })
     return address ?? null
   }).filter(Boolean) as string[]
-}
-
-// TODO: not getting the result I want
-export function calculateFingerprint(xpub: string) {
-  const hdPublicKey = BIP32.fromBase58(xpub)
-  const fingerprint = hdPublicKey.parentFingerprint.toString(16)
-  return fingerprint
 }
