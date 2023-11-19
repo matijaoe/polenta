@@ -28,11 +28,11 @@ export const useDeviceStore = defineStore('devices', () => {
   const devices = ref<Device[]>(DEVICES)
 
   const getDevice = (deviceId: string) => {
-    return devices.value.find(device => device.id === deviceId)
+    return devices.value.find((device) => device.id === deviceId)
   }
 
   const getDevices = (deviceId: string) => {
-    return devices.value.filter(device => device.id === deviceId)
+    return devices.value.filter((device) => device.id === deviceId)
   }
 
   return {

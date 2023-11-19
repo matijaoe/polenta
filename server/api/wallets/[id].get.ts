@@ -41,7 +41,7 @@ export default defineEventHandler(async () => {
     const wallet = res.at(0)!.wallets
     return {
       ...wallet,
-      accounts: res.map(item => item.accounts) ?? [],
+      accounts: res.map((item) => item.accounts) ?? [],
     }
   } else {
     const wallet = db.select()

@@ -26,7 +26,7 @@
   "devDependencies": {
     "@iconify-json/ph": "^1.1.6",
     "@iconify-json/simple-icons": "^1.1.78",
-    "@matijaoe/eslint-config": "^1.1.1",
+    "@matijaoe/eslint-config": "^1.2.0",
     "@mempool/mempool.js": "^2.3.0",
     "@nuxt/devtools": "^1.0.2",
     "@nuxt/image": "^1.0.0",
@@ -40,7 +40,7 @@
     "bitcoinjs-lib": "^6.1.5",
     "date-fns": "^2.30.0",
     "drizzle-kit": "^0.20.4",
-    "eslint": "^8.53.0",
+    "eslint": "^8.54.0",
     "mempool.js": "link:@types/@mempool/mempool.js",
     "nuxt": "^3.8.1",
     "pinia": "^2.1.6",

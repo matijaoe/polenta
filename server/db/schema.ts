@@ -1,6 +1,5 @@
-import { table } from '@nuxt/ui'
 import { sql } from 'drizzle-orm'
-import { integer, primaryKey, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
+import { integer, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 export type DatabaseSchema = {
   wallets: typeof wallets
@@ -41,7 +40,7 @@ export const accounts = sqliteTable('accounts', {
   name: text('name').notNull(),
   description: text('description'),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-}, t => ({
+}, (t) => ({
   unq: unique().on(t.walletId, t.derivationPath),
 }))
 

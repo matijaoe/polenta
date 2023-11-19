@@ -6,7 +6,7 @@ export default defineEventHandler(async () => {
     headers: {
       'Content-Type': 'application/javascript'
     },
-    parseResponse: res => JSON.parse(res)
+    parseResponse: (res) => JSON.parse(res)
   })
   return data
 })

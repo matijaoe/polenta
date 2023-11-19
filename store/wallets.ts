@@ -24,11 +24,11 @@ export const useWalletsStore = defineStore('wallets', () => {
   const wallets = ref<Wallet[]>(WALLETS)
 
   const getWallet = (walletId: string) => {
-    return wallets.value.find(wallet => wallet.id === walletId)
+    return wallets.value.find((wallet) => wallet.id === walletId)
   }
 
   const getWallets = (walletId: string) => {
-    return wallets.value.filter(wallet => wallet.id === walletId)
+    return wallets.value.filter((wallet) => wallet.id === walletId)
   }
 
   return {

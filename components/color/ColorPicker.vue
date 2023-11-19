@@ -4,9 +4,9 @@ import colors from '#tailwind-config/theme/colors'
 const appConfig = useAppConfig()
 const colorMode = useColorMode()
 
-const primaryColors = computed(() => appConfig.ui.colors.filter(color => color !== 'primary').map(color => ({ value: color, text: color, hex: colors[color][colorMode.value === 'dark' ? 400 : 500] })))
+const primaryColors = computed(() => appConfig.ui.colors.filter((color) => color !== 'primary').map((color) => ({ value: color, text: color, hex: colors[color][colorMode.value === 'dark' ? 400 : 500] })))
 const primary = computed({
-  get: () => primaryColors.value.find(option => option.value === appConfig.ui.primary),
+  get: () => primaryColors.value.find((option) => option.value === appConfig.ui.primary),
   set: (option) => {
     if (!option) {
       return
@@ -18,9 +18,9 @@ const primary = computed({
   }
 })
 
-const grayColors = computed(() => ['slate', 'cool', 'zinc', 'neutral', 'stone'].map(color => ({ value: color, text: color, hex: colors[color][colorMode.value === 'dark' ? 400 : 500] })))
+const grayColors = computed(() => ['slate', 'cool', 'zinc', 'neutral', 'stone'].map((color) => ({ value: color, text: color, hex: colors[color][colorMode.value === 'dark' ? 400 : 500] })))
 const gray = computed({
-  get: () => grayColors.value.find(option => option.value === appConfig.ui.gray),
+  get: () => grayColors.value.find((option) => option.value === appConfig.ui.gray),
   set: (option) => {
     if (!option) {
       return

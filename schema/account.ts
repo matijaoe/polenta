@@ -9,7 +9,7 @@ export const accountSchema = z.object({
   fingerprint: z
     .string()
     .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
-    .transform(fp => fp.toLowerCase())
+    .transform((fp) => fp.toLowerCase())
     .optional(),
   derivationPath: z.string().regex(derivationPathRegex, 'Invalid derivation path'),
   name: z.string(),

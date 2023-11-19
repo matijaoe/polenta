@@ -74,7 +74,7 @@ const refetchAddressStats = () => {
 }
 
 const addressStatsArr = computed(() => {
-  return _addressStatsRes.value?.data as AddressStatsData[] ?? addresses.value.map(address => ({
+  return _addressStatsRes.value?.data as AddressStatsData[] ?? addresses.value.map((address) => ({
     address,
     stats: undefined,
   })) as AddressOptionalStatsData[]
@@ -100,7 +100,7 @@ const rowsWithValue = computed(() => {
     return rows.value
   }
   return rows.value.map((row) => {
-    const addr = addressStatsArr.value.find(addr => addr.address === row.address)
+    const addr = addressStatsArr.value.find((addr) => addr.address === row.address)
     if (!addr) {
       return row
     }
@@ -118,7 +118,7 @@ const rowsWithValue = computed(() => {
 
 const totalSats = computed(() => {
   return rowsWithValue.value.reduce((acc, row) => {
-    const satsBalance = addressStatsArr.value.find(addr => addr.address === row.address)?.stats?.balance ?? 0
+    const satsBalance = addressStatsArr.value.find((addr) => addr.address === row.address)?.stats?.balance ?? 0
     return acc + satsBalance
   }, 0)
 })

@@ -8,7 +8,7 @@ const accountsStore = useAccountsStore()
 const accounts = computed(() => {
   const walletAccounts = accountsStore.getWalletAccounts(walletId)
 
-  return walletAccounts.map(account => ({
+  return walletAccounts.map((account) => ({
     label: account.label,
     // badge: SCRIPT_CONFIG[account.scriptType].label.toLowerCase(),
     click: () => {

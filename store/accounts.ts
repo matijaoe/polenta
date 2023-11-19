@@ -56,11 +56,11 @@ export const useAccountsStore = defineStore('accounts', () => {
   const accounts = ref<Account[]>(ACCOUNTS)
 
   const getAccount = (accountId: string) => {
-    return accounts.value.find(account => account.id === accountId)
+    return accounts.value.find((account) => account.id === accountId)
   }
 
   const getWalletAccounts = (walletId: string) => {
-    return accounts.value.filter(account => account.walletId === walletId)
+    return accounts.value.filter((account) => account.walletId === walletId)
   }
 
   return {
