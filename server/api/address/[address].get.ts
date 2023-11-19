@@ -1,26 +1,27 @@
 import type { AddressStatsData } from '../../../models'
-import { useParams } from '~/server/utils'
-import { useCache } from '~/server/utils/cache'
-import { mempool } from '~/server/utils/mempool-space'
+import { ErrorCode } from '~/models/errors'
 import { createHash } from '~/utils/hash'
+
+const fetchAddressStats = async (address: string) => {
+  return await mempool.bitcoin.addresses.getAddress({ address })
+}
 
 export default defineEventHandler(async () => {
   const { address: addressParam } = useParams<{ address: string }>()
 
   try {
-    const fetchAddressStats = async () => {
-      const res = await mempool.bitcoin.addresses.getAddress({ address: addressParam })
+    const hash = createHash(addressParam)
+
+    return useCache(`address_stats_${hash}`, async () => {
+      const { address, chain_stats } = await fetchAddressStats(addressParam)
 
       const {
-        address,
-        chain_stats: {
-          funded_txo_count: fundedTxoCount,
-          funded_txo_sum: fundedTxoSum,
-          spent_txo_count: spentTxoCount,
-          spent_txo_sum: spentTxoSum,
-          tx_count: txCount
-        }
-      } = res
+        funded_txo_count: fundedTxoCount,
+        funded_txo_sum: fundedTxoSum,
+        spent_txo_count: spentTxoCount,
+        spent_txo_sum: spentTxoSum,
+        tx_count: txCount
+      } = chain_stats
 
       const balance = fundedTxoSum - spentTxoSum
 
@@ -33,21 +34,24 @@ export default defineEventHandler(async () => {
         txCount
       }
 
-      return { address, stats } as AddressStatsData
-    }
-
-    const hash = createHash(addressParam)
-    return useCache(`address_stats_${hash}`, fetchAddressStats)
+      return {
+        address,
+        stats
+      } as AddressStatsData
+    })
   } catch (err: any) {
     if (err?.response?.data) {
       throw createError({
-        status: 400,
+        statusCode: 400,
         statusMessage: err.response?.data,
       })
     } else {
       throw createError({
-        status: 500,
-        message: err.message
+        statusCode: 500,
+        message: err.message,
+        data: {
+          errorCode: ErrorCode.UNKNOWN_ERROR
+        }
       })
     }
   }

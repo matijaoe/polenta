@@ -1,3 +1,5 @@
+import { ErrorCode } from '~/models/errors'
+
 export default defineEventHandler(() => {
   const { key } = useParams<{ key: string }>()
 
@@ -14,5 +16,8 @@ export default defineEventHandler(() => {
   throw createError({
     statusCode: 404,
     message: `Cache entry not found for key: ${key}`,
+    data: {
+      errorCode: ErrorCode.NOT_FOUND
+    }
   })
 })

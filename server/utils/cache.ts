@@ -57,7 +57,6 @@ export const useCache = async <T = any>(
   }
 
   const newData = await fetchData()
-  console.log('🔐 key', cacheKey)
   cache.set(cacheKey, {
     data: newData,
     cachedAt: currentTime,

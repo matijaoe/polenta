@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-// import { useQRCode } from '@vueuse/integrations/useQRCode'
-import { ScriptType } from '~/models'
+import { Script } from '~/models'
+import { validateXpub } from '~/server/utils/bitcoin'
 
 const deviceStore = useDeviceStore()
 
@@ -8,13 +8,12 @@ const name = ref('')
 const description = ref('')
 
 const xpub = ref('')
-// const qrCode = useQRCode(xpub)
 
 const { walletTypes, getWalletByType } = useWalletType()
 
 const manualDerivationPathEnabled = ref(false)
 
-const selectedScript = ref(getWalletByType(ScriptType.native_segwit)!)
+const selectedScript = ref(getWalletByType(Script.native_segwit)!)
 const withPassphrase = ref(false)
 
 const scriptBranch = ref<number>(selectedScript.value.branch)
@@ -42,7 +41,7 @@ watch(selectedScript, (wallet) => {
 const xpubValid = computed(() => validateXpub(xpub.value))
 const derivationValid = computed(() => validateWalletDerivation(derivationPath.value))
 const derivationManualValid = computed(() => validateWalletDerivation(derivationPathManual.value))
-const fingerprintValid = computed(() => validateFingerprint(fingerprint.value))
+const fingerprintValid = computed(() => validateFingerprintFormat(fingerprint.value))
 const accountValid = computed(() => isDefined(account) && account.value >= 0)
 
 watch(manualDerivationPathEnabled, (enabled) => {
@@ -214,12 +213,6 @@ const selectedTags = ref<{ id: string; label: string }[]>([])
           </UFormGroup>
         </div>
       </div>
-
-      <!-- <div class="flex flex-col gap-12">
-        <UCard v-if="xpubValid" class="flex items-center justify-center">
-          <img :src="qrCode">
-        </UCard>
-      </div> -->
     </div>
   </div>
 </template>

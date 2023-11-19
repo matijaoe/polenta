@@ -1,28 +1,44 @@
 import { Buffer } from 'node:buffer'
-import type { BIP32API, BIP32Interface } from 'bip32'
-import BIP32Factory from 'bip32'
+import type { BIP32Interface } from 'bip32'
+import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
 import * as ecc from 'tiny-secp256k1'
-import type { ScriptType } from '~/models'
+import type { Script } from '~/models'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
 
+const BIP32 = BIP32Factory(ecc)
+const network = bitcoin.networks.bitcoin
+
 export const generateXpubKey = (xpub: string) => {
-  // @ts-ignore
-  const BIP32 = BIP32Factory.default(ecc) as BIP32API
-  const network = bitcoin.networks.bitcoin
   return BIP32.fromBase58(xpub, network)
 }
 
+export const validateXpub = (xpub: string) => {
+  try {
+    generateXpubKey(xpub)
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
+export const validateAddress = (address: string) => {
+  try {
+    bitcoin.address.toOutputScript(address)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
 export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, type, index }: {
-  script: ScriptType
+  script: Script
   type: 'receive' | 'change'
   index: number
 }) => {
   const addrLevel = type === 'change' ? 1 : 0
   const pubkey = xpubKey.derive(addrLevel).derive(index).publicKey
-
-  const network = bitcoin.networks.bitcoin
 
   // Segwit
   if (script === 'p2sh-p2wpkh') {
@@ -64,7 +80,7 @@ export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, ty
 }
 
 export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, type }: {
-  script: ScriptType
+  script: Script
   limit: number
   gap: number
   type: 'receive' | 'change'

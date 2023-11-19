@@ -1,16 +1,17 @@
 import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
-import { ScriptType } from '~/models'
+import { Script } from '~/models'
+import { ErrorCode } from '~/models/errors'
 
 export type QueryParams = {
-  script: ScriptType
+  script: Script
   type: 'receive' | 'change'
   limit: number
   gap: number
 }
 
 const zodSchema = z.object({
-  script: z.nativeEnum(ScriptType).optional().default(ScriptType.native_segwit),
+  script: z.nativeEnum(Script).optional().default(Script.native_segwit),
   type: z.enum(['receive', 'change']).optional().default('receive'),
   limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
   gap: z.number().min(0).optional().default(0),
@@ -33,16 +34,22 @@ export default defineEventHandler(async (event) => {
     } as XpubAddressesResponse
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      const message = formatZodValidationErrorMessage(err)
+      const message = extractZodErrorMessage(err)
       throw createError({
         statusCode: 400,
         statusMessage: 'Validation error',
-        message
+        message,
+        data: {
+          errorCode: ErrorCode.VALIDATION_ERROR
+        }
       })
     }
     throw createError({
       statusCode: 500,
-      message: err.message
+      message: err.message,
+      data: {
+        errorCode: ErrorCode.UNKNOWN_ERROR
+      }
     })
   }
 })
