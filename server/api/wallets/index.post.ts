@@ -1,5 +1,3 @@
-import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3'
-import { SQLiteTransaction } from 'drizzle-orm/sqlite-core'
 import { z } from 'zod'
 import { ErrorCode } from '~/models/errors'
 import { accountSchema } from '~/schema/account'
@@ -21,7 +19,7 @@ export default defineEventHandler(async (event) => {
   try {
     const validatedWallet = walletSchema.parse(body.wallet)
 
-    const res = await db.transaction(async (tx) => {
+    const res = db.transaction((tx) => {
       try {
         const createdWallet = tx
           .insert(wallets)
@@ -48,7 +46,9 @@ export default defineEventHandler(async (event) => {
         }
       } catch (err: any) {
         originalError = err
+        // does not rollback...
         tx.rollback()
+        throw err
       }
     })
 

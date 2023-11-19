@@ -41,4 +41,5 @@ CREATE TABLE `wallets` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `accounts_xpub_unique` ON `accounts` (`xpub`);--> statement-breakpoint
+CREATE UNIQUE INDEX `accounts_wallet_id_derivation_path_unique` ON `accounts` (`wallet_id`,`derivation_path`);--> statement-breakpoint
 CREATE UNIQUE INDEX `address_address_unique` ON `address` (`address`);

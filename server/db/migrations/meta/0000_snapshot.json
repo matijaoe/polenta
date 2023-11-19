@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "22d17781-fc76-4aa7-a9c2-fd46eda58096",
+  "id": "98ceae3b-b8a7-49bf-9399-5dfe1bdf6c7c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -71,6 +71,14 @@
           "name": "accounts_xpub_unique",
           "columns": [
             "xpub"
+          ],
+          "isUnique": true
+        },
+        "accounts_wallet_id_derivation_path_unique": {
+          "name": "accounts_wallet_id_derivation_path_unique",
+          "columns": [
+            "wallet_id",
+            "derivation_path"
           ],
           "isUnique": true
         }
