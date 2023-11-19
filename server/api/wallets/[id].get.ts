@@ -29,8 +29,10 @@ export default defineEventHandler(async () => {
         name: 'WalletNotFoundError',
       })
     }
+
+    const wallet = res.at(0)!.wallets
     return {
-      ...res.at(0)!.wallets,
+      ...wallet,
       accounts: res.map(item => item.accounts) ?? [],
     }
   } else {

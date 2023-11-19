@@ -12,7 +12,6 @@ export default defineEventHandler(async (event) => {
       return res.map(r => r.data)
     }
 
-    //
     return fetchAddressStats()
   } catch (err: any) {
     if (err?.response?.data) {

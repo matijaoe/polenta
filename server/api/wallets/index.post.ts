@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { walletSchema } from '~/schema/wallets'
+import { walletSchema } from '~/schema/wallet'
 import { accounts, wallets } from '~/server/db/schema'
 import { db } from '~/server/utils/db'
 
