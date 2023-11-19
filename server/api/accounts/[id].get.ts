@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { ErrorCode } from '~/models/errors'
-import { wallets } from '~/server/db/schema'
+import { accounts } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
@@ -18,17 +18,19 @@ export default defineEventHandler(async () => {
     })
   }
 
-  const res = await db.delete(wallets).where(eq(wallets.id, parsedId)).execute()
+  const account = db.select()
+    .from(accounts)
+    .where(eq(accounts.id, parsedId))
+    .get()
 
-  if (res.changes === 0) {
+  if (!account) {
     throw createError({
       statusCode: 404,
-      message: 'Wallet not found',
+      message: 'Account not found',
       data: {
         errorCode: ErrorCode.NOT_FOUND
       }
     })
   }
-
-  return res
+  return account
 })
