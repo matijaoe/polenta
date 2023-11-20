@@ -1,3 +1,6 @@
+import topLevelAwait from 'vite-plugin-top-level-await'
+import wasm from 'vite-plugin-wasm'
+
 export default defineNuxtConfig({
   modules: [
     '@vueuse/nuxt',
@@ -56,6 +59,10 @@ export default defineNuxtConfig({
   },
 
   vite: {
+    plugins: [
+      wasm(),
+      topLevelAwait()
+    ],
     vue: {
       script: {
         defineModel: true,

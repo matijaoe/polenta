@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer'
+import { Buffer } from 'buffer/'
 import type { BIP32Interface } from 'bip32'
 import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
