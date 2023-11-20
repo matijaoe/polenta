@@ -1,6 +1,5 @@
 import { z } from 'zod'
-import { derivationPathRegex, fingerprintRegex } from '~/utils/validators'
-import { createUpdateSchema } from '~/utils/zod'
+import { createUpdateSchema, derivationPathRegex, fingerprintRegex } from '~/utils'
 
 export const accountSchema = z.object({
   walletId: z.number(),

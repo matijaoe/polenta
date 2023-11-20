@@ -1,10 +1,8 @@
 import { z } from 'zod'
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode } from '~/models'
 import { accountSchema } from '~/schema/account'
 import type { AccountInsert } from '~/server/db/schema'
 import { accounts } from '~/server/db/schema'
-import { extractZodErrorMessage } from '~/server/utils'
-import { db } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<AccountInsert>(event)
@@ -28,7 +26,6 @@ export default defineEventHandler(async (event) => {
         data: {
           errorCode: ErrorCode.VALIDATION_ERROR,
         }
-
       })
     }
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {

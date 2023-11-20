@@ -1,4 +1,4 @@
-import type { Script } from './account'
+import type { Script } from './bitcoin'
 
 export type Wallet = {
   label: string

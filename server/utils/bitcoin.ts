@@ -4,6 +4,7 @@ import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
 import { Buffer } from 'buffer/index.js'
 import type { Script } from '~/models'
+import { generateIndices } from '~/utils'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
 

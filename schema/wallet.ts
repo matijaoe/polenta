@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Script } from '~/models'
-import { createUpdateSchema } from '~/utils/zod'
+import { createUpdateSchema } from '~/utils'
 
 export const walletSchema = z.object({
   name: z.string().min(3).max(40),

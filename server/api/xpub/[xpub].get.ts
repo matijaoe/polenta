@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
-import { Script } from '~/models'
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode, Script } from '~/models'
 
 export type QueryParams = {
   script: Script
@@ -17,8 +16,8 @@ const zodSchema = z.object({
   gap: z.number().min(0).optional().default(0),
 })
 
-export default defineEventHandler(async (event) => {
-  const { xpub } = event.context.params as { xpub: string }
+export default defineEventHandler(async () => {
+  const { xpub } = useParams<{ xpub: string }>()
   const rawParams = useQueryParams<Partial<QueryParams>>()
 
   try {

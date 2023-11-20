@@ -1,4 +1,4 @@
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode } from '~/models'
 
 export default defineEventHandler(() => {
   const { key } = useParams<{ key: string }>()

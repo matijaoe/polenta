@@ -1,6 +1,6 @@
 import type { AddressStatsData } from '~/models'
 import type { CachedData } from '~/models/cache'
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode } from '~/models'
 
 const fetchAddressStats = async (address: string) => {
   return $fetch<CachedData<AddressStatsData>>(`/api/address/${address}`)

@@ -27,12 +27,6 @@ const DEFAULT_USE_CACHE_OPTIONS: UseCacheOptions = {
 /**
  * Caches the result of a function and returns the cached data if available and not stale.
  * If the data is not available in the cache or is stale, it fetches the data and updates the cache.
- *
- * @template T - The type of data being cached.
- * @param {string} cacheKey - The key used to identify the cached data.
- * @param {() => Promise<T>} fetchData - The function that fetches the data if it is not available in the cache.
- * @param {{ rateLimit: number }} [options] - The options for caching, including the rate limit in seconds.
- * @returns {Promise<CachedData<T>>} - A promise that resolves to the cached data.
  */
 export const useCache = async <T = any>(
   cacheKey: string,

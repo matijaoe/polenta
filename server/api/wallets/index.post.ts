@@ -1,11 +1,9 @@
 import { z } from 'zod'
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode } from '~/models'
 import { accountSchema } from '~/schema/account'
 import { walletSchema } from '~/schema/wallet'
 import type { AccountInsert, WalletInsert } from '~/server/db/schema'
 import { accounts, wallets } from '~/server/db/schema'
-import { extractZodErrorMessage } from '~/server/utils'
-import { db } from '~/server/utils/db'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<{
@@ -46,7 +44,6 @@ export default defineEventHandler(async (event) => {
         }
       } catch (err: any) {
         originalError = err
-        // does not rollback...
         tx.rollback()
         throw err
       }
@@ -66,7 +63,6 @@ export default defineEventHandler(async (event) => {
         data: {
           errorCode: ErrorCode.VALIDATION_ERROR,
         }
-
       })
     }
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {

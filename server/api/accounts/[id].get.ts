@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode } from '~/models'
 import { accounts } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {

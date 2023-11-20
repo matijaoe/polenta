@@ -1,6 +1,6 @@
 import { hash } from 'ohash'
 import type { AddressStatsData } from '../../../models'
-import { ErrorCode } from '~/models/errors'
+import { ErrorCode } from '~/models'
 
 const fetchAddressStats = async (address: string) => {
   return await mempool.bitcoin.addresses.getAddress({ address })

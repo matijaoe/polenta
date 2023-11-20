@@ -1,13 +1,15 @@
 import { formatDistanceToNow } from 'date-fns'
 
+const locale = 'en-US'
+
 export const formatNumber = (value: number, options?: Intl.NumberFormatOptions) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(locale, {
     ...options
   }).format(value)
 }
 
 export const formatCurrency = (value: number, options?: Intl.NumberFormatOptions) => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'USD',
     ...options

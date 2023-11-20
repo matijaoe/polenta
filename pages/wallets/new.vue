@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { Script } from '~/models'
-import { validateXpubClientSide } from '~/utils'
 
 const deviceStore = useDeviceStore()
 
