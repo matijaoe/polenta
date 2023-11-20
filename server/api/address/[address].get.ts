@@ -1,6 +1,6 @@
+import { hash } from 'ohash'
 import type { AddressStatsData } from '../../../models'
 import { ErrorCode } from '~/models/errors'
-import { createHash } from '~/utils/hash'
 
 const fetchAddressStats = async (address: string) => {
   return await mempool.bitcoin.addresses.getAddress({ address })
@@ -10,9 +10,9 @@ export default defineEventHandler(async () => {
   const { address: addressParam } = useParams<{ address: string }>()
 
   try {
-    const hash = createHash(addressParam)
+    const hashId = hash(addressParam)
 
-    return useCache(`address_stats_${hash}`, async () => {
+    return useCache(`address_stats_${hashId}`, async () => {
       const { address, chain_stats } = await fetchAddressStats(addressParam)
 
       const {
