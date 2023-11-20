@@ -1,4 +1,7 @@
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
+
 export default defineNuxtConfig({
+
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
@@ -43,7 +46,7 @@ export default defineNuxtConfig({
   },
 
   fontMetrics: {
-    fonts: ['Manrope', 'Victor Mono'],
+    fonts: ['Manrope'],
   },
 
   googleFonts: {
@@ -62,6 +65,16 @@ export default defineNuxtConfig({
         propsDestructure: true,
       },
     },
+    plugins: [
+      NodeGlobalsPolyfillPlugin()
+    ],
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          global: 'globalThis',
+        },
+      },
+    }
   },
 
   postcss: {

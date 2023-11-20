@@ -13,7 +13,11 @@ export default defineEventHandler(async (event) => {
     const promises = addresses.map(fetchAddressStats)
     const res = await Promise.all(promises)
 
-    return res.map((r) => r.data)
+    return {
+      // not great, good for now
+      ...res.at(0),
+      data: res.map((r) => r.data),
+    }
   } catch (err: any) {
     // TODO: error isn't being caught
     if (err?.response?.data) {

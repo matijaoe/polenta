@@ -1,8 +1,8 @@
-import { Buffer } from 'node:buffer'
+import ecc from '@bitcoinerlab/secp256k1'
 import type { BIP32Interface } from 'bip32'
 import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
-import * as ecc from 'tiny-secp256k1'
+import { Buffer } from 'buffer/index.js'
 import type { Script } from '~/models'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
@@ -70,6 +70,7 @@ export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, ty
     // Extract the x-coordinate (first 32 bytes of the 33-byte compressed pubkey)
     const internalPubkey = Buffer.from(tweaked.slice(1, 33))
 
+    // @ts-expect-error Buffer type mismatch by using npm buffer module
     const { address } = bitcoin.payments.p2tr({ internalPubkey, network })
     return address
   }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Script } from '~/models'
-import { validateXpub } from '~/server/utils/bitcoin'
+import { validateXpubClientSide } from '~/utils'
 
 const deviceStore = useDeviceStore()
 
@@ -38,7 +38,7 @@ watch(selectedScript, (wallet) => {
   set(scriptBranch, wallet.branch)
 })
 
-const xpubValid = computed(() => validateXpub(xpub.value))
+const xpubValid = computed(() => validateXpubClientSide(xpub.value))
 const derivationValid = computed(() => validateWalletDerivation(derivationPath.value))
 const derivationManualValid = computed(() => validateWalletDerivation(derivationPathManual.value))
 const fingerprintValid = computed(() => validateFingerprintFormat(fingerprint.value))
