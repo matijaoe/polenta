@@ -10,3 +10,12 @@ export const mapToObject = <K extends string | number | symbol, V>(map: Map<K, V
   })
   return object
 }
+
+export const validateXpubClientSide = async (xpub: string) => {
+  const data = await $fetch(`/api/xpub/validate`, {
+    query: {
+      xpub,
+    },
+  })
+  return data.isValid
+}

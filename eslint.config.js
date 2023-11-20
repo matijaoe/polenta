@@ -4,4 +4,7 @@ export default matijaoe({
   vue: {
     propsDestructure: true,
   },
+  rules: {
+    'unicorn/prefer-node-protocol': 'off',
+  },
 })

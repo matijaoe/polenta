@@ -154,8 +154,8 @@ const totalValueFormatted = computed(() => {
   })
 })
 
-const assignXpub = () => {
-  const isValidFormat = validateXpub(xpubBuffer.value)
+const assignXpub = async () => {
+  const isValidFormat = await validateXpubClientSide(xpub.value)
   if (isValidFormat) {
     set(xpub, xpubBuffer.value)
   }
@@ -179,7 +179,7 @@ const setNewXpubInput = () => {
 }
 
 const isXpubValueInvalid = computed(() => {
-  if (xpubBuffer.value && !validateXpub(xpubBuffer.value)) {
+  if (xpubBuffer.value && !validateXpubClientSide(xpubBuffer.value)) {
     return true
   }
   // TODO: something aint right

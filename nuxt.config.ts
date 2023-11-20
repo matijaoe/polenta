@@ -1,7 +1,7 @@
-import topLevelAwait from 'vite-plugin-top-level-await'
-import wasm from 'vite-plugin-wasm'
+import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 export default defineNuxtConfig({
+
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
@@ -46,7 +46,7 @@ export default defineNuxtConfig({
   },
 
   fontMetrics: {
-    fonts: ['Manrope', 'Victor Mono'],
+    fonts: ['Manrope'],
   },
 
   googleFonts: {
@@ -59,16 +59,22 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    plugins: [
-      wasm(),
-      topLevelAwait()
-    ],
     vue: {
       script: {
         defineModel: true,
         propsDestructure: true,
       },
     },
+    plugins: [
+      NodeGlobalsPolyfillPlugin()
+    ],
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          global: 'globalThis',
+        },
+      },
+    }
   },
 
   postcss: {
