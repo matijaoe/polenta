@@ -68,9 +68,9 @@ export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, ty
     }
 
     // Extract the x-coordinate (first 32 bytes of the 33-byte compressed pubkey)
-    // TODO: Buffer
-    const internalPubkey = Buffer.from(tweaked.slice(1, 33)) as unknown as Buffer
+    const internalPubkey = Buffer.from(tweaked.slice(1, 33))
 
+    // @ts-expect-error Buffer type mismatch by using npm buffer module
     const { address } = bitcoin.payments.p2tr({ internalPubkey, network })
     return address
   }
