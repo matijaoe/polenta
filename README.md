@@ -1,7 +1,11 @@
-# 🧚🏻 Nuxt 3 starter template
+# 🌽 Polenta 
 
-> Minimal Nuxt 3 starter with Nuxt UI
->
+> Bitcoin Wallet Manager
+
+
+## ⚠️ wip ⚠️ 
+
+
 ## Setup
 
 ```bash
@@ -14,14 +18,12 @@ pnpm up --interactive --latest
 # start development server
 pnpm dev
 
+# start tauri development server
+pnpm tauri dev
+
 # build for production
 pnpm build
 
 # locally preview production build
 pnpm preview
 ```
-
-## Related
-
-- 👽 [`vue-starter`](https://github.com/matijaoe/vue-starter)
-- 🔮 [`vue-anu-starter`](https://github.com/matijaoe/vue-anu-starter)
