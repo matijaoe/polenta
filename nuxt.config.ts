@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxtjs/google-fonts',
     '@nuxtjs/fontaine',
+    '@vee-validate/nuxt'
   ],
 
   ui: {
@@ -29,6 +30,11 @@ export default defineNuxtConfig({
             from: '@vueuse/core',
             name: 'set',
             as: 'set'
+          },
+          {
+            from: 'zod',
+            name: 'z',
+            as: 'z'
           }
         ]
       }

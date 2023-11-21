@@ -8,7 +8,7 @@ import { accounts, wallets } from '~/server/db/schema'
 export default defineEventHandler(async (event) => {
   const body = await readBody<{
     wallet: WalletInsert
-    account: Omit<AccountInsert, 'walletId'>
+    account: Omit<AccountInsert, 'walletId' >
   }>(event)
 
   // Store the original error caught inside the transaction block
