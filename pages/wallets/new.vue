@@ -40,8 +40,6 @@ const xpub = defineInputBinds('xpub')
 const fingerprint = defineInputBinds('fingerprint')
 const derivationPath = defineInputBinds('derivationPath')
 
-const { walletTypes, getWalletByType } = useWalletType()
-
 const selectedDevice = ref<{ id: string; label: string }>()
 
 const tags = ref([
@@ -83,13 +81,6 @@ const onSubmit = handleSubmit((values) => {
 
           <UFormGroup label="xpub" hint="Extended private key" :error="errors.xpub">
             <UTextarea v-bind="xpub" placeholder="xpub" />
-          </UFormGroup>
-
-          <UFormGroup label="Wallet type">
-            <USelectMenu
-              v-bind="scriptType"
-              :options="walletTypes"
-            />
           </UFormGroup>
         </div>
 

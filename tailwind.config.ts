@@ -6,7 +6,7 @@ export default <Partial<Config>>{
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Manrope', ...defaultTheme.fontFamily.sans],
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
         mono: ['Victor Mono', ...defaultTheme.fontFamily.sans],
       },
     },

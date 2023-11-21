@@ -52,14 +52,14 @@ export default defineNuxtConfig({
   },
 
   fontMetrics: {
-    fonts: ['Manrope'],
+    fonts: ['Inter'],
   },
 
   googleFonts: {
     display: 'swap',
     download: true,
     families: {
-      'Manrope': [400, 500, 600, 700],
+      'Inter': [400],
       'Victor+Mono': [400, 500, 600, 700],
     },
   },

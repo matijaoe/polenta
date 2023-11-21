@@ -10,7 +10,6 @@ const accounts = computed(() => {
 
   return walletAccounts.map((account) => ({
     label: account.label,
-    // badge: SCRIPT_CONFIG[account.scriptType].label.toLowerCase(),
     click: () => {
       navigateTo({
         name: 'wallets-walletId-accountId',

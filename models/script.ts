@@ -5,43 +5,36 @@ export enum Script {
   taproot = 'p2tr',
 }
 
-export type ScriptTypeKey = 'legacy' | 'segwit' | 'native-segwit' | 'taproot'
-
-export type ScriptTypeConfig = {
+export type ScriptConfigValue = {
   branch: number
   extendedKey: string
   label: string
   addressFormat: string
-  code: Script
 }
-export const SCRIPT_CONFIG: Record<ScriptTypeKey, ScriptTypeConfig> = {
-  'legacy': {
+
+export const SCRIPT_CONFIG: Record<Script, ScriptConfigValue> = {
+  [Script.legacy]: {
     branch: 44,
     extendedKey: 'xpub',
     label: 'Legacy',
     addressFormat: '1',
-    code: Script.legacy
   },
-  'segwit': {
+  [Script.segwit]: {
     branch: 49,
     extendedKey: 'ypub',
     label: 'Segwit',
     addressFormat: '3',
-    code: Script.segwit
-
   },
-  'native-segwit': {
+  [Script.native_segwit]: {
     branch: 84,
     extendedKey: 'zpub',
     label: 'Native Segwit',
     addressFormat: 'bc1q',
-    code: Script.native_segwit
   },
-  'taproot': {
+  [Script.taproot]: {
     branch: 86,
     extendedKey: 'zpub',
     label: 'Taproot',
     addressFormat: 'bc1p',
-    code: Script.taproot
   },
 }
