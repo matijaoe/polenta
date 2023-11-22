@@ -1,217 +1,347 @@
 <script lang="ts" setup>
-import { Script } from '~/models'
+import { z } from 'zod'
+import { ErrorCode, Script } from '~/models'
 
-const deviceStore = useDeviceStore()
+const validationSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .min(3, 'Name must be at least 3 characters')
+    .max(40, 'Name must be at most 40 characters'),
+  description: z.string().optional(),
+  scriptType: z.nativeEnum(Script),
+  xpub: z.string()
+    .min(1, 'xpub is required')
+    .refine(validateXpubClientSide, 'Invalid xpub'),
+  fingerprint: z
+    .string()
+    .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
+    .transform((fp) => fp.toUpperCase()).optional(),
+  derivationPath: z.string()
+    .min(1, 'Derivation path is required')
+    .regex(derivationPathRegex, 'Invalid derivation path')
+    .transform((path) => path.replaceAll(`'`, 'h')),
+  passphraseProtected: z.boolean().default(false),
+})
 
-const name = ref('')
-const description = ref('')
-
-const xpub = ref('')
-
-const { walletTypes, getWalletByType } = useWalletType()
-
-const manualDerivationPathEnabled = ref(false)
-
-const selectedScript = ref(getWalletByType(Script.native_segwit)!)
-const withPassphrase = ref(false)
-
-const scriptBranch = ref<number>(selectedScript.value.branch)
-const account = ref<number>(0)
-
-const fingerprint = ref('00000000')
-
-function derivationPathBuilder({ purpose, account }: { purpose?: number; account?: number }) {
-  return `m/${purpose ?? selectedScript.value.branch ?? 0}'/0'/${account ?? 0}'`
+const DEFAULTS: {
+  script: Script
+  fingerprint: string
+} = {
+  script: Script.native_segwit,
+  fingerprint: '00000000'
 }
 
-const derivationPath = computed(() => {
-  return derivationPathBuilder({ purpose: scriptBranch.value, account: account.value })
+const { scriptOptions, getScriptValue } = useBitcoinScripts()
+
+const {
+  values,
+  errors,
+  handleSubmit,
+  defineInputBinds,
+  setFieldValue,
+  useFieldModel,
+  setFieldTouched,
+  isFieldTouched,
+  resetForm,
+} = useForm({
+  validationSchema: toTypedSchema(validationSchema),
+  initialValues: {
+    name: '',
+    description: '',
+    scriptType: DEFAULTS.script,
+    xpub: '',
+    fingerprint: '',
+    passphraseProtected: false,
+    derivationPath: getScriptValue(DEFAULTS.script)!.derivationPath,
+  },
 })
 
-const derivationPathManual = ref('')
-const derivationPathManualPlaceholder = computed(() => {
-  return derivationPathBuilder({ purpose: scriptBranch.value, account: 0 })
+const inputOptions = { validateOnInput: true }
+const name = defineInputBinds('name', inputOptions)
+const description = defineInputBinds('description', inputOptions)
+const xpub = defineInputBinds('xpub', inputOptions)
+const fingerprint = defineInputBinds('fingerprint', inputOptions)
+const scriptType = defineInputBinds('scriptType', inputOptions)
+const derivationPath = defineInputBinds('derivationPath', inputOptions)
+const passphraseProtectedModel = useFieldModel('passphraseProtected')
+
+const fieldError = (field: keyof typeof values) => {
+  return isFieldTouched(field) && errors.value[field!]
+}
+
+const selectedScriptType = computed({
+  get: () => getScriptValue(scriptType.value.value),
+  set: (selected) => setFieldValue('scriptType', selected?.value)
 })
 
-watch(selectedScript, (wallet) => {
-  set(scriptBranch, wallet.branch)
+watch(() => fingerprint.value, ({ value }) => {
+  setFieldValue('fingerprint', value?.toUpperCase())
 })
 
-const xpubValid = computed(() => validateXpubClientSide(xpub.value))
-const derivationValid = computed(() => validateWalletDerivation(derivationPath.value))
-const derivationManualValid = computed(() => validateWalletDerivation(derivationPathManual.value))
-const fingerprintValid = computed(() => validateFingerprintFormat(fingerprint.value))
-const accountValid = computed(() => isDefined(account) && account.value >= 0)
+const defaultDerivationPath = computed(() => {
+  const script = scriptType.value.value ?? DEFAULTS.script
+  return getScriptValue(script)!.derivationPath
+})
 
-watch(manualDerivationPathEnabled, (enabled) => {
-  if (enabled) {
-    set(derivationPathManual, derivationPath.value)
-    set(scriptBranch, selectedScript.value.branch)
-  } else if (!enabled && derivationManualValid.value) {
-    const parts = derivationPathManual.value.split('/')
-    const parsedAccount = parts[3].split('\'')[0]
-    if (account != null) {
-      set(account, Number.parseInt(parsedAccount))
-    }
-  } else {
-    set(account, 0)
+const setDefaultDerivationPath = () => {
+  setFieldValue('derivationPath', defaultDerivationPath.value)
+}
+
+watchEffect(() => {
+  setDefaultDerivationPath()
+})
+
+const autofillDerivation = () => {
+  if (values.derivationPath !== '') {
+    return
   }
+  setDefaultDerivationPath()
+}
+
+const autofillFingerprint = () => {
+  if (values.fingerprint !== '') {
+    return
+  }
+  setFieldValue('fingerprint', DEFAULTS.fingerprint)
+}
+
+const toast = useToast()
+
+const { execute: createWallet, status, data: createdData, error } = await useFetch('/api/wallets', {
+  method: 'POST',
+  immediate: false,
+  server: false,
+  watch: false,
+  body: computed(() => ({
+    wallet: {
+      name: values.name,
+      description: values.description,
+      scriptType: values.scriptType,
+      passphraseProtected: values.passphraseProtected,
+    },
+    account: {
+      name: 'First account',
+      xpub: values.xpub,
+      fingerprint: values.fingerprint,
+      derivationPath: values.derivationPath,
+    }
+  })),
 })
 
-const selectedDevice = ref<{ id: string; label: string }>()
+const errorCode = computed(() => error.value?.data.data?.errorCode as ErrorCode | undefined)
+const isSuccess = computed(() => status.value === 'success')
+const isLoading = computed(() => status.value === 'pending')
 
-const tags = ref([
-  { id: 'kyc', label: 'KYC' },
-  { id: 'no-kyc', label: 'NO KYC' },
-  { id: 'light-kyc', label: 'Light KYC' },
-  { id: 'compromised', label: 'compromised' },
-  { id: 'old', label: 'old' },
-  { id: 'inactive', label: 'inactive' },
-  { id: 'stolen', label: 'stolen' },
-  { id: 'testnet', label: 'testnet' },
-])
+const onSubmit = handleSubmit(
+  async (values, { resetForm, setFieldError }) => {
+    await createWallet()
 
-const selectedTags = ref<{ id: string; label: string }[]>([])
+    if (isSuccess.value && createdData.value) {
+      toast.add({
+        title: 'Wallet created successfully',
+        description: 'Your new wallet is now ready for use.',
+        color: 'green',
+        icon: 'i-ph-confetti-bold',
+        timeout: 0,
+        actions: [
+          {
+            label: 'Check it out',
+            click: () => {
+              navigateTo({
+                name: 'wallets-walletId-accountId',
+                params: {
+                  walletId: createdData.value!.wallet.id,
+                  accountId: createdData.value!.account.id,
+                }
+              })
+            },
+            color: 'green',
+            variant: 'solid',
+          },
+          {
+            label: 'See data',
+            click: () => {
+              alert(JSON.stringify(createdData.value, null, 2))
+            },
+          },
+
+        ]
+      })
+      resetForm()
+      navigateTo('/')
+      return
+    }
+
+    if (error.value) {
+      const code = errorCode.value
+      if (code === ErrorCode.DUPLICATE_XPUB) {
+        setFieldError('xpub', 'Wallet with this xpub already exists')
+        // TODO: add a button to navigate to the wallet with that xpub
+        // perhaps also show some data of that account in the toast
+        toast.add({
+          title: 'Wallet creation failed',
+          description: 'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.',
+          color: 'red',
+          timeout: 0,
+          icon: 'i-ph-warning-bold',
+        })
+        return
+      }
+      toast.add({
+        title: 'Unable to create your wallet',
+        description: 'An unexpected error occurred while creating your wallet. Please try again. If the issue persists, please send us a bug report.',
+        color: 'red',
+        icon: 'i-ph-bug-bold',
+        actions: [
+          {
+            label: 'Report a bug',
+            click: () => {
+              alert('Bug reported')
+            },
+            color: 'red',
+            variant: 'soft'
+          },
+          {
+            label: 'See error',
+            click: () => {
+              alert(JSON.stringify(error.value, null, 2))
+            }
+          }
+        ]
+      })
+    }
+  },
+  (context) => {
+    toast.add({ title: 'Check you data', color: 'red' })
+    console.error('⚠️ Validation error', context)
+  }
+)
+const activeEl = useActiveElement()
+const clearDerivationBtnActive = computed(() => activeEl.value?.id === 'clearDerivationPathBtn')
+
+const derivationPathEl = ref<{ input: HTMLInputElement } | null>(null)
+const onClearDerivationPath = () => {
+  setFieldValue('derivationPath', '')
+  const input = derivationPathEl.value?.input
+  input?.focus()
+  setFieldTouched('derivationPath', false)
+}
 </script>
 
 <template>
   <div>
-    <div>
-      <h2 class="text-4xl">
-        Add wallet
-      </h2>
-    </div>
-
-    <div class="mt-8 grid grid-cols-3 gap-8">
-      <div class="flex flex-col gap-12">
-        <div class="flex flex-col gap-4">
-          <UFormGroup label="Wallet name">
-            <UInput v-model="name" />
-          </UFormGroup>
-
-          <UFormGroup label="Wallet description">
-            <UInput v-model="description" />
-          </UFormGroup>
-
-          <UFormGroup label="xpub" hint="Extended private key" :error="!xpubValid && !!xpub.length">
-            <UTextarea v-model="xpub" placeholder="xpub" />
-          </UFormGroup>
-
-          <UFormGroup label="Wallet type">
-            <USelectMenu
-              v-model="selectedScript"
-              :options="walletTypes"
-            />
-          </UFormGroup>
-        </div>
-
-        <div class="flex flex-col gap-4">
-          <div class="flex gap-4 items-center">
-            <UToggle v-model="manualDerivationPathEnabled" />
-            <p class="text-sm font-medium text-gray-700 dark:text-gray-200">
-              Manual
-            </p>
-          </div>
-
-          <div v-show="!manualDerivationPathEnabled" class="flex flex-col gap-4">
-            <div>
-              <UFormGroup
-                label="Account number"
-                :error="!accountValid"
-                :hint=" derivationValid ? derivationPath : undefined"
-              >
-                <UInput v-model.number.trim="account" :min="0" type="number" placeholder="0" />
-              </UFormGroup>
-            </div>
-            <div />
-          </div>
-
-          <div v-show="manualDerivationPathEnabled">
-            <UFormGroup
-              label="Derivation"
-              description="The derivation path to the xpub from the master private key"
-              help="m / purpose' / coin_type' / account'"
-              :error="!derivationManualValid"
-            >
-              <UInput v-model="derivationPathManual" :placeholder="derivationPathManualPlaceholder" />
-            </UFormGroup>
-          </div>
-        </div>
-
-        <div>
+    <UForm :state="values" class="max-w-4xl" @submit="onSubmit">
+      <div class="grid lg:grid-cols-2">
+        <div class="flex flex-col gap-5">
           <UFormGroup
-            label="Master fingerprint"
-            :error="!fingerprintValid"
-            description="Uniquely identifies this keystore using the first 4 bytes of the master public key hash."
-            help="It's safe to use any valid value (00000000) for watch-only wallets."
+            size="sm"
+            label="Wallet name"
+            :error="fieldError('name')"
           >
-            <UInput v-model="fingerprint" error placeholder="00000000" />
+            <UInput v-bind="name" />
           </UFormGroup>
-        </div>
 
-        <div class="flex gap-4 items-center">
-          <UFormGroup label="Passphrase protected">
-            <UToggle
-              v-model="withPassphrase"
-              on-icon="i-heroicons-lock-closed"
-              off-icon="i-heroicons-lock-open"
-              class="mt-2"
-            />
+          <UFormGroup
+            size="sm"
+            label="Wallet description"
+            :error="fieldError('description')"
+          >
+            <UTextarea v-bind="description" />
           </UFormGroup>
-        </div>
 
-        <div class="flex justify-end gap-3">
-          <UButton color="white" variant="solid">
-            Revert
-          </UButton>
-
-          <UButton>
-            Create
-          </UButton>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-12">
-        <div class="flex flex-col gap-4">
-          <UFormGroup label="Device">
+          <UFormGroup
+            size="sm"
+            label="Script type"
+          >
             <USelectMenu
-              v-model="selectedDevice"
-              searchable
-              creatable
-              :options="deviceStore.devices"
-              placeholder="Select devices"
-            />
-          </UFormGroup>
-
-          <UFormGroup label="Tags">
-            <USelectMenu
-              v-model="selectedTags"
-              searchable
-              multiple
-              creatable
-              :options="tags"
-              placeholder="Select tags"
-              searchable-placeholder="Search"
+              v-model="selectedScriptType"
+              :options="scriptOptions"
             >
-              <template #label>
-                <div v-if="selectedTags?.length" class="flex gap-2 overflow-x-auto hide-scrollbar" size="xs">
-                  <UBadge
-                    v-for="tag in selectedTags"
-                    :key="tag.id"
-                    class="shrink-0"
-                    size="xs"
-                  >
-                    {{ tag.label }}
-                  </UBadge>
-                </div>
-                <div v-else>
-                  Select tags
+              <template #option="{ option }">
+                <div class="flex flex-col gap-2 w-full">
+                  <p class="flex-1">
+                    {{ option.label }}
+                  </p>
+
+                  <p class="text-xs text-gray-400 dark:text-gray-500">
+                    Address starts with <span class="font-bold text-gray-500 dark:text-gray-400">{{ option.addressFormat }}</span>
+                  </p>
                 </div>
               </template>
             </USelectMenu>
           </UFormGroup>
+
+          <UFormGroup
+            size="sm"
+            label="xpub"
+            hint="Extended private key"
+            :error="fieldError('xpub')"
+          >
+            <UTextarea v-bind="xpub" placeholder="xpub" />
+          </UFormGroup>
+
+          <UFormGroup
+            size="sm"
+            label="Master fingerprint"
+            :error="fieldError('fingerprint')"
+          >
+            <UInput
+              v-bind="fingerprint"
+              :placeholder="DEFAULTS.fingerprint"
+              maxlength="8"
+              pattern="[a-fA-F0-9]*"
+              @keyup.right="autofillFingerprint"
+            />
+          </UFormGroup>
+
+          <UFormGroup
+            size="sm"
+            label="Derivation path"
+            :error="!clearDerivationBtnActive && fieldError('derivationPath')"
+          >
+            <UInput
+              v-bind="derivationPath"
+              ref="derivationPathEl"
+              :placeholder="defaultDerivationPath"
+              :ui="{ icon: { trailing: { pointer: '' } } }"
+              @keyup.right="autofillDerivation"
+            >
+              <template #trailing>
+                <UButton
+                  v-show="derivationPath.value !== ''"
+                  id="clearDerivationPathBtn"
+                  color="gray"
+                  variant="link"
+                  icon="i-ph-x-bold"
+                  :padded="false"
+                  @click.stop="onClearDerivationPath"
+                />
+              </template>
+            </UInput>
+          </UFormGroup>
+
+          <UFormGroup
+            size="sm"
+            label="Passphrase protected"
+          >
+            <UToggle
+              v-model="passphraseProtectedModel"
+              on-icon="i-heroicons-lock-closed"
+              off-icon="i-heroicons-lock-open"
+            />
+          </UFormGroup>
         </div>
       </div>
-    </div>
+
+      <div class="flex justify-end gap-3">
+        <UButton color="white" variant="solid" @click="resetForm">
+          Clear
+        </UButton>
+
+        <UButton type="submit" :loading="isLoading">
+          Create
+        </UButton>
+      </div>
+    </UForm>
   </div>
 </template>

@@ -1,5 +1,5 @@
 export const fingerprintRegex = /^[0-9A-Fa-f]{8}$/
-export const derivationPathRegex = /^m(\/\d+(['])?)*$/
+export const derivationPathRegex = /^m(\/\d+(['h])?)*$/
 
 export const validateWalletDerivation = (value?: string) => {
   if (!value) {

@@ -8,7 +8,7 @@ import { accounts, wallets } from '~/server/db/schema'
 export default defineEventHandler(async (event) => {
   const body = await readBody<{
     wallet: WalletInsert
-    account: Omit<AccountInsert, 'walletId'>
+    account: Omit<AccountInsert, 'walletId' >
   }>(event)
 
   // Store the original error caught inside the transaction block
@@ -58,7 +58,7 @@ export default defineEventHandler(async (event) => {
     if (err instanceof z.ZodError) {
       throw createError({
         statusCode: 400,
-        statusMessage: 'Validation error',
+        statusMessage: 'Validation error - status message',
         message: extractZodErrorMessage(err),
         data: {
           errorCode: ErrorCode.VALIDATION_ERROR,
@@ -70,9 +70,20 @@ export default defineEventHandler(async (event) => {
         statusCode: 400,
         statusMessage: 'Duplicate account',
         message: 'Account with provided XPUB already exists',
+        status: 9999, // not returned
+        statusText: 'Validation error - status text', // not returned
+        name: 'ValidationError - name', // not returned
         data: {
-          errorCode: ErrorCode.DUPLICATE_ACCOUNT,
-        }
+          errorCode: ErrorCode.DUPLICATE_XPUB,
+        },
+        toJSON: () => ({
+          statusCode: 400,
+          statusMessage: 'Guzica',
+          message: 'Account with provided XPUB already exists',
+          data: {
+            errorCode: ErrorCode.DUPLICATE_XPUB,
+          }
+        })
       })
     }
     throw createError({

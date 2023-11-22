@@ -24,12 +24,37 @@ const pages = [
 
 ]
 
-const actions = [
-  { id: 'new-file', label: 'Add new file', icon: 'i-ph-file-text-bold', click: () => toast.add({ title: 'New file added!' }), shortcuts: [metaSymbol.value, 'N'] },
-  { id: 'new-folder', label: 'Add new folder', icon: 'i-ph-folder-plus-bold', click: () => toast.add({ title: 'New folder added!' }), shortcuts: [metaSymbol.value, 'F'] },
-  { id: 'hashtag', label: 'Add hashtag', icon: 'i-ph-hash-bold', click: () => toast.add({ title: 'Hashtag added!' }), shortcuts: [metaSymbol.value, 'H'] },
-  { id: 'label', label: 'Add label', icon: 'i-ph-tag-bold', click: () => toast.add({ title: 'Label added!' }), shortcuts: [metaSymbol.value, 'L'] }
-]
+const actions = computed(() => [
+  {
+    id: 'new-file',
+    label: 'Add new file',
+    icon: 'i-ph-file-text-bold',
+    click: () => toast.add({ title: 'New file added!' }),
+    shortcuts: [metaSymbol.value, 'N']
+
+  },
+  {
+    id: 'new-folder',
+    label: 'Add new folder',
+    icon: 'i-ph-folder-plus-bold',
+    click: () => toast.add({ title: 'New folder added!' }),
+    shortcuts: [metaSymbol.value, 'F']
+  },
+  {
+    id: 'hashtag',
+    label: 'Add hashtag',
+    icon: 'i-ph-hash-bold',
+    click: () => toast.add({ title: 'Hashtag added!' }),
+    shortcuts: [metaSymbol.value, 'H']
+  },
+  {
+    id: 'label',
+    label: 'Add label',
+    icon: 'i-ph-tag-bold',
+    click: () => toast.add({ title: 'Label added!' }),
+    shortcuts: [metaSymbol.value, 'L']
+  }
+])
 
 const groups = computed(() => [
   {
@@ -63,8 +88,9 @@ defineShortcuts({
 </script>
 
 <template>
-  <div class="h-screen">
-    <Header />
+  <div class="h-screen w-screen of-hidden">
+    <TheHeader />
+
     <div class="h-[calc(100vh-25px-55px)] grid grid-cols-[230px_1fr]">
       <SidebarMain />
       <div class="h-full overflow-y-auto w-full">

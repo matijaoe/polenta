@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteLocationRaw } from 'vue-router'
+import type { RouteLocationRaw } from '#vue-router'
 
 const colorMode = useColorMode()
 const { openCommandPalette } = useCommandPalette()
@@ -29,7 +29,7 @@ const { metaSymbol } = useShortcuts()
     <template #left>
       <NuxtLink to="/">
         <div class="flex items-center gap-2.5">
-          <Logo />
+          <TheLogo />
         </div>
       </NuxtLink>
     </template>

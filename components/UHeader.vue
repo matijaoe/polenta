@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteLocationRaw } from '#ui-colors/vue-router-stub'
+import type { RouteLocationRaw } from '#vue-router'
 
 defineProps<{
   links: {
@@ -18,18 +18,6 @@ const mobileMenuOpen = ref(false)
       <div class=" lg:flex-1 flex items-center gap-1.5">
         <slot name="left" />
       </div>
-
-      <!-- <ul class="items-center gap-x-8 hidden lg:flex">
-        <li v-for="(link, i) in links" :key="i">
-          <NuxtLink
-            active-class="text-primary"
-            :href="link.to"
-            class="text-sm/6 font-semibold flex items-center gap-1 hover:text-primary"
-          >
-            {{ link.label }}
-          </NuxtLink>
-        </li>
-      </ul> -->
 
       <div class="flex items-center justify-end lg:flex-1 gap-1.5">
         <slot name="right" />
