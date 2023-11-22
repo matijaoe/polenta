@@ -1,4 +1,4 @@
-import type { Script, ScriptConfigValue, WalletScriptModel } from '~/models'
+import type { Script, ScriptConfigValue } from '~/models'
 import { SCRIPT_CONFIG } from '~/models'
 
 export const useBitcoinScripts = () => {
@@ -11,6 +11,9 @@ export const useBitcoinScripts = () => {
     })))
 
   const getScriptValue = (scriptValue?: Script) => {
+    if (!scriptValue) {
+      return null
+    }
     return scriptOptions.value.find((script) => script.value === scriptValue)
   }
 

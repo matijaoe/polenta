@@ -6,7 +6,7 @@ export enum Script {
 }
 
 export type ScriptConfigValue = {
-  branch: number
+  derivationPath: string
   extendedKey: string
   label: string
   addressFormat: string
@@ -14,25 +14,25 @@ export type ScriptConfigValue = {
 
 export const SCRIPT_CONFIG: Record<Script, ScriptConfigValue> = {
   [Script.legacy]: {
-    branch: 44,
+    derivationPath: `m/44'/0'/0'`,
     extendedKey: 'xpub',
     label: 'Legacy',
     addressFormat: '1',
   },
   [Script.segwit]: {
-    branch: 49,
+    derivationPath: `m/49'/0'/0'`,
     extendedKey: 'ypub',
     label: 'Segwit',
     addressFormat: '3',
   },
   [Script.native_segwit]: {
-    branch: 84,
+    derivationPath: `m/84'/0'/0'`,
     extendedKey: 'zpub',
     label: 'Native Segwit',
     addressFormat: 'bc1q',
   },
   [Script.taproot]: {
-    branch: 86,
+    derivationPath: `m/86'/0'/0'`,
     extendedKey: 'zpub',
     label: 'Taproot',
     addressFormat: 'bc1p',
