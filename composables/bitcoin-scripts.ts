@@ -12,7 +12,7 @@ export const useBitcoinScripts = () => {
 
   const getScriptValue = (scriptValue?: Script) => {
     if (!scriptValue) {
-      return null
+      return undefined
     }
     return scriptOptions.value.find((script) => script.value === scriptValue)
   }

@@ -85,12 +85,45 @@ watchEffect(() => {
   setDefaultDerivationPath()
 })
 
+const toast = useToast()
+
+const { execute, status, data: createdData } = await useFetch('/api/wallets', {
+  method: 'POST',
+  immediate: false,
+  server: false,
+  watch: false,
+  body: computed(() => ({
+    wallet: {
+      name: values.name,
+      description: values.description,
+      scriptType: values.scriptType,
+      passphraseProtected: values.passphraseProtected,
+    },
+    account: {
+      name: 'First account',
+      xpub: values.xpub,
+      fingerprint: values.fingerprint,
+      derivationPath: values.derivationPath,
+    }
+  })),
+})
+const isLoading = computed(() => status.value === 'pending')
+
 const onSubmit = handleSubmit(
-  (values) => {
-    console.log('✅ success', values)
+  async (values, { resetForm }) => {
+    console.log('✅', values)
+    await execute()
+    if (createdData.value) {
+      console.log('createdData', createdData.value)
+      toast.add({ title: 'Wallet created', color: 'green' })
+      resetForm()
+      navigateTo('/')
+    } else {
+      toast.add({ title: 'Error creating wallet', color: 'red' })
+    }
   },
   (values) => {
-    console.log('⚠️ error', values)
+    console.error('⚠️ error', values)
   }
 )
 
@@ -106,7 +139,7 @@ const onClearDerivationPath = () => {
 
 <template>
   <div>
-    <form class="max-w-4xl" @submit.prevent="onSubmit">
+    <UForm :state="values" class="max-w-4xl" @submit="onSubmit">
       <div class="grid lg:grid-cols-2">
         <div class="flex flex-col gap-5">
           <UFormGroup
@@ -211,10 +244,10 @@ const onClearDerivationPath = () => {
           Revert
         </UButton>
 
-        <UButton type="submit">
+        <UButton type="submit" :loading="isLoading">
           Create
         </UButton>
       </div>
-    </form>
+    </UForm>
   </div>
 </template>
