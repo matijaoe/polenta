@@ -29,14 +29,17 @@ export default defineEventHandler(async (event) => {
       })
     }
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+      const isXpubError = err.message.includes('xpub')
       throw createError({
         statusCode: 400,
         statusMessage: err.message,
-        message: err.message.includes('xpub')
+        message: isXpubError
           ? 'Account with provided XPUB already exists'
           : 'Account with provided derivation path already exists',
         data: {
-          errorCode: ErrorCode.DUPLICATE_ACCOUNT,
+          errorCode: isXpubError
+            ? ErrorCode.DUPLICATE_XPUB
+            : ErrorCode.DUPLICATE_DERIVATION_PATH,
         }
       })
     } else if (err.code === 'SQLITE_CONSTRAINT_FOREIGNKEY') {

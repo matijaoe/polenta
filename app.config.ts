@@ -6,6 +6,10 @@ export default defineAppConfig({
       option: {
         container: 'w-full'
       }
+    },
+    notifications: {
+      // Show toasts at the top right of the screen
+      position: 'top-0 bottom-auto'
     }
-  },
+  }
 })
