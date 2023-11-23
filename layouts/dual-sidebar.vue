@@ -1,23 +1,18 @@
 <script lang="ts" setup>
-const route = useRoute('wallets-walletId')
-const walletId = computed(() => route.params.walletId)
+import type { Wallet } from '~/server/db/schema'
+
+defineProps<{
+  wallet: Wallet
+}>()
 </script>
 
 <template>
-  <LayoutBase>
-    <div class="grid grid-cols-[230px_1fr] h-full">
-      <SidebarWalletAccounts
-        :wallet-id="walletId"
-      />
-      <div class="h-full p-6">
+  <LayoutBase no-padding :has-overflow="false">
+    <div class="content-container-height grid grid-cols-[200px_1fr]">
+      <SidebarWalletAccounts :wallet="wallet" />
+      <div class="h-full p-6 overflow-y-scroll">
         <slot />
       </div>
     </div>
   </LayoutBase>
 </template>
-
-<style lang="postcss" scoped>
-.container-height {
-  height: calc(100vh - var(--footer-height) - var(--header-height));
-}
-</style>

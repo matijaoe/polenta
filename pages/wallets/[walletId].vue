@@ -2,23 +2,21 @@
 const route = useRoute('wallets-walletId')
 const walletId = computed(() => route.params.walletId)
 
+const { data: wallet } = await useFetch(`/api/wallets/${walletId.value}`)
+
 definePageMeta({
-  layout: 'dual-sidebar',
+  layout: false
 })
 </script>
 
 <template>
-  <div>
-    <div class="text-3xl">
-      wallet page
+  <NuxtLayout name="dual-sidebar" :wallet="wallet">
+    <div v-if="wallet" class="text-xl">
+      {{ wallet.name }} (id = {{ wallet.id }})
     </div>
 
-    <h1 class="text-5xl">
-      {{ walletId }}
-    </h1>
-
-    <UCard>
+    <UCard class="mt-5">
       <NuxtPage :foobar="123" />
     </UCard>
-  </div>
+  </NuxtLayout>
 </template>

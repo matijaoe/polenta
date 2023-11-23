@@ -1,8 +1,14 @@
 <script lang="ts" setup>
-const { data: accounts } = await useAccounts()
+import type { Wallet } from '~/server/db/schema'
+
+const props = defineProps<{
+  wallet: Wallet
+}>()
+
+const { data: wallet } = await useWallet(props.wallet.id)
 
 const accountItems = computed(() => {
-  return accounts.value?.map(({ account }) => ({
+  return wallet.value?.accounts.map((account) => ({
     label: account.name,
     click: () => {
       navigateTo({
@@ -19,19 +25,16 @@ const accountItems = computed(() => {
 
 <template>
   <SidebarBase>
-    <menu class="space-y-8">
+    <div class="space-y-6">
       <section>
-        <div>
-          <h2 class="font-bold">
-            Accounts
-          </h2>
-        </div>
-
-        <UVerticalNavigation
-          :links="accountItems"
-          class="-mx-3 mt-2"
-        />
+        <h2 class="font-bold">
+          {{ wallet.name }}
+        </h2>
       </section>
-    </menu>
+
+      <menu class="space-y-8">
+        <SidebarMainSection :links="accountItems" title="Accounts" />
+      </menu>
+    </div>
   </SidebarBase>
 </template>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const route = useRoute('wallets-walletId-accountId')
-const accountId = computed(() => route.params.accountId)
+const accountId = computed(() => Number.parseInt(route.params.accountId))
 
 const { account, wallet } = await useAccount(accountId)
 
@@ -10,10 +10,6 @@ const useFetchAddresses = (query: Record<string, any>) => useFetch(`/api/xpub/${
 })
 const { data: addressesReceivingRes } = await useFetchAddresses({ type: 'receiving', limit: 10 })
 const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', limit: 5 })
-
-onMounted(() => {
-  console.log('mounted, acc id', accountId.value)
-})
 </script>
 
 <template>

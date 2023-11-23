@@ -20,4 +20,8 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+.content-container-height {
+  height: calc(100vh - var(--footer-height) - var(--header-height));
+}
 </style>

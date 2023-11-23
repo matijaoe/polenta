@@ -14,7 +14,7 @@ const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrency)
 </script>
 
 <template>
-  <footer class="fixed bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 text-xs h-[--footer-height]">
+  <footer class="border-t border-gray-200 dark:border-gray-800 text-xs h-[--footer-height]">
     <div class="flex items-center justify-between">
       <div class="px-2 py-1 flex items-center gap-5">
         <UTooltip :text="lastUpdatedLabel">
