@@ -32,6 +32,11 @@ export default defineNuxtConfig({
             as: 'set'
           },
           {
+            from: '@vueuse/core',
+            name: 'isClient',
+            as: 'isClient'
+          },
+          {
             from: 'zod',
             name: 'z',
             as: 'z'

@@ -2,11 +2,7 @@
 const {
   pending: isRatePending,
   refresh: refreshRate,
-} = await useFetch('/api/bitcoin/exchange-rate', {
-  lazy: true,
-  pick: ['bpi', 'time'],
-  key: 'bitcoin-exchange-rate',
-})
+} = await useBitcoinExchangeRate()
 
 const REFRESH_RATE_MINUTES = 1
 useIntervalFn(() => {

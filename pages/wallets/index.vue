@@ -4,7 +4,6 @@ const { data: res } = await useAccounts()
 
 <template>
   <div>
-    <!-- list all accounts and their wallet name -->
     <section class="grid accounts-grid gap-4 h-full">
       <UCard
         v-for="{ account, wallet } in res"
@@ -29,7 +28,7 @@ const { data: res } = await useAccounts()
           </NuxtLink>
         </template>
 
-        {{ formatString(account.xpub, 8) }}
+        {{ formatXpub(account.xpub) }}
       </UCard>
     </section>
   </div>

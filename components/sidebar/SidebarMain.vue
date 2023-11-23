@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 const devicesStore = useDeviceStore()
-
-const { data: accountsArr } = await useAccounts()
+const { data: accounts } = await useAccounts()
 
 const accountItems = computed(() => {
-  return accountsArr.value?.map(({ account }) => ({
-    label: `${account.name} [${account.fingerprint}]`,
+  return accounts.value?.map(({ account }) => ({
+    label: `${account.name}`,
     click: () => {
       navigateTo({
         name: 'wallets-accountId',
@@ -62,9 +61,7 @@ const onAddDevice = () => {
         <section>
           <div class="flex items-center justify-between">
             <UButton
-              :ui="{
-                font: 'font-bold',
-              }"
+              :ui="{ font: 'font-bold' }"
               :padded="false"
               size="lg"
               variant="link"
@@ -72,7 +69,7 @@ const onAddDevice = () => {
               :to="{ name: 'wallets' }"
               class="font-bold"
             >
-              Wallets
+              Accounts
             </UButton>
 
             <UTooltip text="Add wallet">
@@ -86,9 +83,7 @@ const onAddDevice = () => {
         <section>
           <div class="flex items-center justify-between">
             <UButton
-              :ui="{
-                font: 'font-bold',
-              }"
+              :ui="{ font: 'font-bold' }"
               :padded="false"
               size="lg"
               variant="link"
