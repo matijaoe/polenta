@@ -1,18 +1,35 @@
 <script lang="ts" setup>
 const devicesStore = useDeviceStore()
 const { data: accounts } = await useAccounts()
+const { data: wallets } = await useWallets()
 
 const accountItems = computed(() => {
   return accounts.value?.map(({ account }) => ({
     label: `${account.name}`,
     click: () => {
       navigateTo({
-        name: 'wallets-accountId',
+        name: 'wallets-walletId-accountId',
         params: {
           accountId: account.id,
+          walletId: account.walletId,
         }
       })
     }
+  })) ?? []
+})
+
+const walletItems = computed(() => {
+  return wallets.value?.map((wallet) => ({
+    label: `${wallet.name}`,
+    click: () => {
+      navigateTo({
+        name: 'wallets-walletId',
+        params: {
+          walletId: wallet.id,
+        }
+      })
+    }
+
   })) ?? []
 })
 
@@ -57,7 +74,7 @@ const onAddDevice = () => {
         <UVerticalNavigation :links="links" class="-mx-3" />
       </nav>
 
-      <div class="mt-8 space-y-10">
+      <div class="mt-8 space-y-6">
         <section>
           <div class="flex items-center justify-between">
             <UButton
@@ -71,13 +88,31 @@ const onAddDevice = () => {
             >
               Accounts
             </UButton>
+          </div>
 
-            <UTooltip text="Add wallet">
+          <UVerticalNavigation :links="accountItems" class="-mx-3 mt-2" />
+        </section>
+
+        <section>
+          <div class="flex items-center justify-between">
+            <UButton
+              :ui="{ font: 'font-bold' }"
+              :padded="false"
+              size="lg"
+              variant="link"
+              color="black"
+              :to="{ name: 'wallets' }"
+              class="font-bold"
+            >
+              Wallets
+            </UButton>
+
+            <UTooltip text="Add wallet" :popper="{ placement: 'right' }">
               <UButton size="xs" icon="i-heroicons-plus" square color="white" @click="onAddWallet" />
             </UTooltip>
           </div>
 
-          <UVerticalNavigation :links="accountItems" class="-mx-3 mt-2" />
+          <UVerticalNavigation :links="walletItems" class="-mx-3 mt-2" />
         </section>
 
         <section>
@@ -94,7 +129,7 @@ const onAddDevice = () => {
               Devices
             </UButton>
 
-            <UTooltip text="Add device">
+            <UTooltip text="Add device" :popper="{ placement: 'right' }">
               <UButton size="xs" icon="i-heroicons-plus" square color="white" @click="onAddDevice" />
             </UTooltip>
           </div>

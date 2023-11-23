@@ -1,14 +1,15 @@
 <script lang="ts" setup>
-const { data: accountsArr } = await useAccounts()
+const { data: accounts } = await useAccounts()
 
 const accountItems = computed(() => {
-  return accountsArr.value?.map(({ account }) => ({
+  return accounts.value?.map(({ account }) => ({
     label: account.name,
     click: () => {
       navigateTo({
-        name: 'wallets-accountId',
+        name: 'wallets-walletId-accountId',
         params: {
           accountId: account.id,
+          walletId: account.walletId,
         }
       })
     }
@@ -26,7 +27,10 @@ const accountItems = computed(() => {
           </h2>
         </div>
 
-        <UVerticalNavigation :links="accountItems" class="-mx-3 mt-2" />
+        <UVerticalNavigation
+          :links="accountItems"
+          class="-mx-3 mt-2"
+        />
       </section>
     </menu>
   </SidebarBase>

@@ -42,7 +42,7 @@ const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrency)
       </div>
 
       <div class="px-2 py-1">
-        connected to blockstream.info
+        <!--  -->
       </div>
     </div>
   </footer>

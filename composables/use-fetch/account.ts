@@ -12,5 +12,12 @@ export const useAccount = async (accountId: MaybeRef<string>) => {
     },
   })
 
-  return res
+  const account = computed(() => res.data.value?.account)
+  const wallet = computed(() => res.data.value?.wallet)
+
+  return {
+    ...res,
+    account,
+    wallet,
+  }
 }
