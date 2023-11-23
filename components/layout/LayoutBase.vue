@@ -91,7 +91,7 @@ defineShortcuts({
   <div class="h-screen w-screen of-hidden">
     <TheHeader />
 
-    <div class="h-[calc(100vh-25px-55px)] grid grid-cols-[230px_1fr]">
+    <div class="container-height grid grid-cols-[230px_1fr]">
       <SidebarMain />
       <div class="h-full overflow-y-auto w-full">
         <slot />
@@ -105,3 +105,9 @@ defineShortcuts({
     </UModal>
   </div>
 </template>
+
+<style lang="postcss" scoped>
+.container-height {
+  height: calc(100vh - var(--footer-height) - var(--header-height));
+}
+</style>

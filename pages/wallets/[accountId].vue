@@ -2,7 +2,12 @@
 const route = useRoute('wallets-accountId')
 const accountId = computed(() => route.params.accountId)
 
-const { data: res } = await useFetch(`/api/accounts/${accountId.value}`)
+const nuxtApp = useNuxtApp()
+const { data: res } = await useFetch(`/api/accounts/${accountId.value}`, {
+  getCachedData(key) {
+    return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
+  },
+})
 
 const account = computed(() => res.value?.account)
 const wallet = computed(() => res.value?.wallet)

@@ -1,16 +1,22 @@
 <script lang="ts" setup>
-const walletsStore = useWalletsStore()
 const devicesStore = useDeviceStore()
 
-const wallets = computed(() => walletsStore.wallets.map((wallet) => {
-  return {
-    label: wallet.label,
-    click: () => navigateTo({
-      name: 'wallets-walletId',
-      params: { walletId: wallet.id },
-    }),
-  }
-}))
+const { data: accountsArr } = await useAccounts()
+
+const accountItems = computed(() => {
+  return accountsArr.value?.map(({ account }) => ({
+    label: `${account.name} [${account.fingerprint}]`,
+    click: () => {
+      navigateTo({
+        name: 'wallets-accountId',
+        params: {
+          accountId: account.id,
+        }
+      })
+    }
+  })) ?? []
+})
+
 const devices = computed(() => devicesStore.devices.map((device) => {
   return {
     label: device.label,
@@ -26,12 +32,6 @@ const links = [
     label: 'Dashboard',
     click: () => navigateTo({
       name: 'index',
-    }),
-  },
-  {
-    label: 'Accounts',
-    click: () => navigateTo({
-      name: 'accounts',
     }),
   },
   {
@@ -80,7 +80,7 @@ const onAddDevice = () => {
             </UTooltip>
           </div>
 
-          <UVerticalNavigation :links="wallets" class="-mx-3 mt-2" />
+          <UVerticalNavigation :links="accountItems" class="-mx-3 mt-2" />
         </section>
 
         <section>

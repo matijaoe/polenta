@@ -148,9 +148,8 @@ const onSubmit = handleSubmit(
             label: 'Check it out',
             click: () => {
               navigateTo({
-                name: 'wallets-walletId-accountId',
+                name: 'wallets-accountId',
                 params: {
-                  walletId: createdData.value!.wallet.id,
                   accountId: createdData.value!.account.id,
                 }
               })

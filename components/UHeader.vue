@@ -13,7 +13,7 @@ const mobileMenuOpen = ref(false)
 </script>
 
 <template>
-  <header class="bg-background/75 backdrop-blur border-b -mb-px sticky top-0 z-50 border-gray-200 dark:border-gray-800">
+  <header class="bg-background/75 backdrop-blur border-b -mb-px sticky top-0 z-50 border-gray-200 dark:border-gray-800 overflow-hidden">
     <div class="w-full mx-auto px-4 sm:px-6 lg:px-4 flex items-center justify-between gap-3 h-[--header-height]">
       <div class=" lg:flex-1 flex items-center gap-1.5">
         <slot name="left" />
@@ -41,6 +41,6 @@ const mobileMenuOpen = ref(false)
 
 <style lang="postcss" scoped>
 :global(:root) {
-  --header-height: 55px;
+  --header-height: 45px;
 }
 </style>

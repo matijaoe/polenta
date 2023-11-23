@@ -1,25 +1,18 @@
 <script lang="ts" setup>
-const { walletId } = defineProps<{
-  walletId: string
-}>()
+const { data: accountsArr } = await useAccounts()
 
-const accountsStore = useAccountsStore()
-
-const accounts = computed(() => {
-  const walletAccounts = accountsStore.getWalletAccounts(walletId)
-
-  return walletAccounts.map((account) => ({
-    label: account.label,
+const accountItems = computed(() => {
+  return accountsArr.value?.map(({ account }) => ({
+    label: account.name,
     click: () => {
       navigateTo({
-        name: 'wallets-walletId-accountId',
+        name: 'wallets-accountId',
         params: {
-          walletId: account.walletId,
-          accountId: account.id
-        },
+          accountId: account.id,
+        }
       })
     }
-  }))
+  })) ?? []
 })
 </script>
 
@@ -33,7 +26,7 @@ const accounts = computed(() => {
           </h2>
         </div>
 
-        <UVerticalNavigation :links="accounts" class="-mx-3 mt-2" />
+        <UVerticalNavigation :links="accountItems" class="-mx-3 mt-2" />
       </section>
     </menu>
   </SidebarBase>
