@@ -4,14 +4,14 @@ import { ErrorCode, Script } from '~/models'
 
 export type QueryParams = {
   script: Script
-  type: 'receive' | 'change'
+  type: 'receiving' | 'change'
   limit: number
   gap: number
 }
 
 const zodSchema = z.object({
   script: z.nativeEnum(Script).optional().default(Script.native_segwit),
-  type: z.enum(['receive', 'change']).optional().default('receive'),
+  type: z.enum(['receiving', 'change']).optional().default('receiving'),
   limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
   gap: z.number().min(0).optional().default(0),
 })

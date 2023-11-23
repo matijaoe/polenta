@@ -1,9 +1,11 @@
 import type { CachedData } from './cache'
-import type { WithOptional } from '.'
+import type { Script, WithOptional } from '.'
 
 export type XpubAddressesResponse = {
   xpub: string
   addresses: string[]
+  type: 'receiving' | 'change'
+  script: Script
 }
 
 export type AddressStatsResponse = CachedData<AddressStatsData[]>

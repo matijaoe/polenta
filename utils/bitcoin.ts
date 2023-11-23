@@ -5,7 +5,7 @@ export const blockExplorerAddressUrl = (address: string) => {
 }
 
 export const validateXpubClientSide = async (xpub: string) => {
-  const data = await $fetch(`/api/xpub/validate`, {
+  const data = await $fetch(`/api/validate-xpub`, {
     query: { xpub },
   })
   return data.isValid

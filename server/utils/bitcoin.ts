@@ -35,7 +35,7 @@ export const validateAddress = (address: string) => {
 
 export const generateAddressFromXpubKey = (xpubKey: BIP32Interface, { script, type, index }: {
   script: Script
-  type: 'receive' | 'change'
+  type: 'receiving' | 'change'
   index: number
 }) => {
   const addrLevel = type === 'change' ? 1 : 0
@@ -85,7 +85,7 @@ export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, ty
   script: Script
   limit: number
   gap: number
-  type: 'receive' | 'change'
+  type: 'receiving' | 'change'
 }): string[] => {
   const xpubKey = generateXpubKey(xpub)
 

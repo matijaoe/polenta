@@ -14,3 +14,10 @@ export const mapToObject = <K extends string | number | symbol, V>(map: Map<K, V
 export const generateIndices = ({ start = 0, count }: { start: number; count: number }) => {
   return Array.from({ length: count }).map((_, i) => start + i)
 }
+
+export const formatString = (str: string, n: number) => {
+  if (str.length <= 2 * n) {
+    return str
+  }
+  return `${str.slice(0, n)}...${str.slice(-n)}`
+}
