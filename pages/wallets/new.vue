@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { generateSlug } from 'random-word-slugs'
 import { ErrorCode } from '~/models'
 
 const {
@@ -24,8 +25,11 @@ const {
 const { scriptOptions } = useBitcoinScripts()
 
 const selectedScriptType = computed({
-  get: () => useScript(scriptType.value.value).value,
-  set: (selected) => setFieldValue('scriptType', selected?.value)
+  get: () => useScript(scriptType.value.value).value?.value,
+  set: (valueKey) => {
+    console.log(valueKey)
+    setFieldValue('scriptType', valueKey)
+  }
 })
 
 watch(() => fingerprint.value, ({ value }) => {
@@ -182,6 +186,16 @@ const onClearDerivationPath = () => {
   derivationPathEl.value?.input.focus()
   setFieldTouched('derivationPath', false)
 }
+
+const generateRandomName = () => {
+  setFieldTouched('name', false)
+  const name = generateSlug(2, { format: 'sentence' })
+  setFieldValue('name', name)
+}
+
+const disablePointerEventsUi = computed(() => {
+  return { icon: { trailing: { pointer: '' } } }
+})
 </script>
 
 <template>
@@ -194,7 +208,27 @@ const onClearDerivationPath = () => {
             label="Wallet name"
             :error="fieldError('name')"
           >
-            <UInput v-bind="name" />
+            <UInput
+              icon="i-ph-identification-badge"
+              v-bind="name"
+              autofocus
+              :ui="disablePointerEventsUi"
+            >
+              <template #trailing>
+                <UTooltip text="Generate random">
+                  <UButton
+                    id="clearDerivationPathBtn"
+                    color="gray"
+                    variant="link"
+                    icon="i-ph-shuffle-bold"
+                    :padded="false"
+                    tabindex="-1"
+                    type="button"
+                    @click.stop="generateRandomName"
+                  />
+                </UTooltip>
+              </template>
+            </UInput>
           </UFormGroup>
 
           <UFormGroup
@@ -211,11 +245,23 @@ const onClearDerivationPath = () => {
           >
             <USelectMenu
               v-model="selectedScriptType"
+              icon="i-ph-currency-btc"
               :options="scriptOptions"
+              value-attribute="value"
             >
-              <template #option="{ option }">
+              <template #label>
+                <!-- TODO: there gotta be a simpler way -->
+                <!-- if the selected script type is the whole object, it does not recognize it -->
+                {{ scriptOptions.find(item => item.value === selectedScriptType)?.label }}
+              </template>
+              <template #option="{ option, selected }">
                 <div class="flex flex-col gap-2 w-full">
-                  <p class="flex-1">
+                  <p
+                    class="flex-1"
+                    :class="{
+                      'font-bold text-primary': selected
+                    }"
+                  >
                     {{ option.label }}
                   </p>
 
@@ -242,12 +288,24 @@ const onClearDerivationPath = () => {
             :error="fieldError('fingerprint')"
           >
             <UInput
+              icon="i-ph-fingerprint"
               v-bind="fingerprint"
               :placeholder="defaults.fingerprint"
               maxlength="8"
               pattern="[a-fA-F0-9]*"
+              :ui="disablePointerEventsUi"
               @keyup.right="autofillFingerprint"
-            />
+            >
+              <template #trailing>
+                <UTooltip v-if="fingerprint.value === ''" text="Set default">
+                  <button class="flex items-center" type="button" tabindex="-1" @click.stop="autofillFingerprint">
+                    <UKbd>
+                      →
+                    </UKbd>
+                  </button>
+                </UTooltip>
+              </template>
+            </UInput>
           </UFormGroup>
 
           <UFormGroup
@@ -258,20 +316,33 @@ const onClearDerivationPath = () => {
             <UInput
               v-bind="derivationPath"
               ref="derivationPathEl"
+              icon="i-ph-git-branch"
               :placeholder="defaultDerivationPath"
-              :ui="{ icon: { trailing: { pointer: '' } } }"
+              :ui="disablePointerEventsUi"
               @keyup.right="autofillDerivation"
             >
               <template #trailing>
-                <UButton
-                  v-show="derivationPath.value !== ''"
-                  id="clearDerivationPathBtn"
-                  color="gray"
-                  variant="link"
-                  icon="i-ph-x-bold"
-                  :padded="false"
-                  @click.stop="onClearDerivationPath"
-                />
+                <UTooltip v-if="derivationPath.value === ''" text="Set default">
+                  <button class="flex items-center" type="button" tabindex="-1" @click.stop="autofillDerivation">
+                    <UKbd>
+                      →
+                    </UKbd>
+                  </button>
+                </UTooltip>
+
+                <UTooltip v-else text="Clear">
+                  <UButton
+                    v-show="derivationPath.value !== ''"
+                    id="clearDerivationPathBtn"
+                    color="gray"
+                    variant="link"
+                    icon="i-ph-x"
+                    :padded="false"
+                    tabindex="-1"
+                    type="button"
+                    @click.stop="onClearDerivationPath"
+                  />
+                </UTooltip>
               </template>
             </UInput>
           </UFormGroup>
@@ -290,7 +361,7 @@ const onClearDerivationPath = () => {
       </div>
 
       <div class="flex justify-end gap-3">
-        <UButton color="white" variant="solid" @click="resetForm">
+        <UButton color="white" variant="solid" type="reset" @click="resetForm">
           Clear
         </UButton>
 

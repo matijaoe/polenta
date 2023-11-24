@@ -100,6 +100,9 @@ devDependencies:
   query-string:
     specifier: ^8.1.0
     version: 8.1.0
+  random-word-slugs:
+    specifier: ^0.1.7
+    version: 0.1.7
   typescript:
     specifier: ^5.3.2
     version: 5.3.2
@@ -8484,6 +8487,10 @@ packages:
 
   /radix3@1.1.0:
     resolution: {integrity: sha512-pNsHDxbGORSvuSScqNJ+3Km6QAVqk8CfsCBIEoDgpqLrkD2f3QM4I7d1ozJJ172OmIcoUcerZaNWqtLkRXTV3A==}
+    dev: true
+
+  /random-word-slugs@0.1.7:
+    resolution: {integrity: sha512-8cyzxOIDeLFvwSPTgCItMXHGT5ZPkjhuFKUTww06Xg1dNMXuGxIKlARvS7upk6JXIm41ZKXmtlKR1iCRWklKmg==}
     dev: true
 
   /randombytes@2.1.0:

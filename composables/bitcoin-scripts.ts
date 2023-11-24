@@ -1,4 +1,4 @@
-import type { Script, ScriptConfigValue } from '~/models'
+import type { Script, type ScriptConfigValue } from '~/models'
 import { SCRIPT_CONFIG } from '~/models'
 
 export const useBitcoinScripts = () => {
@@ -18,6 +18,7 @@ export const useBitcoinScripts = () => {
   }
 
   return {
+    scripts: Object.keys(SCRIPT_CONFIG),
     scriptOptions,
     getScriptValue,
   }
