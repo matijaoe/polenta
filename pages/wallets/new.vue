@@ -15,21 +15,17 @@ const {
   description,
   xpub,
   fingerprint,
-  scriptType,
   derivationPath,
   passphraseProtectedModel,
   // ----
   fieldError
 } = useWalletCreateForm()
 
-const { scriptOptions } = useBitcoinScripts()
+const { scriptOptions, getScriptValue } = useBitcoinScripts()
 
-const selectedScriptType = computed({
-  get: () => useScript(scriptType.value.value).value?.value,
-  set: (valueKey) => {
-    console.log(valueKey)
-    setFieldValue('scriptType', valueKey)
-  }
+const selectedScript = computed({
+  get: () => getScriptValue(values.scriptType),
+  set: (item) => setFieldValue('scriptType', item.value)
 })
 
 watch(() => fingerprint.value, ({ value }) => {
@@ -244,16 +240,12 @@ const disablePointerEventsUi = computed(() => {
             label="Script type"
           >
             <USelectMenu
-              v-model="selectedScriptType"
+              v-model="selectedScript"
               icon="i-ph-currency-btc"
               :options="scriptOptions"
-              value-attribute="value"
+              by="value"
+              option-attribute="label"
             >
-              <template #label>
-                <!-- TODO: there gotta be a simpler way -->
-                <!-- if the selected script type is the whole object, it does not recognize it -->
-                {{ scriptOptions.find(item => item.value === selectedScriptType)?.label }}
-              </template>
               <template #option="{ option, selected }">
                 <div class="flex flex-col gap-2 w-full">
                   <p
@@ -304,6 +296,8 @@ const disablePointerEventsUi = computed(() => {
                     </UKbd>
                   </button>
                 </UTooltip>
+                <!-- must be here, otherwise leading icons shows up for some weird reason -->
+                <div v-else class="invisible" />
               </template>
             </UInput>
           </UFormGroup>

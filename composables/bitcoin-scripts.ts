@@ -1,16 +1,16 @@
-import type { Script, type ScriptConfigValue } from '~/models'
+import type { Script, ScriptConfigValue, ScriptSelectItem } from '~/models'
 import { SCRIPT_CONFIG } from '~/models'
 
 export const useBitcoinScripts = () => {
   const entries = computed(() => (Object.entries(SCRIPT_CONFIG) as [Script, ScriptConfigValue][]))
 
-  const scriptOptions = computed(() => entries.value
+  const scriptOptions = computed<ScriptSelectItem[]>(() => entries.value
     .map(([code, value]) => ({
       value: code,
       ...value,
     })))
 
-  const getScriptValue = (scriptValue?: Script) => {
+  const getScriptValue = (scriptValue?: Script): ScriptSelectItem | undefined => {
     if (!scriptValue) {
       return undefined
     }
@@ -18,7 +18,6 @@ export const useBitcoinScripts = () => {
   }
 
   return {
-    scripts: Object.keys(SCRIPT_CONFIG),
     scriptOptions,
     getScriptValue,
   }

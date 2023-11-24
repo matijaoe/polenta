@@ -1,4 +1,4 @@
-import { ErrorCode, Script } from '~/models'
+import { Script } from '~/models'
 
 export const useWalletCreateForm = () => {
   const schema = z.object({
@@ -60,7 +60,7 @@ export const useWalletCreateForm = () => {
   const description = defineInputBinds('description', inputOptions)
   const xpub = defineInputBinds('xpub', inputOptions)
   const fingerprint = defineInputBinds('fingerprint', inputOptions)
-  const scriptType = defineInputBinds('scriptType', inputOptions)
+  const scriptType = defineInputBinds('scriptType', inputOptions) // not used
   const derivationPath = defineInputBinds('derivationPath', inputOptions)
   const passphraseProtectedModel = useFieldModel('passphraseProtected')
 
