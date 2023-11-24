@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-const { data: res } = await useFetch('/api/accounts')
+const { data: accounts } = await useAccounts()
 </script>
 
 <template>
   <div>
-    <!-- list all accounts and their wallet name -->
     <section class="grid accounts-grid gap-4 h-full">
       <UCard
-        v-for="{ account, wallet } in res"
+        v-for="account in accounts"
         :key="account.id"
         class="group"
         :ui="{
@@ -23,13 +22,13 @@ const { data: res } = await useFetch('/api/accounts')
                 {{ account.name }}
               </h3>
               <p class="text-sm text-gray-600 dark:text-gray-500">
-                [{{ wallet?.name }}]
+                [{{ account.wallet.name }}]
               </p>
             </div>
           </NuxtLink>
         </template>
 
-        {{ formatString(account.xpub, 8) }}
+        {{ formatXpub(account.xpub) }}
       </UCard>
     </section>
   </div>

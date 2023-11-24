@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { type Account, Script } from '~/models'
+import { Script } from '~/models'
 
 const ACCOUNTS = [
   {
@@ -53,7 +53,7 @@ const ACCOUNTS = [
 ]
 
 export const useAccountsStore = defineStore('accounts', () => {
-  const accounts = ref<Account[]>(ACCOUNTS)
+  const accounts = ref<any[]>(ACCOUNTS)
 
   const getAccount = (accountId: string) => {
     return accounts.value.find((account) => account.id === accountId)

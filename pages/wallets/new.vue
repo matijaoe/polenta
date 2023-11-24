@@ -1,77 +1,31 @@
 <script lang="ts" setup>
-import { z } from 'zod'
-import { ErrorCode, Script } from '~/models'
+import { generateSlug } from 'random-word-slugs'
+import { ErrorCode } from '~/models'
 
-const validationSchema = z.object({
-  name: z.string()
-    .min(1, 'Name is required')
-    .min(3, 'Name must be at least 3 characters')
-    .max(40, 'Name must be at most 40 characters'),
-  description: z.string().optional(),
-  scriptType: z.nativeEnum(Script),
-  xpub: z.string()
-    .min(1, 'xpub is required')
-    .refine(validateXpubClientSide, 'Invalid xpub'),
-  fingerprint: z
-    .string()
-    .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
-    .transform((fp) => fp.toUpperCase()).optional(),
-  derivationPath: z.string()
-    .min(1, 'Derivation path is required')
-    .regex(derivationPathRegex, 'Invalid derivation path')
-    .transform((path) => path.replaceAll(`'`, 'h')),
-  passphraseProtected: z.boolean().default(false),
-})
-
-const DEFAULTS: {
-  script: Script
-  fingerprint: string
-} = {
-  script: Script.native_segwit,
-  fingerprint: '00000000'
-}
+const {
+  defaults,
+  // form
+  values,
+  handleSubmit,
+  setFieldValue,
+  setFieldTouched,
+  resetForm,
+  // fields
+  name,
+  description,
+  xpub,
+  fingerprint,
+  derivationPath,
+  passphraseProtectedModel,
+  // ----
+  fieldError
+} = useWalletCreateForm()
 
 const { scriptOptions, getScriptValue } = useBitcoinScripts()
 
-const {
-  values,
-  errors,
-  handleSubmit,
-  defineInputBinds,
-  setFieldValue,
-  useFieldModel,
-  setFieldTouched,
-  isFieldTouched,
-  resetForm,
-} = useForm({
-  validationSchema: toTypedSchema(validationSchema),
-  initialValues: {
-    name: '',
-    description: '',
-    scriptType: DEFAULTS.script,
-    xpub: '',
-    fingerprint: '',
-    passphraseProtected: false,
-    derivationPath: getScriptValue(DEFAULTS.script)!.derivationPath,
-  },
-})
-
-const inputOptions = { validateOnInput: true }
-const name = defineInputBinds('name', inputOptions)
-const description = defineInputBinds('description', inputOptions)
-const xpub = defineInputBinds('xpub', inputOptions)
-const fingerprint = defineInputBinds('fingerprint', inputOptions)
-const scriptType = defineInputBinds('scriptType', inputOptions)
-const derivationPath = defineInputBinds('derivationPath', inputOptions)
-const passphraseProtectedModel = useFieldModel('passphraseProtected')
-
-const fieldError = (field: keyof typeof values) => {
-  return isFieldTouched(field) && errors.value[field!]
-}
-
-const selectedScriptType = computed({
-  get: () => getScriptValue(scriptType.value.value),
-  set: (selected) => setFieldValue('scriptType', selected?.value)
+const selectedScript = computed({
+  get: () => getScriptValue(values.scriptType),
+  set: (item) => setFieldValue('scriptType', item.value)
 })
 
 watch(() => fingerprint.value, ({ value }) => {
@@ -79,8 +33,9 @@ watch(() => fingerprint.value, ({ value }) => {
 })
 
 const defaultDerivationPath = computed(() => {
-  const script = scriptType.value.value ?? DEFAULTS.script
-  return getScriptValue(script)!.derivationPath
+  const scriptType = values.scriptType ?? defaults.script
+  const script = useScript(scriptType)
+  return script.value!.derivationPath
 })
 
 const setDefaultDerivationPath = () => {
@@ -92,140 +47,151 @@ watchEffect(() => {
 })
 
 const autofillDerivation = () => {
-  if (values.derivationPath !== '') {
-    return
-  }
+  if (values.derivationPath !== '') { return }
   setDefaultDerivationPath()
 }
 
 const autofillFingerprint = () => {
-  if (values.fingerprint !== '') {
-    return
-  }
-  setFieldValue('fingerprint', DEFAULTS.fingerprint)
+  if (values.fingerprint !== '') { return }
+  setFieldValue('fingerprint', defaults.fingerprint)
 }
 
 const toast = useToast()
 
-const { execute: createWallet, status, data: createdData, error } = await useFetch('/api/wallets', {
-  method: 'POST',
-  immediate: false,
-  server: false,
-  watch: false,
-  body: computed(() => ({
-    wallet: {
-      name: values.name,
-      description: values.description,
-      scriptType: values.scriptType,
-      passphraseProtected: values.passphraseProtected,
-    },
-    account: {
-      name: 'First account',
-      xpub: values.xpub,
-      fingerprint: values.fingerprint,
-      derivationPath: values.derivationPath,
-    }
-  })),
-})
+const payload = computed(() => ({
+  wallet: {
+    name: values.name,
+    description: values.description,
+    scriptType: values.scriptType,
+    passphraseProtected: values.passphraseProtected,
+  },
+  account: {
+    name: 'First account',
+    xpub: values.xpub,
+    fingerprint: values.fingerprint,
+    derivationPath: values.derivationPath,
+  }
+}))
 
-const errorCode = computed(() => error.value?.data.data?.errorCode as ErrorCode | undefined)
-const isSuccess = computed(() => status.value === 'success')
-const isLoading = computed(() => status.value === 'pending')
+const {
+  execute: createWallet,
+  data: createdData,
+  error,
+  errorCode,
+  isSuccess,
+  isLoading,
+} = await useCreateWallet(payload)
+
+const toasts = {
+  createdSuccessfully: () => toast.add({
+    title: 'Wallet created successfully',
+    description: 'Your new wallet is now ready for use.',
+    color: 'green',
+    icon: 'i-ph-confetti-bold',
+    timeout: 0,
+    actions: [
+      {
+        label: 'Check it out',
+        click: () => {
+          navigateTo({
+            name: 'wallets-walletId-accountId',
+            params: {
+              accountId: createdData.value!.account.id,
+              walletId: createdData.value!.wallet.id,
+            }
+          })
+        },
+        color: 'green',
+        variant: 'solid',
+      },
+      {
+        label: 'See data',
+        click: () => {
+          alert(JSON.stringify(createdData.value, null, 2))
+        },
+      },
+    ]
+  }),
+  // TODO: add a button to navigate to the wallet with that xpub
+  // perhaps also show some data of that account in the toast
+  createFailed: () => toast.add({
+    title: 'Wallet creation failed',
+    description: 'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.',
+    color: 'red',
+    timeout: 0,
+    icon: 'i-ph-warning-bold',
+  }),
+  unexpectedError: () => toast.add({
+    title: 'Unable to create your wallet',
+    description: 'An unexpected error occurred while creating your wallet. Please try again. If the issue persists, please send us a bug report.',
+    color: 'red',
+    icon: 'i-ph-bug-bold',
+    actions: [
+      {
+        label: 'Report a bug',
+        click: () => {
+          alert('Bug reported')
+        },
+        color: 'red',
+        variant: 'soft'
+      },
+      {
+        label: 'See error',
+        click: () => {
+          alert(JSON.stringify(error.value, null, 2))
+        }
+      }
+    ]
+  })
+}
 
 const onSubmit = handleSubmit(
-  async (values, { resetForm, setFieldError }) => {
+  async (_, { resetForm, setFieldError }) => {
     await createWallet()
 
     if (isSuccess.value && createdData.value) {
-      toast.add({
-        title: 'Wallet created successfully',
-        description: 'Your new wallet is now ready for use.',
-        color: 'green',
-        icon: 'i-ph-confetti-bold',
-        timeout: 0,
-        actions: [
-          {
-            label: 'Check it out',
-            click: () => {
-              navigateTo({
-                name: 'wallets-walletId-accountId',
-                params: {
-                  walletId: createdData.value!.wallet.id,
-                  accountId: createdData.value!.account.id,
-                }
-              })
-            },
-            color: 'green',
-            variant: 'solid',
-          },
-          {
-            label: 'See data',
-            click: () => {
-              alert(JSON.stringify(createdData.value, null, 2))
-            },
-          },
-
-        ]
-      })
+      toasts.createdSuccessfully()
       resetForm()
+      refreshNuxtData([FetchKey.Wallets, FetchKey.Accounts])
       navigateTo('/')
       return
     }
 
     if (error.value) {
-      const code = errorCode.value
-      if (code === ErrorCode.DUPLICATE_XPUB) {
+      if (errorCode.value === ErrorCode.DUPLICATE_XPUB) {
         setFieldError('xpub', 'Wallet with this xpub already exists')
-        // TODO: add a button to navigate to the wallet with that xpub
-        // perhaps also show some data of that account in the toast
-        toast.add({
-          title: 'Wallet creation failed',
-          description: 'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.',
-          color: 'red',
-          timeout: 0,
-          icon: 'i-ph-warning-bold',
-        })
+        toasts.createFailed()
         return
       }
-      toast.add({
-        title: 'Unable to create your wallet',
-        description: 'An unexpected error occurred while creating your wallet. Please try again. If the issue persists, please send us a bug report.',
-        color: 'red',
-        icon: 'i-ph-bug-bold',
-        actions: [
-          {
-            label: 'Report a bug',
-            click: () => {
-              alert('Bug reported')
-            },
-            color: 'red',
-            variant: 'soft'
-          },
-          {
-            label: 'See error',
-            click: () => {
-              alert(JSON.stringify(error.value, null, 2))
-            }
-          }
-        ]
-      })
+      toasts.unexpectedError()
     }
   },
   (context) => {
-    toast.add({ title: 'Check you data', color: 'red' })
     console.error('⚠️ Validation error', context)
   }
 )
+
 const activeEl = useActiveElement()
-const clearDerivationBtnActive = computed(() => activeEl.value?.id === 'clearDerivationPathBtn')
+const clearDerivationBtnActive = computed(() => {
+  return activeEl.value?.id === 'clearDerivationPathBtn'
+})
 
 const derivationPathEl = ref<{ input: HTMLInputElement } | null>(null)
 const onClearDerivationPath = () => {
   setFieldValue('derivationPath', '')
-  const input = derivationPathEl.value?.input
-  input?.focus()
+  derivationPathEl.value?.input.focus()
   setFieldTouched('derivationPath', false)
 }
+
+const generateRandomName = () => {
+  setFieldTouched('name', false)
+  const name = generateSlug(2, { format: 'sentence' })
+  setFieldValue('name', name)
+}
+
+const disablePointerEventsUi = computed(() => {
+  return { icon: { trailing: { pointer: '' } } }
+})
 </script>
 
 <template>
@@ -238,7 +204,27 @@ const onClearDerivationPath = () => {
             label="Wallet name"
             :error="fieldError('name')"
           >
-            <UInput v-bind="name" />
+            <UInput
+              icon="i-ph-identification-badge"
+              v-bind="name"
+              autofocus
+              :ui="disablePointerEventsUi"
+            >
+              <template #trailing>
+                <UTooltip text="Generate random">
+                  <UButton
+                    id="clearDerivationPathBtn"
+                    color="gray"
+                    variant="link"
+                    icon="i-ph-shuffle-bold"
+                    :padded="false"
+                    tabindex="-1"
+                    type="button"
+                    @click.stop="generateRandomName"
+                  />
+                </UTooltip>
+              </template>
+            </UInput>
           </UFormGroup>
 
           <UFormGroup
@@ -254,12 +240,20 @@ const onClearDerivationPath = () => {
             label="Script type"
           >
             <USelectMenu
-              v-model="selectedScriptType"
+              v-model="selectedScript"
+              icon="i-ph-currency-btc"
               :options="scriptOptions"
+              by="value"
+              option-attribute="label"
             >
-              <template #option="{ option }">
+              <template #option="{ option, selected }">
                 <div class="flex flex-col gap-2 w-full">
-                  <p class="flex-1">
+                  <p
+                    class="flex-1"
+                    :class="{
+                      'font-bold text-primary': selected
+                    }"
+                  >
                     {{ option.label }}
                   </p>
 
@@ -286,12 +280,26 @@ const onClearDerivationPath = () => {
             :error="fieldError('fingerprint')"
           >
             <UInput
+              icon="i-ph-fingerprint"
               v-bind="fingerprint"
-              :placeholder="DEFAULTS.fingerprint"
+              :placeholder="defaults.fingerprint"
               maxlength="8"
               pattern="[a-fA-F0-9]*"
+              :ui="disablePointerEventsUi"
               @keyup.right="autofillFingerprint"
-            />
+            >
+              <template #trailing>
+                <UTooltip v-if="fingerprint.value === ''" text="Set default">
+                  <button class="flex items-center" type="button" tabindex="-1" @click.stop="autofillFingerprint">
+                    <UKbd>
+                      →
+                    </UKbd>
+                  </button>
+                </UTooltip>
+                <!-- must be here, otherwise leading icons shows up for some weird reason -->
+                <div v-else class="invisible" />
+              </template>
+            </UInput>
           </UFormGroup>
 
           <UFormGroup
@@ -302,20 +310,33 @@ const onClearDerivationPath = () => {
             <UInput
               v-bind="derivationPath"
               ref="derivationPathEl"
+              icon="i-ph-git-branch"
               :placeholder="defaultDerivationPath"
-              :ui="{ icon: { trailing: { pointer: '' } } }"
+              :ui="disablePointerEventsUi"
               @keyup.right="autofillDerivation"
             >
               <template #trailing>
-                <UButton
-                  v-show="derivationPath.value !== ''"
-                  id="clearDerivationPathBtn"
-                  color="gray"
-                  variant="link"
-                  icon="i-ph-x-bold"
-                  :padded="false"
-                  @click.stop="onClearDerivationPath"
-                />
+                <UTooltip v-if="derivationPath.value === ''" text="Set default">
+                  <button class="flex items-center" type="button" tabindex="-1" @click.stop="autofillDerivation">
+                    <UKbd>
+                      →
+                    </UKbd>
+                  </button>
+                </UTooltip>
+
+                <UTooltip v-else text="Clear">
+                  <UButton
+                    v-show="derivationPath.value !== ''"
+                    id="clearDerivationPathBtn"
+                    color="gray"
+                    variant="link"
+                    icon="i-ph-x"
+                    :padded="false"
+                    tabindex="-1"
+                    type="button"
+                    @click.stop="onClearDerivationPath"
+                  />
+                </UTooltip>
               </template>
             </UInput>
           </UFormGroup>
@@ -334,7 +355,7 @@ const onClearDerivationPath = () => {
       </div>
 
       <div class="flex justify-end gap-3">
-        <UButton color="white" variant="solid" @click="resetForm">
+        <UButton color="white" variant="solid" type="reset" @click="resetForm">
           Clear
         </UButton>
 

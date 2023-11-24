@@ -1,18 +1,19 @@
-import { sql } from 'drizzle-orm'
+/* eslint-disable ts/no-use-before-define */
+import { relations, sql } from 'drizzle-orm'
 import { integer, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 export type DatabaseSchema = {
-  wallets: typeof wallets
-  accounts: typeof accounts
-  addresses: typeof addresses
-  addressStats: typeof addressStats
+  wallets: typeof wallet_table
+  accounts: typeof account_table
+  addresses: typeof address_table
+  addressStats: typeof addressStats_table
 }
 
 // ----------------------------------------------------------------------------
 // wallet
 // ----------------------------------------------------------------------------
 
-export const wallets = sqliteTable('wallets', {
+export const wallet_table = sqliteTable('wallets', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   description: text('description'),
@@ -21,17 +22,17 @@ export const wallets = sqliteTable('wallets', {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 })
 
-export type Wallet = typeof wallets.$inferSelect
-export type WalletInsert = typeof wallets.$inferInsert
-export type WalletField = keyof Wallet
+export const walletRelation = relations(wallet_table, ({ many }) => ({
+  accounts: many(account_table),
+}))
 
 // ----------------------------------------------------------------------------
 // account
 // ----------------------------------------------------------------------------
 
-export const accounts = sqliteTable('accounts', {
+export const account_table = sqliteTable('accounts', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  walletId: integer('wallet_id').references(() => wallets.id, {
+  walletId: integer('wallet_id').references(() => wallet_table.id, {
     onDelete: 'cascade',
   }).notNull(),
   xpub: text('xpub').notNull().unique(),
@@ -44,17 +45,18 @@ export const accounts = sqliteTable('accounts', {
   unq: unique().on(t.walletId, t.derivationPath),
 }))
 
-export type Account = typeof accounts.$inferSelect
-export type AccountInsert = typeof accounts.$inferInsert
-export type AccountField = keyof Account
+export const accountsRelation = relations(account_table, ({ one, many }) => ({
+  wallet: one(wallet_table, { fields: [account_table.walletId], references: [wallet_table.id], relationName: 'wallet' }),
+  addresses: many(address_table),
+}))
 
 // ----------------------------------------------------------------------------
 // address
 // ----------------------------------------------------------------------------
 
-export const addresses = sqliteTable('address', {
+export const address_table = sqliteTable('address', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  accountId: integer('account_id').references(() => accounts.id, {
+  accountId: integer('account_id').references(() => account_table.id, {
     onDelete: 'cascade',
   }).notNull(),
   type: integer('address_type').notNull(), // 0 for receiving, 1 for change
@@ -63,17 +65,18 @@ export const addresses = sqliteTable('address', {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 })
 
-export type Address = typeof addresses.$inferSelect
-export type AddressInsert = typeof addresses.$inferInsert
-export type AddressField = keyof Address
+export const addressesRelation = relations(address_table, ({ one }) => ({
+  account: one(account_table, { fields: [address_table.accountId], references: [account_table.id] }),
+  stats: one(addressStats_table, { fields: [address_table.id], references: [addressStats_table.addressId] })
+}))
 
 // ----------------------------------------------------------------------------
 // address stats
 // ----------------------------------------------------------------------------
 
-export const addressStats = sqliteTable('address_stats', {
+export const addressStats_table = sqliteTable('address_stats', {
   id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-  addressId: integer('address_id').references(() => addresses.id, {
+  addressId: integer('address_id').references(() => address_table.id, {
     onDelete: 'cascade',
   }).notNull(),
   spentTxoCount: integer('spent_txo_count').notNull(),
@@ -83,6 +86,6 @@ export const addressStats = sqliteTable('address_stats', {
   updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 })
 
-export type AddressStats = typeof addressStats.$inferSelect
-export type AddressStatsInsert = typeof addressStats.$inferInsert
-export type AddressStatsField = keyof AddressStats
+export const addressStatsRelation = relations(addressStats_table, ({ one }) => ({
+  address: one(address_table, { fields: [addressStats_table.addressId], references: [address_table.id] }),
+}))

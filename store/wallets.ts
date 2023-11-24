@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import type { Wallet } from '~/models'
 
 const WALLETS = [
   {
@@ -21,7 +20,7 @@ const WALLETS = [
 ]
 
 export const useWalletsStore = defineStore('wallets', () => {
-  const wallets = ref<Wallet[]>(WALLETS)
+  const wallets = ref<any[]>(WALLETS)
 
   const getWallet = (walletId: string) => {
     return wallets.value.find((wallet) => wallet.id === walletId)

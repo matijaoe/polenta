@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { ErrorCode } from '~/models'
-import { accounts, wallets } from '~/server/db/schema'
+import { account_table } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
@@ -18,13 +18,14 @@ export default defineEventHandler(async () => {
     })
   }
 
-  const res = db.select()
-    .from(accounts)
-    .where(eq(accounts.id, parsedId))
-    .leftJoin(wallets, eq(wallets.id, accounts.walletId))
-    .get()
+  const account = await db.query.account_table.findFirst({
+   	where: eq(account_table.id, parsedId),
+    with: {
+      wallet: true
+    }
+  })
 
-  if (!res) {
+  if (!account) {
     throw createError({
       statusCode: 404,
       message: 'Account not found',
@@ -33,8 +34,6 @@ export default defineEventHandler(async () => {
       }
     })
   }
-  return {
-    account: res.accounts,
-    wallet: res.wallets
-  }
+
+  return account
 })

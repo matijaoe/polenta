@@ -1,7 +1,7 @@
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 export default defineNuxtConfig({
-
+  ssr: true,
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
@@ -22,23 +22,20 @@ export default defineNuxtConfig({
     dirs: [
       'composables/**',
       'store/**',
+      'models/db/**',
     ],
-    presets: [
+    imports: [
       {
-        imports: [
-          {
-            from: '@vueuse/core',
-            name: 'set',
-            as: 'set'
-          },
-          {
-            from: 'zod',
-            name: 'z',
-            as: 'z'
-          }
-        ]
+        from: '@vueuse/core',
+        name: 'set',
+        as: 'set'
+      },
+      {
+        from: 'zod',
+        name: 'z',
+        as: 'z'
       }
-    ]
+    ],
   },
 
   experimental: {

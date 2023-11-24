@@ -1,40 +1,38 @@
 <script lang="ts" setup>
-const { walletId } = defineProps<{
-  walletId: string
+const props = defineProps<{
+  wallet: Wallet
 }>()
 
-const accountsStore = useAccountsStore()
+const { data: wallet } = await useWallet(props.wallet.id)
 
-const accounts = computed(() => {
-  const walletAccounts = accountsStore.getWalletAccounts(walletId)
-
-  return walletAccounts.map((account) => ({
-    label: account.label,
+const accountItems = computed(() => {
+  return wallet.value?.accounts.map((account) => ({
+    label: account.name,
     click: () => {
       navigateTo({
         name: 'wallets-walletId-accountId',
         params: {
+          accountId: account.id,
           walletId: account.walletId,
-          accountId: account.id
-        },
+        }
       })
     }
-  }))
+  })) ?? []
 })
 </script>
 
 <template>
   <SidebarBase>
-    <menu class="space-y-8">
+    <div class="space-y-6">
       <section>
-        <div>
-          <h2 class="font-bold">
-            Accounts
-          </h2>
-        </div>
-
-        <UVerticalNavigation :links="accounts" class="-mx-3 mt-2" />
+        <h2 class="font-bold">
+          {{ wallet.name }}
+        </h2>
       </section>
-    </menu>
+
+      <menu class="space-y-8">
+        <SidebarMainSection :links="accountItems" title="Accounts" />
+      </menu>
+    </div>
   </SidebarBase>
 </template>

@@ -1,5 +1,14 @@
+<script lang="ts" setup>
+const { primary } = useColor()
+</script>
+
 <template>
-  <Body class="h-screen font-mono bg-white dark:bg-gray-900">
+  <Body class="h-screen h-100dvh font-mono bg-white dark:bg-gray-900 overflow-hidden">
+    <NuxtLoadingIndicator
+      :throttle="300"
+      :color="primary?.hex"
+    />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -18,5 +27,9 @@
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+.content-container-height {
+  height: calc(100vh - var(--footer-height) - var(--header-height));
 }
 </style>

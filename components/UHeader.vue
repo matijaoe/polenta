@@ -41,6 +41,6 @@ const mobileMenuOpen = ref(false)
 
 <style lang="postcss" scoped>
 :global(:root) {
-  --header-height: 55px;
+  --header-height: 50px;
 }
 </style>

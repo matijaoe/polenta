@@ -21,3 +21,7 @@ export const formatString = (str: string, n: number) => {
   }
   return `${str.slice(0, n)}...${str.slice(-n)}`
 }
+
+export const formatXpub = (xpub: string) => {
+  return formatString(xpub, 6)
+}

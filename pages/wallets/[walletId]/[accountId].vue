@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-const route = useRoute('wallets-accountId')
-const accountId = computed(() => route.params.accountId)
+const route = useRoute('wallets-walletId-accountId')
+const accountId = computed(() => Number.parseInt(route.params.accountId))
 
-const { data: res } = await useFetch(`/api/accounts/${accountId.value}`)
-
-const account = computed(() => res.value?.account)
-const wallet = computed(() => res.value?.wallet)
+const { data: account } = await useAccount(accountId)
 
 const useFetchAddresses = (query: Record<string, any>) => useFetch(`/api/xpub/${account.value?.xpub}`, {
   pick: ['addresses', 'type'],
@@ -16,10 +13,10 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
 </script>
 
 <template>
-  <div v-if="account && wallet">
+  <div v-if="account">
     <div class="prose dark:prose-invert">
       <h3>{{ account.name }}</h3>
-      <h4>{{ formatString(account.xpub, 8) }}</h4>
+      <h4>{{ formatXpub(account.xpub) }}</h4>
       <h4>{{ account.fingerprint }}</h4>
 
       <div v-if="addressesReceivingRes?.addresses">

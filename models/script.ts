@@ -12,6 +12,8 @@ export type ScriptConfigValue = {
   addressFormat: string
 }
 
+export type ScriptSelectItem = ScriptConfigValue & { value: Script }
+
 export const SCRIPT_CONFIG: Record<Script, ScriptConfigValue> = {
   [Script.legacy]: {
     derivationPath: `m/44'/0'/0'`,

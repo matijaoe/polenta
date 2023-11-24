@@ -2,11 +2,7 @@
 const {
   pending: isRatePending,
   refresh: refreshRate,
-} = await useFetch('/api/bitcoin/exchange-rate', {
-  lazy: true,
-  pick: ['bpi', 'time'],
-  key: 'bitcoin-exchange-rate',
-})
+} = await useBitcoinExchangeRate()
 
 const REFRESH_RATE_MINUTES = 1
 useIntervalFn(() => {
@@ -18,7 +14,7 @@ const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrency)
 </script>
 
 <template>
-  <footer class="fixed bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-700 text-xs h-[--footer-height]">
+  <footer class="border-t border-gray-200 dark:border-gray-800 text-xs h-[--footer-height]">
     <div class="flex items-center justify-between">
       <div class="px-2 py-1 flex items-center gap-5">
         <UTooltip :text="lastUpdatedLabel">
@@ -46,7 +42,7 @@ const { formattedRate, lastUpdatedLabel } = useExchangeRate(shownCurrency)
       </div>
 
       <div class="px-2 py-1">
-        connected to blockstream.info
+        <!--  -->
       </div>
     </div>
   </footer>

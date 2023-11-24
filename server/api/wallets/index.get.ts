@@ -1,5 +1,9 @@
-import { wallets } from '~/server/db/schema'
-
 export default defineEventHandler(async () => {
-  return db.select().from(wallets)
+  const { accounts: includeAccounts } = useQueryParams<{ accounts: boolean }>({
+    parseBooleans: true
+  })
+
+  return db.query.wallet_table.findMany({
+    with: includeAccounts ? { accounts: true } : {}
+  })
 })
