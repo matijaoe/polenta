@@ -1,6 +1,14 @@
+<script lang="ts" setup>
+const { primary } = useColor()
+</script>
+
 <template>
   <Body class="h-screen h-100dvh font-mono bg-white dark:bg-gray-900 overflow-hidden">
-    <NuxtLoadingIndicator />
+    <NuxtLoadingIndicator
+      :throttle="300"
+      :color="primary?.hex"
+    />
+
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

@@ -1,7 +1,7 @@
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 
 export default defineNuxtConfig({
-  ssr: false,
+  ssr: true,
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
