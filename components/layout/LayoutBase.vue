@@ -27,10 +27,3 @@ defineProps<{
 
   <CommandPalette />
 </template>
-
-<style lang="postcss" scoped>
-.container-height {
-  max-height: calc(100vh - var(--footer-height) - var(--header-height));
-  height: 100%;
-}
-</style>

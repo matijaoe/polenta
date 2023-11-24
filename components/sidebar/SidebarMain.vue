@@ -24,15 +24,19 @@ const walletItems = computed<VerticalNavigationLink[]>(() => {
   return wallets.value?.map((wallet) => ({
     label: `${wallet.name}`,
     click: () => {
-      // const [firstAccount] = wallet.accounts ?? []
-      // console.log('firstAccount', firstAccount)
-      // navigateTo({
-      //   name: 'wallets-walletId-accountId',
-      //   params: {
-      //     walletId: wallet.id,
-      //     accountId: firstAccount.id,
-      //   }
-      // })
+      // TODO: handle this at middleware level
+      const [firstAccount] = wallet.accounts ?? []
+      if (!firstAccount) {
+        console.error('No accounts found for wallet', wallet)
+        return
+      }
+      navigateTo({
+        name: 'wallets-walletId-accountId',
+        params: {
+          walletId: wallet.id,
+          accountId: firstAccount.id,
+        }
+      })
     }
 
   })) ?? []

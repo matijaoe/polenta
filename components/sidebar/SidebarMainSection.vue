@@ -42,6 +42,10 @@ defineProps<{
     <UVerticalNavigation
       :links="links"
       class="-mx-3 mt-1"
-    />
+    >
+      <template #default="{ link }">
+        <span class="group-hover:text-primary relative">{{ link.label }}</span>
+      </template>
+    </UVerticalNavigation>
   </section>
 </template>

@@ -1,8 +1,10 @@
+import { FetchKey } from './keys'
+
 export const useAccounts = async () => {
   const app = useNuxtApp()
 
   const res = await useFetch<AccountWithWallet[]>('/api/accounts', {
-    key: 'accounts',
+    key: FetchKey.Accounts,
     getCachedData(key) {
       return app.payload.data[key] || app.static.data[key]
     },

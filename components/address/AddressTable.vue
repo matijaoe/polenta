@@ -1,12 +1,14 @@
 <script lang="ts" setup>
-const props = defineProps<{
-  rows: {
-    [key: string]: any
-    key: string
-    sortable?: boolean | undefined
-    direction?: 'asc' | 'desc' | undefined
-    class?: string | undefined
-  }[]
+type Row = {
+  [key: string]: any
+  key: string
+  sortable?: boolean | undefined
+  direction?: 'asc' | 'desc' | undefined
+  class?: string | undefined
+}
+
+defineProps<{
+  rows: Row[]
   loading?: boolean
 }>()
 
@@ -29,9 +31,7 @@ const columns = ref([
   }
 ])
 
-type AddressRow = typeof props.rows[0]
-
-const navigateToBlockExplorer = (row: AddressRow) => {
+const navigateToBlockExplorer = (row: Row) => {
   const url = blockExplorerAddressUrl(row.address)
   navigateTo(url, {
     external: true,

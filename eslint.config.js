@@ -6,5 +6,6 @@ export default matijaoe({
   },
   rules: {
     'unicorn/prefer-node-protocol': 'off',
+    'no-alert': 'warn'
   },
 })

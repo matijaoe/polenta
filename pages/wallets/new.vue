@@ -1,75 +1,30 @@
 <script lang="ts" setup>
-import { ErrorCode, Script } from '~/models'
-
-const validationSchema = z.object({
-  name: z.string()
-    .min(1, 'Name is required')
-    .min(3, 'Name must be at least 3 characters')
-    .max(40, 'Name must be at most 40 characters'),
-  description: z.string().optional(),
-  scriptType: z.nativeEnum(Script),
-  xpub: z.string()
-    .min(1, 'xpub is required')
-    .refine(validateXpubClientSide, 'Invalid xpub'),
-  fingerprint: z
-    .string()
-    .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
-    .transform((fp) => fp.toUpperCase()).optional(),
-  derivationPath: z.string()
-    .min(1, 'Derivation path is required')
-    .regex(derivationPathRegex, 'Invalid derivation path')
-    .transform((path) => path.replaceAll(`'`, 'h')),
-  passphraseProtected: z.boolean().default(false),
-})
-
-const DEFAULTS: {
-  script: Script
-  fingerprint: string
-} = {
-  script: Script.native_segwit,
-  fingerprint: '00000000'
-}
-
-const { scriptOptions, getScriptValue } = useBitcoinScripts()
+import { ErrorCode } from '~/models'
 
 const {
+  defaults,
+  // form
   values,
-  errors,
   handleSubmit,
-  defineInputBinds,
   setFieldValue,
-  useFieldModel,
   setFieldTouched,
-  isFieldTouched,
   resetForm,
-} = useForm({
-  validationSchema: toTypedSchema(validationSchema),
-  initialValues: {
-    name: '',
-    description: '',
-    scriptType: DEFAULTS.script,
-    xpub: '',
-    fingerprint: '',
-    passphraseProtected: false,
-    derivationPath: getScriptValue(DEFAULTS.script)!.derivationPath,
-  },
-})
+  // fields
+  name,
+  description,
+  xpub,
+  fingerprint,
+  scriptType,
+  derivationPath,
+  passphraseProtectedModel,
+  // ----
+  fieldError
+} = useWalletCreateForm()
 
-const inputOptions = { validateOnInput: true }
-const name = defineInputBinds('name', inputOptions)
-const description = defineInputBinds('description', inputOptions)
-const xpub = defineInputBinds('xpub', inputOptions)
-const fingerprint = defineInputBinds('fingerprint', inputOptions)
-const scriptType = defineInputBinds('scriptType', inputOptions)
-const derivationPath = defineInputBinds('derivationPath', inputOptions)
-const passphraseProtectedModel = useFieldModel('passphraseProtected')
-
-const fieldError = (field: keyof typeof values) => {
-  return isFieldTouched(field) && errors.value[field!]
-}
+const { scriptOptions } = useBitcoinScripts()
 
 const selectedScriptType = computed({
-  get: () => getScriptValue(scriptType.value.value),
+  get: () => useScript(scriptType.value.value).value,
   set: (selected) => setFieldValue('scriptType', selected?.value)
 })
 
@@ -78,8 +33,9 @@ watch(() => fingerprint.value, ({ value }) => {
 })
 
 const defaultDerivationPath = computed(() => {
-  const script = scriptType.value.value ?? DEFAULTS.script
-  return getScriptValue(script)!.derivationPath
+  const scriptType = values.scriptType ?? defaults.script
+  const script = useScript(scriptType)
+  return script.value!.derivationPath
 })
 
 const setDefaultDerivationPath = () => {
@@ -91,138 +47,139 @@ watchEffect(() => {
 })
 
 const autofillDerivation = () => {
-  if (values.derivationPath !== '') {
-    return
-  }
+  if (values.derivationPath !== '') { return }
   setDefaultDerivationPath()
 }
 
 const autofillFingerprint = () => {
-  if (values.fingerprint !== '') {
-    return
-  }
-  setFieldValue('fingerprint', DEFAULTS.fingerprint)
+  if (values.fingerprint !== '') { return }
+  setFieldValue('fingerprint', defaults.fingerprint)
 }
 
 const toast = useToast()
 
-const { execute: createWallet, status, data: createdData, error } = await useFetch('/api/wallets', {
-  method: 'POST',
-  immediate: false,
-  server: false,
-  watch: false,
-  body: computed(() => ({
-    wallet: {
-      name: values.name,
-      description: values.description,
-      scriptType: values.scriptType,
-      passphraseProtected: values.passphraseProtected,
-    },
-    account: {
-      name: 'First account',
-      xpub: values.xpub,
-      fingerprint: values.fingerprint,
-      derivationPath: values.derivationPath,
-    }
-  })),
-})
+const payload = computed(() => ({
+  wallet: {
+    name: values.name,
+    description: values.description,
+    scriptType: values.scriptType,
+    passphraseProtected: values.passphraseProtected,
+  },
+  account: {
+    name: 'First account',
+    xpub: values.xpub,
+    fingerprint: values.fingerprint,
+    derivationPath: values.derivationPath,
+  }
+}))
 
-const errorCode = computed(() => error.value?.data.data?.errorCode as ErrorCode | undefined)
-const isSuccess = computed(() => status.value === 'success')
-const isLoading = computed(() => status.value === 'pending')
+const {
+  execute: createWallet,
+  data: createdData,
+  error,
+  errorCode,
+  isSuccess,
+  isLoading,
+} = await useCreateWallet(payload)
+
+const toasts = {
+  createdSuccessfully: () => toast.add({
+    title: 'Wallet created successfully',
+    description: 'Your new wallet is now ready for use.',
+    color: 'green',
+    icon: 'i-ph-confetti-bold',
+    timeout: 0,
+    actions: [
+      {
+        label: 'Check it out',
+        click: () => {
+          navigateTo({
+            name: 'wallets-walletId-accountId',
+            params: {
+              accountId: createdData.value!.account.id,
+              walletId: createdData.value!.wallet.id,
+            }
+          })
+        },
+        color: 'green',
+        variant: 'solid',
+      },
+      {
+        label: 'See data',
+        click: () => {
+          alert(JSON.stringify(createdData.value, null, 2))
+        },
+      },
+    ]
+  }),
+  // TODO: add a button to navigate to the wallet with that xpub
+  // perhaps also show some data of that account in the toast
+  createFailed: () => toast.add({
+    title: 'Wallet creation failed',
+    description: 'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.',
+    color: 'red',
+    timeout: 0,
+    icon: 'i-ph-warning-bold',
+  }),
+  unexpectedError: () => toast.add({
+    title: 'Unable to create your wallet',
+    description: 'An unexpected error occurred while creating your wallet. Please try again. If the issue persists, please send us a bug report.',
+    color: 'red',
+    icon: 'i-ph-bug-bold',
+    actions: [
+      {
+        label: 'Report a bug',
+        click: () => {
+          alert('Bug reported')
+        },
+        color: 'red',
+        variant: 'soft'
+      },
+      {
+        label: 'See error',
+        click: () => {
+          alert(JSON.stringify(error.value, null, 2))
+        }
+      }
+    ]
+  })
+}
 
 const onSubmit = handleSubmit(
-  async (values, { resetForm, setFieldError }) => {
+  async (_, { resetForm, setFieldError }) => {
     await createWallet()
 
     if (isSuccess.value && createdData.value) {
-      toast.add({
-        title: 'Wallet created successfully',
-        description: 'Your new wallet is now ready for use.',
-        color: 'green',
-        icon: 'i-ph-confetti-bold',
-        timeout: 0,
-        actions: [
-          {
-            label: 'Check it out',
-            click: () => {
-              navigateTo({
-                name: 'wallets-walletId-accountId',
-                params: {
-                  accountId: createdData.value!.account.id,
-                  walletId: createdData.value!.wallet.id,
-                }
-              })
-            },
-            color: 'green',
-            variant: 'solid',
-          },
-          {
-            label: 'See data',
-            click: () => {
-              alert(JSON.stringify(createdData.value, null, 2))
-            },
-          },
-
-        ]
-      })
+      toasts.createdSuccessfully()
       resetForm()
+      refreshNuxtData([FetchKey.Wallets, FetchKey.Accounts])
       navigateTo('/')
       return
     }
 
     if (error.value) {
-      const code = errorCode.value
-      if (code === ErrorCode.DUPLICATE_XPUB) {
+      if (errorCode.value === ErrorCode.DUPLICATE_XPUB) {
         setFieldError('xpub', 'Wallet with this xpub already exists')
-        // TODO: add a button to navigate to the wallet with that xpub
-        // perhaps also show some data of that account in the toast
-        toast.add({
-          title: 'Wallet creation failed',
-          description: 'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.',
-          color: 'red',
-          timeout: 0,
-          icon: 'i-ph-warning-bold',
-        })
+        toasts.createFailed()
         return
       }
-      toast.add({
-        title: 'Unable to create your wallet',
-        description: 'An unexpected error occurred while creating your wallet. Please try again. If the issue persists, please send us a bug report.',
-        color: 'red',
-        icon: 'i-ph-bug-bold',
-        actions: [
-          {
-            label: 'Report a bug',
-            click: () => {
-              alert('Bug reported')
-            },
-            color: 'red',
-            variant: 'soft'
-          },
-          {
-            label: 'See error',
-            click: () => {
-              alert(JSON.stringify(error.value, null, 2))
-            }
-          }
-        ]
-      })
+      toasts.unexpectedError()
     }
   },
   (context) => {
-    toast.add({ title: 'Check you data', color: 'red' })
     console.error('⚠️ Validation error', context)
   }
 )
+
 const activeEl = useActiveElement()
-const clearDerivationBtnActive = computed(() => activeEl.value?.id === 'clearDerivationPathBtn')
+const clearDerivationBtnActive = computed(() => {
+  return activeEl.value?.id === 'clearDerivationPathBtn'
+})
 
 const derivationPathEl = ref<{ input: HTMLInputElement } | null>(null)
 const onClearDerivationPath = () => {
   setFieldValue('derivationPath', '')
-  const input = derivationPathEl.value?.input
-  input?.focus()
+  derivationPathEl.value?.input.focus()
   setFieldTouched('derivationPath', false)
 }
 </script>
@@ -286,7 +243,7 @@ const onClearDerivationPath = () => {
           >
             <UInput
               v-bind="fingerprint"
-              :placeholder="DEFAULTS.fingerprint"
+              :placeholder="defaults.fingerprint"
               maxlength="8"
               pattern="[a-fA-F0-9]*"
               @keyup.right="autofillFingerprint"

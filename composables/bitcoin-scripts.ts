@@ -22,3 +22,9 @@ export const useBitcoinScripts = () => {
     getScriptValue,
   }
 }
+
+export const useScript = (script?: MaybeRef<Script>) => {
+  const { getScriptValue } = useBitcoinScripts()
+
+  return computed(() => script ? getScriptValue(unref(script)) : undefined)
+}
