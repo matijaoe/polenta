@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { z } from 'zod'
 import { ErrorCode, Script } from '~/models'
 
 const validationSchema = z.object({

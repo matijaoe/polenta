@@ -1,8 +1,5 @@
-import { eq } from 'drizzle-orm'
-import { accounts, wallets } from '~/server/db/schema'
-
 export default defineEventHandler(() => {
-  return db.query.accounts.findMany({
+  return db.query.account_table.findMany({
     with: {
       wallet: true,
     }

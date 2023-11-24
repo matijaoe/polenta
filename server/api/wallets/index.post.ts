@@ -1,9 +1,9 @@
 import { z } from 'zod'
 import { ErrorCode } from '~/models'
+import type { AccountInsert, WalletInsert } from '~/models/db'
 import { accountSchema } from '~/schema/account'
 import { walletSchema } from '~/schema/wallet'
-import type { AccountInsert, WalletInsert } from '~/server/db/schema'
-import { accounts, wallets } from '~/server/db/schema'
+import { account_table, wallet_table } from '~/server/db/schema'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<{
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     const res = db.transaction((tx) => {
       try {
         const createdWallet = tx
-          .insert(wallets)
+          .insert(wallet_table)
           .values(validatedWallet)
           .returning()
           .get()
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         const validatedAccount = accountSchema.parse(accountDto)
 
         const createdAccount = tx
-          .insert(accounts)
+          .insert(account_table)
           .values(validatedAccount)
           .returning()
           .get()

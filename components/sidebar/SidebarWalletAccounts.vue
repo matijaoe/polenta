@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { Wallet } from '~/server/db/schema'
-
 const props = defineProps<{
   wallet: Wallet
 }>()

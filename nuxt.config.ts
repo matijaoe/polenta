@@ -22,28 +22,20 @@ export default defineNuxtConfig({
     dirs: [
       'composables/**',
       'store/**',
+      'models/db/**',
     ],
-    presets: [
+    imports: [
       {
-        imports: [
-          {
-            from: '@vueuse/core',
-            name: 'set',
-            as: 'set'
-          },
-          {
-            from: '@vueuse/core',
-            name: 'isClient',
-            as: 'isClient'
-          },
-          {
-            from: 'zod',
-            name: 'z',
-            as: 'z'
-          }
-        ]
+        from: '@vueuse/core',
+        name: 'set',
+        as: 'set'
+      },
+      {
+        from: 'zod',
+        name: 'z',
+        as: 'z'
       }
-    ]
+    ],
   },
 
   experimental: {

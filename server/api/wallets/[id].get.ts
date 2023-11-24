@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { ErrorCode } from '~/models'
-import { accounts, wallets } from '~/server/db/schema'
+import { account_table, wallet_table } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
@@ -23,9 +23,9 @@ export default defineEventHandler(async () => {
 
   if (includeAccounts) {
     const res = await db.select()
-      .from(wallets)
-      .where(eq(wallets.id, parsedId))
-      .leftJoin(accounts, eq(wallets.id, accounts.walletId))
+      .from(wallet_table)
+      .where(eq(wallet_table.id, parsedId))
+      .leftJoin(account_table, eq(wallet_table.id, account_table.walletId))
       .execute()
 
     if (!res?.at(0)) {
@@ -45,8 +45,8 @@ export default defineEventHandler(async () => {
     }
   } else {
     const wallet = db.select()
-      .from(wallets)
-      .where(eq(wallets.id, parsedId))
+      .from(wallet_table)
+      .where(eq(wallet_table.id, parsedId))
       .get()
 
     if (!wallet) {

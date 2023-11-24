@@ -1,9 +1,7 @@
-import type { Account, Wallet } from '~/server/db/schema'
-
 export const useAccounts = async () => {
   const app = useNuxtApp()
 
-  const res = await useFetch<(Account & { wallet: Wallet })[]>('/api/accounts', {
+  const res = await useFetch<AccountWithWallet[]>('/api/accounts', {
     key: 'accounts',
     getCachedData(key) {
       return app.payload.data[key] || app.static.data[key]
@@ -16,7 +14,7 @@ export const useAccounts = async () => {
 export const useAccount = async (accountId: MaybeRef<number>) => {
   const app = useNuxtApp()
 
-  const res = await useFetch<Account & { wallet: Wallet }>(`/api/accounts/${unref(accountId)}`, {
+  const res = await useFetch<AccountWithWallet>(`/api/accounts/${unref(accountId)}`, {
     getCachedData(key) {
       return app.payload.data[key] || app.static.data[key]
     },

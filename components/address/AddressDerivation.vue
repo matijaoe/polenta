@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { AddressOptionalStatsData, AddressStatsData, AddressStatsResponse, XpubAddressesResponse } from '~/models'
+import type { AddressOptionalStatsData, AddressStatsData, AddressStatsResponse, XpubAddressesResponse } from '~/models';
 
 const xpub = useState(() => '')
 const xpubBuffer = ref(xpub.value)

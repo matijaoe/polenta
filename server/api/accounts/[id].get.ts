@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { ErrorCode } from '~/models'
+import { account_table } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
@@ -17,8 +18,8 @@ export default defineEventHandler(async () => {
     })
   }
 
-  const res = db.query.accounts.findFirst({
-   	where: (accounts, { eq }) => (eq(accounts.id, parsedId)),
+  const res = db.query.account_table.findFirst({
+   	where: eq(account_table.id, parsedId),
     with: {
       wallet: true
     }

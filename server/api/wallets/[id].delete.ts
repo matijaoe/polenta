@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { ErrorCode } from '~/models'
-import { wallets } from '~/server/db/schema'
+import { wallet_table } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
@@ -18,7 +18,7 @@ export default defineEventHandler(async () => {
     })
   }
 
-  const res = await db.delete(wallets).where(eq(wallets.id, parsedId)).execute()
+  const res = await db.delete(wallet_table).where(eq(wallet_table.id, parsedId)).execute()
 
   if (res.changes === 0) {
     throw createError({
