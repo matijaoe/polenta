@@ -6,7 +6,7 @@ const { data: accounts } = await useAccounts()
 const { data: wallets } = await useWallets()
 
 const accountItems = computed<VerticalNavigationLink[]>(() => {
-  return accounts.value?.map(({ account }) => ({
+  return accounts.value?.map((account) => ({
     label: `${account.name}`,
     click: () => {
       navigateTo({
@@ -24,12 +24,15 @@ const walletItems = computed<VerticalNavigationLink[]>(() => {
   return wallets.value?.map((wallet) => ({
     label: `${wallet.name}`,
     click: () => {
-      navigateTo({
-        name: 'wallets-walletId',
-        params: {
-          walletId: wallet.id,
-        }
-      })
+      // const [firstAccount] = wallet.accounts ?? []
+      // console.log('firstAccount', firstAccount)
+      // navigateTo({
+      //   name: 'wallets-walletId-accountId',
+      //   params: {
+      //     walletId: wallet.id,
+      //     accountId: firstAccount.id,
+      //   }
+      // })
     }
 
   })) ?? []

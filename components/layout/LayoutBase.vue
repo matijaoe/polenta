@@ -22,7 +22,7 @@ defineProps<{
       </div>
     </div>
 
-    <TheFooter class="flex-shrink-0 bg-white dark:bg-gray-900" />
+    <TheFooter class="flex-shrink-0" />
   </div>
 
   <CommandPalette />

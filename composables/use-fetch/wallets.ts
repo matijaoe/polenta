@@ -3,10 +3,10 @@ import type { Account, Wallet } from '~/server/db/schema'
 export const useWallets = async () => {
   const app = useNuxtApp()
 
-  const res = await useFetch<Wallet[]>('/api/wallets', {
+  const res = await useFetch<(Wallet & { accounts: Account[] })[]>('/api/wallets', {
     key: 'wallets',
     query: {
-      accounts: false
+      accounts: true
     },
     getCachedData(key) {
       return app.payload.data[key] || app.static.data[key]
@@ -16,7 +16,7 @@ export const useWallets = async () => {
   return res
 }
 
-export const useWallet = async (walletId: MaybeRef<number>) => {
+export const useWallet = async (walletId: MaybeRef<number>, options = {}) => {
   const app = useNuxtApp()
 
   const res = await useFetch<Wallet & { accounts: Account[] }>(`/api/wallets/${unref(walletId)}`, {
@@ -26,6 +26,7 @@ export const useWallet = async (walletId: MaybeRef<number>) => {
     getCachedData(key) {
       return app.payload.data[key] || app.static.data[key]
     },
+    ...options,
   })
 
   return res

@@ -1,4 +1,5 @@
-import { sql } from 'drizzle-orm'
+/* eslint-disable ts/no-use-before-define */
+import { relations, sql } from 'drizzle-orm'
 import { integer, real, sqliteTable, text, unique } from 'drizzle-orm/sqlite-core'
 
 export type DatabaseSchema = {
@@ -21,6 +22,10 @@ export const wallets = sqliteTable('wallets', {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 })
 
+export const usersRelations = relations(wallets, ({ many }) => ({
+  accounts: many(accounts),
+}))
+
 export type Wallet = typeof wallets.$inferSelect
 export type WalletInsert = typeof wallets.$inferInsert
 export type WalletField = keyof Wallet
@@ -42,6 +47,10 @@ export const accounts = sqliteTable('accounts', {
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 }, (t) => ({
   unq: unique().on(t.walletId, t.derivationPath),
+}))
+
+export const postsRelations = relations(accounts, ({ one }) => ({
+  wallet: one(wallets, { fields: [accounts.walletId], references: [wallets.id] }),
 }))
 
 export type Account = typeof accounts.$inferSelect

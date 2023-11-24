@@ -2,7 +2,7 @@
 const route = useRoute('wallets-walletId-accountId')
 const accountId = computed(() => Number.parseInt(route.params.accountId))
 
-const { account, wallet } = await useAccount(accountId)
+const { data: account } = await useAccount(accountId)
 
 const useFetchAddresses = (query: Record<string, any>) => useFetch(`/api/xpub/${account.value?.xpub}`, {
   pick: ['addresses', 'type'],
@@ -13,7 +13,7 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
 </script>
 
 <template>
-  <div v-if="account && wallet">
+  <div v-if="account">
     <div class="prose dark:prose-invert">
       <h3>{{ account.name }}</h3>
       <h4>{{ formatXpub(account.xpub) }}</h4>
