@@ -56,14 +56,11 @@
     "windows": [
       {
         "fullscreen": false,
-        "height": 720,
-        "width": 1024,
+        "height": 760,
+        "width": 1050,
         "resizable": true,
-        "title": "polenta",
-        "center": true,
-        "transparent": true
+        "title": "polenta"
       }
-    ],
-    "macOSPrivateApi": true
+    ]
   }
 }

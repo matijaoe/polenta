@@ -21,43 +21,20 @@ export default defineEventHandler(async () => {
     })
   }
 
-  if (includeAccounts) {
-    const res = await db.select()
-      .from(wallet_table)
-      .where(eq(wallet_table.id, parsedId))
-      .leftJoin(account_table, eq(wallet_table.id, account_table.walletId))
-      .execute()
+  const wallet = await db.query.wallet_table.findFirst({
+    where: eq(wallet_table.id, parsedId),
+    with: includeAccounts ? { accounts: true } : {}
+  })
 
-    if (!res?.at(0)) {
-      throw createError({
-        statusCode: 404,
-        message: 'Wallet not found',
-        data: {
-          errorCode: ErrorCode.NOT_FOUND
-        }
-      })
-    }
-
-    const wallet = res.at(0)!.wallets
-    return {
-      ...wallet,
-      accounts: res.map((item) => item.accounts) ?? [],
-    }
-  } else {
-    const wallet = db.select()
-      .from(wallet_table)
-      .where(eq(wallet_table.id, parsedId))
-      .get()
-
-    if (!wallet) {
-      throw createError({
-        statusCode: 404,
-        message: 'Wallet not found',
-        data: {
-          errorCode: ErrorCode.NOT_FOUND
-        }
-      })
-    }
-    return wallet
+  if (!wallet) {
+    throw createError({
+      statusCode: 404,
+      message: 'Wallet not found',
+      data: {
+        errorCode: ErrorCode.NOT_FOUND
+      }
+    })
   }
+
+  return wallet
 })

@@ -18,14 +18,14 @@ export default defineEventHandler(async () => {
     })
   }
 
-  const res = db.query.account_table.findFirst({
+  const account = await db.query.account_table.findFirst({
    	where: eq(account_table.id, parsedId),
     with: {
       wallet: true
     }
   })
 
-  if (!res) {
+  if (!account) {
     throw createError({
       statusCode: 404,
       message: 'Account not found',
@@ -35,5 +35,5 @@ export default defineEventHandler(async () => {
     })
   }
 
-  return res
+  return account
 })
