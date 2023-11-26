@@ -1,6 +1,6 @@
-import colors from '#tailwind-config/theme/colors'
+import tailwindColors from '#tailwind-config/theme/colors'
 
-export type ColorKey = keyof typeof colors
+export type ColorKey = keyof typeof tailwindColors
 
 export const useColor = () => {
   const appConfig = useAppConfig()
@@ -12,7 +12,7 @@ export const useColor = () => {
   const colorMapper = (color: string) => ({
     value: color,
     text: color,
-    hex: colors?.[color as ColorKey]?.[isDark.value ? 400 : 500] ?? ''
+    hex: tailwindColors?.[color as ColorKey]?.[isDark.value ? 400 : 500] ?? ''
   })
 
   const primaryColors = computed(() => COLORS.map(colorMapper))
@@ -43,6 +43,7 @@ export const useColor = () => {
   })
 
   return {
+    tailwindColors,
     primaryColors,
     primary,
     grayColors,

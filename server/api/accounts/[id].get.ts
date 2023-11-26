@@ -18,7 +18,7 @@ export default defineEventHandler(async () => {
   }
 
   const account = await db.query.account_table.findFirst({
-   	where: eq(account_table.id, parsedId),
+    where: eq(account_table.id, parsedId),
     with: {
       wallet: true
     }

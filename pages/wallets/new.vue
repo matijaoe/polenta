@@ -47,7 +47,9 @@ watchEffect(() => {
 })
 
 const autofillDerivation = () => {
-  if (values.derivationPath !== '') { return }
+  if (values.derivationPath !== '') {
+    return
+  }
   setDefaultDerivationPath()
 }
 

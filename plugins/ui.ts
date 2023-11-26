@@ -1,15 +1,18 @@
-import { isClient } from '@vueuse/core'
 import colors from '#tailwind-config/theme/colors'
 
 export default defineNuxtPlugin({
   enforce: 'post',
   setup() {
     const appConfig = useAppConfig()
-    const appColor = reactive(useColor())
+
+    function readColor(colorName: string): Record<string, string> | undefined {
+      const color = colors[colorName as keyof typeof colors]
+      return typeof color === 'string' ? undefined : color as Record<string, string>
+    }
 
     const root = computed(() => {
-      const primary: Record<string, string> | undefined = colors[appConfig.ui.primary]
-      const gray: Record<string, string> | undefined = colors[appConfig.ui.gray]
+      const primary = readColor(appConfig.ui.primary)
+      const gray = readColor(appConfig.ui.gray)
 
       return `:root {
         ${Object.entries(primary || colors.green)
