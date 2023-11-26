@@ -37,10 +37,6 @@ export default defineNuxtConfig({
         from: '@vueuse/core',
         name: 'isClient',
       },
-      {
-        from: 'zod',
-        name: 'z',
-      },
     ],
     presets: [
       {
