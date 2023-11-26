@@ -24,6 +24,8 @@
     "@bitcoinerlab/secp256k1": "^1.0.5",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@tauri-apps/cli": "^1.5.6",
+    "@vee-validate/nuxt": "^4.11.8",
+    "@vee-validate/zod": "^4.11.8",
     "better-sqlite3": "^9.1.1",
     "drizzle-orm": "^0.29.0"
   },
@@ -39,8 +41,6 @@
     "@nuxtjs/google-fonts": "^3.1.0",
     "@pinia/nuxt": "^0.5.1",
     "@types/better-sqlite3": "^7.6.8",
-    "@vee-validate/nuxt": "^4.11.8",
-    "@vee-validate/zod": "^4.11.8",
     "@vueuse/nuxt": "10.6.1",
     "bip32": "^4.0.0",
     "bitcoinjs-lib": "^6.1.5",

@@ -54,7 +54,9 @@ const autofillDerivation = () => {
 }
 
 const autofillFingerprint = () => {
-  if (values.fingerprint !== '') { return }
+  if (values.fingerprint !== '') {
+    return
+  }
   setFieldValue('fingerprint', defaults.fingerprint)
 }
 

@@ -1,4 +1,4 @@
-import { z } from '#imports'
+import { z } from 'zod'
 
 type OmitFields<T extends z.ZodObject<any, any>> = {
   omit?: Array<keyof T['shape']>

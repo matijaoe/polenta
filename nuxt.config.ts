@@ -41,11 +41,6 @@ export default defineNuxtConfig({
         from: 'zod',
         name: 'z',
       },
-      {
-        from: 'zod',
-        name: 'z',
-        type: true
-      }
     ],
     presets: [
       {
@@ -59,24 +54,6 @@ export default defineNuxtConfig({
   },
 
   nitro: {
-    imports: {
-      dirs: [
-        'server/db/*',
-        'models/db/*'
-      ],
-      imports: [
-        {
-          from: 'zod',
-          name: 'z',
-        },
-        {
-          from: 'zod',
-          name: 'z',
-          type: true
-        }
-      ]
-    },
-
     experimental: {
       asyncContext: true
     }

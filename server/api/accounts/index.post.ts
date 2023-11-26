@@ -1,5 +1,8 @@
+import { z } from 'zod'
 import { ErrorCode } from '~/models'
+import type { AccountInsert } from '~/models/db'
 import { accountSchema } from '~/schema'
+import { account_table } from '~/server/db/schema'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<AccountInsert>(event)

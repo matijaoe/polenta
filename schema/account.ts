@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { createUpdateSchema, derivationPathRegex, fingerprintRegex } from '~/utils'
 
 export const accountSchema = z.object({
