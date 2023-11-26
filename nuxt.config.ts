@@ -95,13 +95,12 @@ export default defineNuxtConfig({
     },
   },
 
+  vue: {
+    defineModel: true,
+    propsDestructure: true,
+  },
+
   vite: {
-    vue: {
-      script: {
-        defineModel: true,
-        propsDestructure: true,
-      },
-    },
     plugins: [
       NodeGlobalsPolyfillPlugin()
     ],
