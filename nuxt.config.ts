@@ -83,14 +83,15 @@ export default defineNuxtConfig({
   },
 
   fontMetrics: {
-    fonts: ['Inter'],
+    fonts: [
+      // 'Victor Mono'
+    ],
   },
 
   googleFonts: {
     display: 'swap',
     download: true,
     families: {
-      'Inter': [400],
       'Victor+Mono': [400, 500, 600, 700],
     },
   },
