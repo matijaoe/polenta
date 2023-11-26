@@ -25,7 +25,7 @@ const { scriptOptions, getScriptValue } = useBitcoinScripts()
 
 const selectedScript = computed({
   get: () => getScriptValue(values.scriptType),
-  set: (item) => setFieldValue('scriptType', item.value)
+  set: (item) => setFieldValue('scriptType', item?.value)
 })
 
 watch(() => fingerprint.value, ({ value }) => {

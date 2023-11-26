@@ -5,6 +5,7 @@ export default defineNuxtPlugin({
   enforce: 'post',
   setup() {
     const appConfig = useAppConfig()
+    const appColor = reactive(useColor())
 
     const root = computed(() => {
       const primary: Record<string, string> | undefined = colors[appConfig.ui.primary]

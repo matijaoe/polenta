@@ -1,4 +1,3 @@
-import { defineStore } from 'pinia'
 import { Script } from '~/models'
 
 const ACCOUNTS = [

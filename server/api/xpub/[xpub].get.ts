@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
 import { ErrorCode, Script } from '~/models'
 

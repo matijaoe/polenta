@@ -1,5 +1,3 @@
-import { defineStore } from 'pinia'
-
 const WALLETS = [
   {
     id: '5sDVnzEeXf15n4z-zndMz',

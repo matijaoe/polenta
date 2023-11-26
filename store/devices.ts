@@ -1,4 +1,3 @@
-import { defineStore } from 'pinia'
 import type { Device } from '~/models'
 
 const DEVICES: Device[] = [

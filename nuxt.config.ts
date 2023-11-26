@@ -18,11 +18,15 @@ export default defineNuxtConfig({
     icons: ['ph', 'simple-icons'],
   },
 
+  experimental: {
+    typedPages: true,
+  },
+
   imports: {
     dirs: [
       'composables/**',
       'store/**',
-      'models/db/**',
+      'models/db/*',
     ],
     imports: [
       {
@@ -34,15 +38,46 @@ export default defineNuxtConfig({
         from: 'zod',
         name: 'z',
         as: 'z'
+      },
+      {
+        from: 'zod',
+        name: 'z',
+        as: 'z',
+        type: true
       }
     ],
-  },
-
-  experimental: {
-    typedPages: true,
+    presets: [
+      {
+        from: 'vue-router',
+        imports: [
+          'RouteLocationRaw',
+        ],
+        type: true,
+      }
+    ]
   },
 
   nitro: {
+    imports: {
+      dirs: [
+        'server/db/*',
+        'models/db/*'
+      ],
+      imports: [
+        {
+          from: 'zod',
+          name: 'z',
+          as: 'z'
+        },
+        {
+          from: 'zod',
+          name: 'z',
+          as: 'z',
+          type: true
+        }
+      ]
+    },
+
     experimental: {
       asyncContext: true
     }

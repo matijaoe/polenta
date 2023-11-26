@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { RouteLocationRaw } from '#vue-router'
-
 defineProps<{
   links: {
     label: string

@@ -1,9 +1,5 @@
-import { z } from 'zod'
 import { ErrorCode } from '~/models'
-import type { AccountInsert, WalletInsert } from '~/models/db'
-import { accountSchema } from '~/schema/account'
-import { walletSchema } from '~/schema/wallet'
-import { account_table, wallet_table } from '~/server/db/schema'
+import { accountSchema, walletSchema } from '~/schema'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody<{

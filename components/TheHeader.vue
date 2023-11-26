@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { RouteLocationRaw } from '#vue-router'
 
 const colorMode = useColorMode()
 const { openCommandPalette } = useCommandPalette()
