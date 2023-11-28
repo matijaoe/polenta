@@ -86,13 +86,13 @@ export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, ty
   limit: number
   gap: number
   type: 'receiving' | 'change'
-}): string[] => {
+}): { index: number; address: string | null }[] => {
   const xpubKey = generateXpubKey(xpub)
 
   const count = Math.min(limit, HARD_ADDRESS_COUNT_LIMIT)
 
   return generateIndices({ start: gap, count }).map((index) => {
     const address = generateAddressFromXpubKey(xpubKey, { script, type, index })
-    return address ?? null
-  }).filter(Boolean) as string[]
+    return { index, address: address ?? null }
+  }) as { index: number; address: string | null }[]
 }

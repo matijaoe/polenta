@@ -32,27 +32,6 @@ watch(() => fingerprint.value, ({ value }) => {
   setFieldValue('fingerprint', value?.toUpperCase())
 })
 
-const defaultDerivationPath = computed(() => {
-  const scriptType = values.scriptType ?? defaults.script
-  const script = useScript(scriptType)
-  return script.value!.derivationPath
-})
-
-const setDefaultDerivationPath = () => {
-  setFieldValue('derivationPath', defaultDerivationPath.value)
-}
-
-watchEffect(() => {
-  setDefaultDerivationPath()
-})
-
-const autofillDerivation = () => {
-  if (values.derivationPath !== '') {
-    return
-  }
-  setDefaultDerivationPath()
-}
-
 const autofillFingerprint = () => {
   if (values.fingerprint !== '') {
     return
@@ -60,9 +39,33 @@ const autofillFingerprint = () => {
   setFieldValue('fingerprint', defaults.fingerprint)
 }
 
+const defaultDerivationPath = computed(() => {
+  const scriptType = values.scriptType ?? defaults.script
+  const script = useScript(scriptType)
+  return script.value!.derivationPath
+})
+
+const autofillDerivation = () => {
+  if (values.derivationPath !== '') {
+    return
+  }
+  setFieldValue('derivationPath', defaultDerivationPath.value)
+}
+
+watchEffect(() => {
+  autofillDerivation()
+})
+
 const toast = useToast()
 
-const payload = computed(() => ({
+const {
+  execute: createWallet,
+  data: createdData,
+  error,
+  errorCode,
+  isSuccess,
+  isLoading,
+} = await useCreateWallet(computed(() => ({
   wallet: {
     name: values.name,
     description: values.description,
@@ -75,16 +78,7 @@ const payload = computed(() => ({
     fingerprint: values.fingerprint,
     derivationPath: values.derivationPath,
   }
-}))
-
-const {
-  execute: createWallet,
-  data: createdData,
-  error,
-  errorCode,
-  isSuccess,
-  isLoading,
-} = await useCreateWallet(payload)
+})))
 
 const toasts = {
   createdSuccessfully: () => toast.add({
@@ -162,6 +156,7 @@ const onSubmit = handleSubmit(
     }
 
     if (error.value) {
+      console.error(error.value.data)
       if (errorCode.value === ErrorCode.DUPLICATE_XPUB) {
         setFieldError('xpub', 'Wallet with this xpub already exists')
         toasts.createFailed()

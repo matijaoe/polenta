@@ -40,7 +40,7 @@ const areAddressesLoading = computed(() => {
 })
 
 const addresses = computed(() => {
-  return addressesResponse.value?.addresses ?? []
+  return addressesResponse.value?.addresses.map((item) => item.address) ?? []
 })
 
 const hasAddresses = computed(() => {

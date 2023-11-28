@@ -46,7 +46,7 @@
     "bitcoinjs-lib": "^6.1.5",
     "buffer": "^6.0.3",
     "date-fns": "^2.30.0",
-    "drizzle-kit": "^0.20.4",
+    "drizzle-kit": "^0.20.6",
     "eslint": "^8.54.0",
     "nuxt": "^3.8.2",
     "ohash": "^1.1.3",

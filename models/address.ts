@@ -1,9 +1,14 @@
 import type { CachedData } from './cache'
 import type { Script, WithOptional } from '.'
 
+export type AdressData = {
+  index: number
+  address: string | null
+}
+
 export type XpubAddressesResponse = {
   xpub: string
-  addresses: string[]
+  addresses: AdressData[]
   type: 'receiving' | 'change'
   script: Script
 }
