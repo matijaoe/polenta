@@ -1,3 +1,4 @@
+import { z } from 'zod'
 import { Script } from '~/models'
 
 export const useWalletCreateForm = () => {

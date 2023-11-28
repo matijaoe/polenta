@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { ErrorCode } from '~/models'
+import { wallet_table } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
