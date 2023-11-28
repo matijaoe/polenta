@@ -3,7 +3,6 @@ import { ErrorCode, Script } from '~/models'
 import { address_table } from '~/server/db/schema'
 
 const schema = z.object({
-  accountId: z.number(),
   script: z.nativeEnum(Script),
   xpub: z.string(),
   gapReceiving: z.number().min(0).optional().default(0),
@@ -13,11 +12,26 @@ const schema = z.object({
 })
 
 export default defineEventHandler(async (event) => {
+  const { id } = useParams<{ id: string }>()
+
   const body = await readBody<z.infer<typeof schema>>(event)
+
+  const accountId = Number.parseInt(id, 10)
+
+  if (Number.isNaN(accountId)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validation error',
+      message: 'Invalid ID',
+      data: {
+        errorCode: ErrorCode.VALIDATION_ERROR
+      }
+    })
+  }
 
   try {
     const parsedBody = schema.parse(body)
-    const { accountId, script, xpub, gapChange, gapReceiving, limitChange, limitReceiving } = parsedBody
+    const { script, xpub, gapChange, gapReceiving, limitChange, limitReceiving } = parsedBody
 
     const receivingAddresses = generateAddressesFromXpub(body.xpub, {
       script,

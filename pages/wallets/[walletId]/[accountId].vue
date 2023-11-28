@@ -22,8 +22,8 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
       <div v-if="addressesReceivingRes?.addresses">
         <h4>Receiving addresses:</h4>
         <ul>
-          <li v-for="address in addressesReceivingRes?.addresses" :key="address">
-            {{ address }}
+          <li v-for="address in addressesReceivingRes?.addresses" :key="address.address">
+            {{ address.address }}
           </li>
         </ul>
       </div>
@@ -31,8 +31,8 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
       <div v-if="addressesChangeRes?.addresses">
         <h4>Change addresses:</h4>
         <ul>
-          <li v-for="address in addressesChangeRes?.addresses" :key="address">
-            {{ address }}
+          <li v-for="address in addressesChangeRes?.addresses" :key="address.address">
+            {{ address.address }}
           </li>
         </ul>
       </div>
