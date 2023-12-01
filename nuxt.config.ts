@@ -2,7 +2,9 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 
 export default defineNuxtConfig({
   ssr: true,
-  https: true,
+  devServer: {
+    https: false,
+  },
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
@@ -53,6 +55,11 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       asyncContext: true
+    },
+    storage: {
+      db: {
+        driver: 'memory',
+      }
     }
   },
 
@@ -102,5 +109,9 @@ export default defineNuxtConfig({
 
   devtools: {
     enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
   },
 })

@@ -6,14 +6,17 @@ export type CacheEntry<T = any> = {
    * The data stored in the cache entry.
    */
   data: T
-  /**
-   * The timestamp when the data was cached.
-   */
-  cachedAt: number
 }
 
 /**
- * Defines the structure for data returned by the useCache function.
+ * Represents the metadata for a cache entry.
+ */
+export type CacheMeta = {
+  createdAt: number
+}
+
+/**
+ * Defines the structure for data returned by the withCache function.
  */
 export type CachedData<T> = {
   /**
@@ -24,7 +27,7 @@ export type CachedData<T> = {
   /**
    * ISO string timestamp of when the data was last fetched.
    */
-  lastFetched: string
+  lastFetched: Date
 
   /**
    * Descriptive message about the data retrieval status.

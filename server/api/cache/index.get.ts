@@ -1,8 +1,8 @@
 import { mapToObject } from '~/utils'
 
-export default defineEventHandler(() => {
-  const cache = getCache()
+export default defineEventHandler(async () => {
+  const keys = await useCache().getKeys()
   return {
-    cache: mapToObject(cache)
+    cache: keys
   }
 })
