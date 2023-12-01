@@ -2,6 +2,7 @@ import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfil
 
 export default defineNuxtConfig({
   ssr: true,
+  https: true,
   modules: [
     '@vueuse/nuxt',
     '@pinia/nuxt',
