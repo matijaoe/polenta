@@ -5,7 +5,7 @@ const { primary } = useColor()
 <template>
   <Body class="h-screen h-100dvh font-mono bg-white dark:bg-gray-900 overflow-hidden">
     <NuxtLoadingIndicator
-      :throttle="300"
+      :throttle="500"
       :color="primary?.hex"
     />
 

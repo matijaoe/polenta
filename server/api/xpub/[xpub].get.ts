@@ -2,14 +2,7 @@ import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
 import { ErrorCode, Script } from '~/models'
 
-export type QueryParams = {
-  script: Script
-  type: 'receiving' | 'change'
-  limit: number
-  gap: number
-}
-
-const zodSchema = z.object({
+const schema = z.object({
   script: z.nativeEnum(Script).optional().default(Script.native_segwit),
   type: z.enum(['receiving', 'change']).optional().default('receiving'),
   limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
@@ -18,10 +11,10 @@ const zodSchema = z.object({
 
 export default defineEventHandler(async () => {
   const { xpub } = useParams<{ xpub: string }>()
-  const rawParams = useQueryParams<Partial<QueryParams>>()
+  const rawParams = useQueryParams<Partial<z.infer<typeof schema>>>()
 
   try {
-    const { script, type, gap, limit } = zodSchema.parse(rawParams)
+    const { script, type, gap, limit } = schema.parse(rawParams)
 
     const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit })
 

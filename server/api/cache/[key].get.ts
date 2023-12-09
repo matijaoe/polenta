@@ -1,15 +1,17 @@
 import { ErrorCode } from '~/models'
+import type { CacheEntry } from '~/models/cache'
 
-export default defineEventHandler(() => {
+export default defineEventHandler(async () => {
   const { key } = useParams<{ key: string }>()
 
-  const cache = getCache()
-  const entry = cache.get(key)
+  const entry = await useCache().getItem<CacheEntry>(key)
+  const meta = await useCache().getMeta(key)
 
   if (entry) {
     return {
       key,
       entry,
+      meta
     }
   }
 

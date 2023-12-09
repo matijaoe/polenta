@@ -4,6 +4,6 @@
 
 <template>
   <div>
-    <WalletCreateForm />
+    <WalletAccountCreateForm />
   </div>
 </template>

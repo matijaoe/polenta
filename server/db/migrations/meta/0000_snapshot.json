@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "56af32dc-cddc-4d4c-a02a-348e3619daf8",
+  "id": "ef0dbac8-f519-4e6c-9c9a-7b9af4da182b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "accounts": {
@@ -226,6 +226,15 @@
           "name": "address_address_unique",
           "columns": [
             "address"
+          ],
+          "isUnique": true
+        },
+        "address_account_id_address_type_address_index_unique": {
+          "name": "address_account_id_address_type_address_index_unique",
+          "columns": [
+            "account_id",
+            "address_type",
+            "address_index"
           ],
           "isUnique": true
         }

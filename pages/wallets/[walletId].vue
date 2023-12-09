@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 const route = useRoute('wallets-walletId')
-const walletId = computed(() => route.params.walletId)
+const walletId = computed(() => Number.parseInt(route.params.walletId))
 
-const { data: wallet } = await useFetch(`/api/wallets/${walletId.value}`)
+const { data: wallet } = await useWallet(walletId)
 
 definePageMeta({
   layout: false

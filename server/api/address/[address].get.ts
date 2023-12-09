@@ -12,7 +12,7 @@ export default defineEventHandler(async () => {
   try {
     const hashId = hash(addressParam)
 
-    return useCache(`address_stats_${hashId}`, async () => {
+    return withCache(`address:stats:${hashId}`, async () => {
       const { address, chain_stats } = await fetchAddressStats(addressParam)
 
       const {

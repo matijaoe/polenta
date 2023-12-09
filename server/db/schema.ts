@@ -63,7 +63,9 @@ export const address_table = sqliteTable('address', {
   index: integer('address_index').notNull(), // The index in the derivation path
   address: text('address').notNull().unique(),
   createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-})
+}, (t) => ({
+  unq: unique().on(t.accountId, t.type, t.index),
+}))
 
 export const addressesRelation = relations(address_table, ({ one }) => ({
   account: one(account_table, { fields: [address_table.accountId], references: [account_table.id] }),

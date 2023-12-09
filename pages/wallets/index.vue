@@ -1,41 +1,36 @@
 <script lang="ts" setup>
 const { data: accounts } = await useAccounts()
+
+// const account = computed(() => {
+//   return _accounts.value?.[0]
+// })
+
+const count = ref(1)
+
+// // for count, clone that many account objects from account computed
+// const _accounts = computed<AccountWithWallet[]>(() => {
+//   return Array.from({ length: count.value }, () => account.value)
+// })
 </script>
 
 <template>
   <div>
-    <section class="grid accounts-grid gap-4 h-full">
-      <UCard
+    <URange v-model="count" name="range" :min="0" :max="10" color="gray" class="mb-8" />
+
+    <section class="grid accounts-grid gap-6 h-full">
+      <WalletAccountCard
         v-for="account in accounts"
         :key="account.id"
-        class="group"
-        :ui="{
-          header: {
-            padding: 0
-          }
-        }"
-      >
-        <template #header>
-          <NuxtLink :to="`/wallets/${account.id}`">
-            <div class="flex items-center justify-between px-4 py-5 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-800/25">
-              <h3 variant="link">
-                {{ account.name }}
-              </h3>
-              <p class="text-sm text-gray-600 dark:text-gray-500">
-                [{{ account.wallet.name }}]
-              </p>
-            </div>
-          </NuxtLink>
-        </template>
-
-        {{ formatXpub(account.xpub) }}
-      </UCard>
+        class="aspect-square"
+        :account="account"
+      />
     </section>
   </div>
 </template>
 
 <style lang="postcss" scoped>
 .accounts-grid {
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  /* grid-template-columns: 1fr 1fr 1fr; */
 }
 </style>

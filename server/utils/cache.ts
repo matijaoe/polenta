@@ -1,22 +1,14 @@
-import { formatDuration, formatISO, intervalToDuration, secondsToMilliseconds } from 'date-fns'
-import type { CacheEntry, CachedData } from '~/models/cache'
+import { differenceInMilliseconds, secondsToMilliseconds } from 'date-fns'
+import type { CacheEntry } from '~/models/cache'
 
-const cache = new Map<string, CacheEntry>()
-
-export const getCache = () => {
-  return cache
+export const useCache = () => {
+  return useStorage<CacheEntry>('data')
 }
 
-const DEFAULT_RATE_LIMIT_SECONDS = 30
-
-const formatCachedAt = (cachedAt?: number) => {
-  return formatISO(cachedAt ? new Date(cachedAt) : new Date())
-}
+const DEFAULT_RATE_LIMIT_SECONDS = 5
 
 type UseCacheOptions = {
-  /**
-   * The rate limit in seconds.
-   */
+  // seconds
   rateLimit: number
 }
 
@@ -24,42 +16,39 @@ const DEFAULT_USE_CACHE_OPTIONS: UseCacheOptions = {
   rateLimit: DEFAULT_RATE_LIMIT_SECONDS,
 }
 
-/**
- * Caches the result of a function and returns the cached data if available and not stale.
- * If the data is not available in the cache or is stale, it fetches the data and updates the cache.
- */
-export const useCache = async <T = any>(
+export const withCache = async <T = any>(
   cacheKey: string,
   fetchData: () => Promise<T>,
   options: UseCacheOptions = DEFAULT_USE_CACHE_OPTIONS
-): Promise<CachedData<T>> => {
-  const rateLimitMsg = `rate limit: ${options.rateLimit}s`
-  const currentTime = Date.now()
-  const cacheEntry = cache.get(cacheKey)
+// ): Promise<CachedData<T>> => {
+): Promise<any> => {
+  const rateLimit = `${options.rateLimit}s`
 
-  if (cacheEntry && currentTime - cacheEntry.cachedAt < secondsToMilliseconds(options.rateLimit)) {
-    const duration = intervalToDuration({ start: cacheEntry.cachedAt, end: currentTime }) || { seconds: 0 }
-    const timeSinceLastFetch = formatDuration(duration)
+  const cacheEntry = await useCache().getItem<CacheEntry>(cacheKey)
+  const meta = await useCache().getMeta(cacheKey)
 
+  let isConsideredFreshEnough = false
+  if (meta.atime && meta.mtime) {
+    isConsideredFreshEnough = differenceInMilliseconds(new Date(), meta.mtime) < secondsToMilliseconds(options.rateLimit)
+  }
+
+  if (cacheEntry && isConsideredFreshEnough) {
     return {
+      rateLimit,
       isStale: true,
-      lastFetched: formatCachedAt(cacheEntry.cachedAt),
-      timeSinceLastFetch,
-      message: `Data retrieved from cache (${rateLimitMsg})`,
+      meta,
       data: cacheEntry.data as T,
     }
   }
 
-  const newData = await fetchData()
-  cache.set(cacheKey, {
-    data: newData,
-    cachedAt: currentTime,
-  })
+  const data = await fetchData()
+  await useCache().setItem(cacheKey, { data })
 
+  // TODO: get types and response in order
   return {
+    rateLimit,
     isStale: false,
-    lastFetched: formatCachedAt(currentTime),
-    message: `Data fetched and cached (${rateLimitMsg})`,
-    data: newData,
+    meta,
+    data,
   }
 }
