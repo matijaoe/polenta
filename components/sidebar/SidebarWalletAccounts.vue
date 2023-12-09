@@ -23,7 +23,7 @@ const accountItems = computed(() => {
 
 <template>
   <SidebarBase>
-    <div class="space-y-6">
+    <div v-if="wallet" class="space-y-6">
       <section>
         <h2 class="font-bold">
           {{ wallet.name }}
@@ -31,7 +31,12 @@ const accountItems = computed(() => {
       </section>
 
       <menu class="space-y-8">
-        <SidebarMainSection :links="accountItems" title="Accounts" />
+        <SidebarMainSection
+          :links="accountItems"
+          title="Accounts"
+        />
+
+        <UButton>Add account</UButton>
       </menu>
     </div>
   </SidebarBase>
