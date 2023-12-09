@@ -7,4 +7,4 @@ export const FetchKey = {
   BitcoinExchangeRate: 'bitcoin-exchange-rate',
 } as const
 
-export type FetchKeyModel = keyof typeof FetchKey
+export type FetchKeyModel = typeof FetchKey[keyof typeof FetchKey]
