@@ -255,7 +255,7 @@ const { metaSymbol } = useShortcuts()
             @keyup.right="autofillFingerprint"
           >
             <template #trailing>
-              <UTooltip v-if="!fingerprintInputBtnActive && fingerprint.value === ''" text="Set default" :shortcuts="['→']">
+              <UTooltip v-if="fingerprint.value === ''" text="Set default" :shortcuts="['→']">
                 <button
                   id="autofillFingerprintBtn"
                   class="flex items-center"
