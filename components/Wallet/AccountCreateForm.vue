@@ -6,35 +6,32 @@ import { ErrorCode } from '~/models'
 // Form
 // --------------------------------------
 
+const route = useRoute('wallets-walletId-new')
+const walletId = computed(() => Number.parseInt(route.params.walletId))
+const { data: wallet } = await useWallet(walletId)
+
 const {
   defaults,
+  values,
   handleSubmit,
   defineField,
   setFieldValue,
   setFieldTouched,
   resetForm,
   fieldError
-} = useWalletCreateForm()
+} = useWalletAccountCreateForm(wallet.value!)
+// TODO: is it safe to force wallet to be defined here?
 
 const fieldConfig = { validateOnModelUpdate: true }
 const [name, nameProps] = defineField('name', fieldConfig)
 const [description, descriptionProps] = defineField('description', fieldConfig)
 const [xpub, xpubProps] = defineField('xpub', fieldConfig)
 const [fingerprint, fingerprintProps] = defineField('fingerprint', fieldConfig)
-const [scriptType] = defineField('scriptType', fieldConfig)
 const [derivationPath, derivationPathProps] = defineField('derivationPath', fieldConfig)
-const [passphraseProtected, passphraseProtectedProps] = defineField('passphraseProtected', fieldConfig)
 
 // --------------------------------------
 // Field transformation
 // --------------------------------------
-
-const { scriptOptions, getScriptValue } = useBitcoinScripts()
-
-const selectedScript = computed({
-  get: () => getScriptValue(scriptType.value),
-  set: (item) => setFieldValue('scriptType', item?.value)
-})
 
 watch(fingerprint, (value) => {
   setFieldValue('fingerprint', value?.toUpperCase())
@@ -50,18 +47,29 @@ const autofillFingerprint = () => {
 }
 
 const defaultDerivationPath = computed(() => {
-  const script = useScript(scriptType.value ?? defaults.script)
-  return script.value!.derivationPath
+  // increment last account number (or missing number inbetween)
+  // TODO: messy PoC, needs refactoring
+  const script = useScript(defaults.script)
+  const walletPath = script.value!.derivationPath
+  const walletAccounts = wallet.value?.accounts ?? []
+  // sort wallet accounts by derivation index, if m/84'/0'/0' and m/84'/0'/1', index is third number
+  const lastAccount = walletAccounts.sort((a, b) => {
+    const aIdx = Number.parseInt(a.derivationPath.split('/')[3])
+    const bIdx = Number.parseInt(b.derivationPath.split('/')[3])
+    return bIdx - aIdx
+  })[0]
+  const accountIdx = lastAccount ? Number.parseInt(lastAccount.derivationPath.split('/')[3]) + 1 : 0
+  // replace last number with account index
+  const accountPath = walletPath.replace(/\/\d+'$/, `/${accountIdx}'`)
+  return accountPath
 })
+
+setFieldValue('derivationPath', defaultDerivationPath.value)
 
 const autofillDerivation = () => {
   setFieldTouched('derivationPath', false)
   setFieldValue('derivationPath', defaultDerivationPath.value)
 }
-
-watch(selectedScript, () => {
-  autofillDerivation()
-})
 
 const derivationInputBtnActive = useInputFieldBtnActive(['autofillDerivationBtn', 'clearDerivationBtn'])
 const fingerprintInputBtnActive = useInputFieldBtnActive(['autofillFingerprintBtn'])
@@ -100,35 +108,30 @@ const {
   errorCode,
   isSuccess,
   isLoading,
-} = await useCreateWallet(computed(() => ({
-  wallet: {
-    name: name.value,
-    description: description.value,
-    scriptType: scriptType.value,
-    passphraseProtected: passphraseProtected.value,
-  },
-  account: {
-    name: 'Account 1',
-    xpub: xpub.value,
-    fingerprint: fingerprint.value,
-    derivationPath: derivationPath.value,
-  }
-})))
+} = await useCreateWalletAccount(computed(() => ({
+  walletId: values.walletId,
+  name: name.value,
+  description: description.value,
+  xpub: xpub.value,
+  fingerprint: fingerprint.value,
+  derivationPath: derivationPath.value,
+}
+)))
 
 const onSubmit = handleSubmit(
   async (_values, { resetForm, setFieldError }) => {
     await createWallet()
 
     if (isSuccess.value && createdData.value) {
-      toasts.createdSuccessfully(createdData.value)
+      // toasts.createdSuccessfully(createdData.value)
       resetForm()
-      refreshNuxtData([FetchKey.Wallets, FetchKey.Accounts])
+      refreshNuxtData([FetchKey.Wallets, FetchKey.Accounts, FetchKey.Wallet(createdData.value.walletId)])
       navigateTo({
         name: 'wallets-walletId-accountId',
         params: {
-          walletId: createdData.value.wallet.id,
-          accountId: createdData.value.account.id
-        }
+          walletId: createdData.value.walletId,
+          accountId: createdData.value.id,
+        },
       }, { replace: true })
       return
     }
@@ -137,9 +140,15 @@ const onSubmit = handleSubmit(
       console.error(error.value.data)
       if (errorCode.value === ErrorCode.DUPLICATE_XPUB) {
         setFieldError('xpub', 'Wallet with this xpub already exists')
-        toasts.createFailed('\'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.\'')
+        toasts.createFailed('A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.')
         return
       }
+      if (errorCode.value === ErrorCode.DUPLICATE_DERIVATION_PATH) {
+        setFieldError('derivationPath', 'Wallet with this derivation path already exists')
+        toasts.createFailed('A wallet with the provided derivation path already exists in your account. Please enter a unique derivation path to create a new wallet.')
+        return
+      }
+      // TODO: errors when derivation/account idx already exists for this wallet
       toasts.unexpectedError(error.value)
     }
   },
@@ -203,36 +212,6 @@ const { metaSymbol } = useShortcuts()
           :error="fieldError('description')"
         >
           <UTextarea v-model="description" v-bind="descriptionProps" />
-        </UFormGroup>
-
-        <UFormGroup
-          size="sm"
-          label="Script type"
-        >
-          <USelectMenu
-            v-model="selectedScript"
-            icon="i-ph-currency-btc"
-            :options="scriptOptions"
-            by="value"
-            option-attribute="label"
-          >
-            <template #option="{ option, selected }">
-              <div class="flex flex-col gap-2 w-full">
-                <p
-                  class="flex-1"
-                  :class="{
-                    'font-bold text-primary': selected
-                  }"
-                >
-                  {{ option.label }}
-                </p>
-
-                <p class="text-xs text-gray-400 dark:text-gray-500">
-                  Address starts with <span class="font-bold text-gray-500 dark:text-gray-400">{{ option.addressFormat }}</span>
-                </p>
-              </div>
-            </template>
-          </USelectMenu>
         </UFormGroup>
 
         <UFormGroup
@@ -324,18 +303,6 @@ const { metaSymbol } = useShortcuts()
               </UTooltip>
             </template>
           </UInput>
-        </UFormGroup>
-
-        <UFormGroup
-          size="sm"
-          label="Passphrase protected"
-        >
-          <UToggle
-            v-model="passphraseProtected"
-            v-bind="passphraseProtectedProps"
-            on-icon="i-heroicons-lock-closed"
-            off-icon="i-heroicons-lock-open"
-          />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">

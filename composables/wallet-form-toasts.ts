@@ -33,9 +33,9 @@ export const useWalletFormToasts = () => {
 
   // TODO: add a button to navigate to the wallet with that xpub
   // perhaps also show some data of that account in the toast
-  const createFailed = () => toast.add({
+  const createFailed = (description?: string) => toast.add({
     title: 'Wallet creation failed',
-    description: 'A wallet with the provided XPUB already exists in your account. Please enter a unique XPUB to create a new wallet.',
+    description,
     color: 'red',
     timeout: 5000,
     icon: 'i-ph-warning-bold',

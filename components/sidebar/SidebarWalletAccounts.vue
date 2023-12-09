@@ -25,9 +25,18 @@ const accountItems = computed(() => {
   <SidebarBase>
     <div v-if="wallet" class="space-y-6">
       <section>
-        <h2 class="font-bold">
-          {{ wallet.name }}
-        </h2>
+        <ULink
+          :to="{
+            name: 'wallets-walletId',
+            params: {
+              walletId: wallet.id
+            }
+          }"
+        >
+          <h2 class="font-bold">
+            {{ wallet.name }}
+          </h2>
+        </ULink>
       </section>
 
       <menu class="space-y-8">
@@ -36,7 +45,20 @@ const accountItems = computed(() => {
           title="Accounts"
         />
 
-        <UButton>Add account</UButton>
+        <UButton
+          color="gray"
+          variant="solid"
+          block
+          size="xs"
+          :to="{
+            name: 'wallets-walletId-new',
+            params: {
+              walletId: wallet.id
+            }
+          }"
+        >
+          Add account
+        </UButton>
       </menu>
     </div>
   </SidebarBase>

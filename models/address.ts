@@ -3,7 +3,7 @@ import type { Script, WithOptional } from '.'
 
 export type AdressData = {
   index: number
-  address: string | null
+  address: string | undefined | null
 }
 
 export type XpubAddressesResponse = {

@@ -17,15 +17,12 @@ export const useWallets = async () => {
 }
 
 export const useWallet = async (walletId: MaybeRef<number>, options = {}) => {
-  const app = useNuxtApp()
-
   const res = await useFetch<WalletWithAccounts>(`/api/wallets/${unref(walletId)}`, {
     query: {
       accounts: true
     },
-    getCachedData(key) {
-      return app.payload.data[key] || app.static.data[key]
-    },
+    key: FetchKey.Wallet(walletId),
+    getCachedData,
     ...options,
   })
 
@@ -34,6 +31,26 @@ export const useWallet = async (walletId: MaybeRef<number>, options = {}) => {
 
 export const useCreateWallet = async (body: ComputedRef<RequestInit['body'] | Record<string, any>>) => {
   const res = await useFetch('/api/wallets', {
+    method: 'POST',
+    immediate: false,
+    watch: false,
+    body,
+  })
+
+  const errorCode = computed(() => res.error.value?.data.data?.errorCode as ErrorCode | undefined)
+  const isSuccess = computed(() => res.status.value === 'success')
+  const isLoading = computed(() => res.status.value === 'pending')
+
+  return {
+    ...res,
+    errorCode,
+    isSuccess,
+    isLoading,
+  }
+}
+
+export const useCreateWalletAccount = async (body: ComputedRef<RequestInit['body'] | Record<string, any>>) => {
+  const res = await useFetch('/api/accounts', {
     method: 'POST',
     immediate: false,
     watch: false,
