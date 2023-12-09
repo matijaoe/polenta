@@ -8,22 +8,22 @@ import { ErrorCode } from '~/models'
 
 const {
   defaults,
-  // form
-  values,
   handleSubmit,
+  defineField,
   setFieldValue,
   setFieldTouched,
   resetForm,
-  // fields
-  name,
-  description,
-  xpub,
-  fingerprint,
-  derivationPath,
-  passphraseProtectedModel,
-  // other
   fieldError
 } = useWalletCreateForm()
+
+const fieldConfig = { validateOnModelUpdate: true }
+const [name, nameProps] = defineField('name', fieldConfig)
+const [description, descriptionProps] = defineField('description', fieldConfig)
+const [xpub, xpubProps] = defineField('xpub', fieldConfig)
+const [fingerprint, fingerprintProps] = defineField('fingerprint', fieldConfig)
+const [scriptType] = defineField('scriptType', fieldConfig)
+const [derivationPath, derivationPathProps] = defineField('derivationPath', fieldConfig)
+const [passphraseProtected, passphraseProtectedProps] = defineField('passphraseProtected', fieldConfig)
 
 // --------------------------------------
 // Field transformation
@@ -32,11 +32,11 @@ const {
 const { scriptOptions, getScriptValue } = useBitcoinScripts()
 
 const selectedScript = computed({
-  get: () => getScriptValue(values.scriptType),
+  get: () => getScriptValue(scriptType.value),
   set: (item) => setFieldValue('scriptType', item?.value)
 })
 
-watch(() => fingerprint.value, ({ value }) => {
+watch(fingerprint, (value) => {
   setFieldValue('fingerprint', value?.toUpperCase())
 })
 
@@ -50,8 +50,7 @@ const autofillFingerprint = () => {
 }
 
 const defaultDerivationPath = computed(() => {
-  const scriptType = values.scriptType ?? defaults.script
-  const script = useScript(scriptType)
+  const script = useScript(scriptType.value ?? defaults.script)
   return script.value!.derivationPath
 })
 
@@ -81,11 +80,11 @@ const generateRandomName = () => {
 }
 
 const autofillRandomName = () => {
-  if (values.name !== '') {
+  if (name.value !== '') {
     return
   }
-  const name = generateSlug(2, { format: 'sentence' })
-  setFieldValue('name', name)
+  const generatedName = generateSlug(2, { format: 'sentence' })
+  setFieldValue('name', generatedName)
 }
 
 // ---------------------------------------
@@ -103,21 +102,21 @@ const {
   isLoading,
 } = await useCreateWallet(computed(() => ({
   wallet: {
-    name: values.name,
-    description: values.description,
-    scriptType: values.scriptType,
-    passphraseProtected: values.passphraseProtected,
+    name: name.value,
+    description: description.value,
+    scriptType: scriptType.value,
+    passphraseProtected: passphraseProtected.value,
   },
   account: {
     name: 'Account 1',
-    xpub: values.xpub,
-    fingerprint: values.fingerprint,
-    derivationPath: values.derivationPath,
+    xpub: xpub.value,
+    fingerprint: fingerprint.value,
+    derivationPath: derivationPath.value,
   }
 })))
 
 const onSubmit = handleSubmit(
-  async (_, { resetForm, setFieldError }) => {
+  async (_values, { resetForm, setFieldError }) => {
     await createWallet()
 
     if (isSuccess.value && createdData.value) {
@@ -156,10 +155,9 @@ const { metaSymbol } = useShortcuts()
 
 <template>
   <div>
-    <UForm
-      :state="values"
+    <form
       class="max-w-4xl"
-      @submit="onSubmit"
+      @submit.prevent="onSubmit"
       @keydown.meta.enter="onSubmit"
     >
       <div class="flex flex-col gap-5 max-w-lg">
@@ -169,8 +167,9 @@ const { metaSymbol } = useShortcuts()
           :error="fieldError('name')"
         >
           <UInput
+            v-model="name"
             icon="i-ph-identification-badge"
-            v-bind="name"
+            v-bind="nameProps"
             autofocus
             :ui="disablePointerEventsUi"
             @keyup.right="autofillRandomName"
@@ -197,7 +196,7 @@ const { metaSymbol } = useShortcuts()
           label="Wallet description"
           :error="fieldError('description')"
         >
-          <UTextarea v-bind="description" />
+          <UTextarea v-model="description" v-bind="descriptionProps" />
         </UFormGroup>
 
         <UFormGroup
@@ -236,7 +235,7 @@ const { metaSymbol } = useShortcuts()
           hint="Extended private key"
           :error="fieldError('xpub')"
         >
-          <UTextarea v-bind="xpub" placeholder="xpub" />
+          <UTextarea v-model="xpub" v-bind="xpubProps" placeholder="xpub" />
         </UFormGroup>
 
         <UFormGroup
@@ -245,8 +244,9 @@ const { metaSymbol } = useShortcuts()
           :error="!fingerprintInputBtnActive && fieldError('fingerprint')"
         >
           <UInput
+            v-model="fingerprint"
             icon="i-ph-fingerprint"
-            v-bind="fingerprint"
+            v-bind="fingerprintProps"
             :placeholder="defaults.fingerprint"
             maxlength="8"
             pattern="[a-fA-F0-9]*"
@@ -254,7 +254,7 @@ const { metaSymbol } = useShortcuts()
             @keyup.right="autofillFingerprint"
           >
             <template #trailing>
-              <UTooltip v-if="fingerprint.value === ''" text="Set default" :shortcuts="['→']">
+              <UTooltip v-if="fingerprint === ''" text="Set default" :shortcuts="['→']">
                 <button
                   id="autofillFingerprintBtn"
                   class="flex items-center"
@@ -279,15 +279,16 @@ const { metaSymbol } = useShortcuts()
           :error="!derivationInputBtnActive && fieldError('derivationPath')"
         >
           <UInput
-            v-bind="derivationPath"
+            v-bind="derivationPathProps"
             ref="derivationPathEl"
+            v-model="derivationPath"
             icon="i-ph-git-branch"
             :placeholder="defaultDerivationPath"
             :ui="disablePointerEventsUi"
             @keyup.right="autofillDerivation"
           >
             <template #trailing>
-              <UTooltip v-if="derivationPath.value === ''" text="Set default" :shortcuts="['→']">
+              <UTooltip v-if="derivationPath === ''" text="Set default" :shortcuts="['→']">
                 <button
                   id="autofillDerivationBtn"
                   class="flex items-center"
@@ -303,7 +304,7 @@ const { metaSymbol } = useShortcuts()
 
               <UTooltip v-else text="Clear">
                 <UButton
-                  v-show="derivationPath.value !== ''"
+                  v-show="derivationPath !== ''"
                   id="clearDerivationBtn"
                   color="gray"
                   variant="link"
@@ -324,24 +325,25 @@ const { metaSymbol } = useShortcuts()
           label="Passphrase protected"
         >
           <UToggle
-            v-model="passphraseProtectedModel"
+            v-model="passphraseProtected"
+            v-bind="passphraseProtectedProps"
             on-icon="i-heroicons-lock-closed"
             off-icon="i-heroicons-lock-open"
           />
         </UFormGroup>
 
         <div class="flex justify-end gap-3">
-          <UButton color="white" variant="solid" type="reset" @click="resetForm">
+          <UButton type="reset" color="white" variant="solid" @click="resetForm">
             Clear
           </UButton>
 
           <UTooltip text="Submit" :shortcuts="[metaSymbol, '↵']" :popper="{ placement: 'top' }">
-            <UButton type="button" :loading="isLoading">
+            <UButton type="submit" :loading="isLoading">
               Create
             </UButton>
           </UTooltip>
         </div>
       </div>
-    </UForm>
+    </form>
   </div>
 </template>

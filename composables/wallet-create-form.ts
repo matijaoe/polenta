@@ -37,12 +37,12 @@ export const useWalletCreateForm = () => {
     values,
     errors,
     handleSubmit,
-    defineInputBinds,
+    defineField,
     setFieldValue,
-    useFieldModel,
     setFieldTouched,
     isFieldTouched,
     resetForm,
+    resetField,
   } = useForm({
     validationSchema: toTypedSchema(schema),
     initialValues: {
@@ -56,36 +56,19 @@ export const useWalletCreateForm = () => {
     },
   })
 
-  const inputOptions = { validateOnInput: true }
-  const name = defineInputBinds('name', inputOptions)
-  const description = defineInputBinds('description', inputOptions)
-  const xpub = defineInputBinds('xpub', inputOptions)
-  const fingerprint = defineInputBinds('fingerprint', inputOptions)
-  const scriptType = defineInputBinds('scriptType', inputOptions) // not used
-  const derivationPath = defineInputBinds('derivationPath', inputOptions)
-  const passphraseProtectedModel = useFieldModel('passphraseProtected')
-
   const fieldError = (field: keyof typeof values) => {
     return isFieldTouched(field) && errors.value[field!]
   }
 
   return {
     defaults: DEFAULTS,
-    // form
     values,
     handleSubmit,
     setFieldValue,
     setFieldTouched,
+    resetField,
+    defineField,
     resetForm,
-    // input binds
-    name,
-    description,
-    xpub,
-    fingerprint,
-    scriptType,
-    derivationPath,
-    passphraseProtectedModel,
-    // ----
     fieldError,
   }
 }
