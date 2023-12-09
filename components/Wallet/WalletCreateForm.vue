@@ -45,9 +45,7 @@ watch(() => fingerprint.value, ({ value }) => {
 // --------------------------------------
 
 const autofillFingerprint = () => {
-  if (values.fingerprint !== '') {
-    return
-  }
+  setFieldTouched('fingerprint', false)
   setFieldValue('fingerprint', defaults.fingerprint)
 }
 
@@ -179,15 +177,16 @@ const { metaSymbol } = useShortcuts()
           >
             <template #trailing>
               <UTooltip text="Generate random name" :shortcuts="['→']">
-                <UButton
-                  color="gray"
-                  variant="link"
-                  icon="i-ph-shuffle-bold"
-                  :padded="false"
+                <button
                   tabindex="-1"
                   type="button"
+                  class="flex items-center"
                   @click.stop="generateRandomName"
-                />
+                >
+                  <UKbd>
+                    <i class="i-ph-shuffle-bold" />
+                  </UKbd>
+                </button>
               </UTooltip>
             </template>
           </UInput>
@@ -243,7 +242,7 @@ const { metaSymbol } = useShortcuts()
         <UFormGroup
           size="sm"
           label="Master fingerprint"
-          :error="fieldError('fingerprint')"
+          :error="!fingerprintInputBtnActive && fieldError('fingerprint')"
         >
           <UInput
             icon="i-ph-fingerprint"
@@ -261,7 +260,7 @@ const { metaSymbol } = useShortcuts()
                   class="flex items-center"
                   type="button"
                   tabindex="-1"
-                  @click="autofillFingerprint"
+                  @click.stop="autofillFingerprint"
                 >
                   <UKbd>
                     →
@@ -308,10 +307,11 @@ const { metaSymbol } = useShortcuts()
                   id="clearDerivationBtn"
                   color="gray"
                   variant="link"
-                  icon="i-ph-x"
+                  icon="i-ph-x-bold"
                   :padded="false"
                   tabindex="-1"
                   type="button"
+                  size="xs"
                   @click="onClearDerivationPath"
                 />
               </UTooltip>
