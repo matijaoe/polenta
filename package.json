@@ -23,6 +23,7 @@
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.0.5",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@matijaoe/utils": "^0.1.2",
     "@tauri-apps/cli": "^1.5.6",
     "better-sqlite3": "^9.2.2",
     "drizzle-orm": "^0.29.0"

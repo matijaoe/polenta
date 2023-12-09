@@ -11,10 +11,6 @@ export const mapToObject = <K extends string | number | symbol, V>(map: Map<K, V
   return object
 }
 
-export const generateIndices = ({ start = 0, count }: { start: number; count: number }) => {
-  return Array.from({ length: count }).map((_, i) => start + i)
-}
-
 export const formatString = (str: string, n: number) => {
   if (str.length <= 2 * n) {
     return str

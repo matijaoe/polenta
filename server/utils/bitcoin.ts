@@ -1,10 +1,10 @@
 import ecc from '@bitcoinerlab/secp256k1'
+import { list } from '@matijaoe/utils'
 import type { BIP32Interface } from 'bip32'
 import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
 import { Buffer } from 'buffer/index.js'
 import type { Script } from '~/models'
-import { generateIndices } from '~/utils'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250
 
@@ -91,7 +91,7 @@ export const generateAddressesFromXpub = (xpub: string, { gap, limit, script, ty
 
   const count = Math.min(limit, HARD_ADDRESS_COUNT_LIMIT)
 
-  return generateIndices({ start: gap, count }).map((index) => {
+  return list({ start: gap, len: count }).map((index) => {
     const address = generateAddressFromXpubKey(xpubKey, { script, type, index })
     return { index, address: address ?? null }
   }) as { index: number; address: string | null }[]

@@ -11,6 +11,9 @@ dependencies:
   '@esbuild-plugins/node-globals-polyfill':
     specifier: ^0.2.3
     version: 0.2.3(esbuild@0.19.8)
+  '@matijaoe/utils':
+    specifier: ^0.1.2
+    version: 0.1.2(typescript@5.3.3)
   '@tauri-apps/cli':
     specifier: ^1.5.6
     version: 1.5.7
@@ -1518,6 +1521,14 @@ packages:
       - vitest
     dev: true
 
+  /@matijaoe/utils@0.1.2(typescript@5.3.3):
+    resolution: {integrity: sha512-vOFORx8+VwZ7OMVMYLv+sxGUjSCqm6BN39mhpMzt6FhJgygJKUGUsS11GEzKD2EbTcLK21T1VRmISotaTMZKDQ==}
+    peerDependencies:
+      typescript: ^5.0.0
+    dependencies:
+      typescript: 5.3.3
+    dev: false
+
   /@mempool/mempool.js@2.3.0:
     resolution: {integrity: sha512-FrN9WjZCEyyLodrTPQxmlWDh8B/UGK0jlKfVNzJxqzQ1IMPo/Hpdws8xwYEcsks5JqsaxbjLwaC3GAtJ6Brd0A==}
     dependencies:
@@ -2123,6 +2134,7 @@ packages:
     dependencies:
       is-glob: 4.0.3
       micromatch: 4.0.5
+      napi-wasm: 1.1.0
     dev: true
     bundledDependencies:
       - napi-wasm
@@ -7069,6 +7081,10 @@ packages:
   /napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
 
+  /napi-wasm@1.1.0:
+    resolution: {integrity: sha512-lHwIAJbmLSjF9VDRm9GoVOy9AGp3aIvkjv+Kvz9h16QR3uSVYH78PNQUnT2U4X53mhlnV2M7wrhibQ3GHicDmg==}
+    dev: true
+
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
     dev: true
@@ -9428,7 +9444,6 @@ packages:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==}
     engines: {node: '>=14.17'}
     hasBin: true
-    dev: true
 
   /ufo@1.3.2:
     resolution: {integrity: sha512-o+ORpgGwaYQXgqGDwd+hkS4PuZ3QnmqMMxRuajK/a38L6fTpcE5GPIfrf+L/KemFzfUpeUQc1rRS1iDBozvnFA==}
