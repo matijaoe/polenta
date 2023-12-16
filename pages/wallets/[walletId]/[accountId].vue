@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { toNumber } from '@matijaoe/utils'
+
 import type { XpubAddressesResponse } from '~/models'
 
 const route = useRoute('wallets-walletId-accountId')
-const accountId = computed(() => Number.parseInt(route.params.accountId))
+const accountId = computed(() => toNumber(route.params.accountId)!)
 
 const { data: account } = await useAccount(accountId)
 

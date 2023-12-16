@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-const route = useRoute('wallets-walletId')
-const walletId = computed(() => Number.parseInt(route.params.walletId))
+import { toNumber } from '@matijaoe/utils'
 
-const { data: wallet } = await useWallet(walletId)
+const route = useRoute('wallets-walletId')
+const walletId = computed(() => toNumber(route.params.walletId))
+
+const { data: wallet } = await useWallet(walletId.value!)
 
 definePageMeta({
   layout: false

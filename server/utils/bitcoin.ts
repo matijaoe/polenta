@@ -1,5 +1,4 @@
 import ecc from '@bitcoinerlab/secp256k1'
-import { list } from '@matijaoe/utils'
 import type { BIP32Interface } from 'bip32'
 import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'

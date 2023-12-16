@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { generateSlug } from 'random-word-slugs'
+import { toNumber } from '@matijaoe/utils'
 import { ErrorCode } from '~/models'
 
 // --------------------------------------
@@ -7,9 +8,8 @@ import { ErrorCode } from '~/models'
 // --------------------------------------
 
 const route = useRoute('wallets-walletId-new')
-const walletId = computed(() => Number.parseInt(route.params.walletId))
+const walletId = computed(() => toNumber(route.params.walletId)!)
 const { data: wallet } = await useWallet(walletId)
-
 const {
   defaults,
   values,
@@ -54,11 +54,11 @@ const defaultDerivationPath = computed(() => {
   const walletAccounts = wallet.value?.accounts ?? []
   // sort wallet accounts by derivation index, if m/84'/0'/0' and m/84'/0'/1', index is third number
   const lastAccount = walletAccounts.sort((a, b) => {
-    const aIdx = Number.parseInt(a.derivationPath.split('/')[3])
-    const bIdx = Number.parseInt(b.derivationPath.split('/')[3])
+    const aIdx = toNumber(a.derivationPath.split('/')[3])!
+    const bIdx = toNumber(b.derivationPath.split('/')[3])!
     return bIdx - aIdx
   })[0]
-  const accountIdx = lastAccount ? Number.parseInt(lastAccount.derivationPath.split('/')[3]) + 1 : 0
+  const accountIdx = lastAccount ? toNumber(lastAccount.derivationPath.split('/')[3])! + 1 : 0
   // replace last number with account index
   const accountPath = walletPath.replace(/\/\d+'$/, `/${accountIdx}'`)
   return accountPath

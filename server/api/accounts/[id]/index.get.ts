@@ -1,13 +1,14 @@
 import { eq } from 'drizzle-orm'
+import { toNumber } from '@matijaoe/utils'
 import { ErrorCode } from '~/models'
 import { account_table } from '~/server/db/schema'
 
 export default defineEventHandler(async () => {
   const { id } = useParams<{ id: string }>()
 
-  const parsedId = Number.parseInt(id, 10)
+  const parsedId = toNumber(id)
 
-  if (Number.isNaN(parsedId)) {
+  if (!parsedId) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Validation error',
