@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { toNumber } from '@matijaoe/utils'
+import { toNumber } from 'utilipea'
 import { ErrorCode } from '~/models'
 import { account_table } from '~/server/db/schema'
 

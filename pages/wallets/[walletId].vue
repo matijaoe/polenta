@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { toNumber } from '@matijaoe/utils'
+import { toNumber } from 'utilipea'
 
 const route = useRoute('wallets-walletId')
 const walletId = computed(() => toNumber(route.params.walletId))

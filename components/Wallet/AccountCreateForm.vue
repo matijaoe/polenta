@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { generateSlug } from 'random-word-slugs'
-import { toNumber } from '@matijaoe/utils'
+import { toNumber } from 'utilipea'
 import { ErrorCode } from '~/models'
 
 // --------------------------------------
