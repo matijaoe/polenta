@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       'composables/**',
       'store/**',
       'models/db/*',
-      // 'node_modules/@matijaoe/utils/**',
+      // 'node_modules/utilipea/**',
     ],
     imports: [
       {

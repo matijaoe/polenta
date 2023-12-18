@@ -23,14 +23,14 @@
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.0.5",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@matijaoe/utils": "^0.1.6",
     "@tauri-apps/cli": "^1.5.8",
     "better-sqlite3": "^9.2.2",
-    "drizzle-orm": "^0.29.0"
+    "drizzle-orm": "^0.29.0",
+    "utilipea": "^0.2.3"
   },
   "devDependencies": {
     "@iconify-json/ph": "^1.1.9",
-    "@iconify-json/simple-icons": "^1.1.84",
+    "@iconify-json/simple-icons": "^1.1.85",
     "@matijaoe/eslint-config": "^1.2.0",
     "@mempool/mempool.js": "^2.3.0",
     "@nuxt/devtools": "^1.0.6",
@@ -46,8 +46,8 @@
     "bip32": "^4.0.0",
     "bitcoinjs-lib": "^6.1.5",
     "buffer": "^6.0.3",
-    "date-fns": "^2.30.0",
-    "drizzle-kit": "^0.20.6",
+    "date-fns": "^3.0.0",
+    "drizzle-kit": "^0.20.7",
     "eslint": "^8.56.0",
     "nuxt": "^3.8.2",
     "ohash": "^1.1.3",

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { toNumber } from '@matijaoe/utils'
+import { toNumber } from 'utilipea'
 
 import type { XpubAddressesResponse } from '~/models'
 
