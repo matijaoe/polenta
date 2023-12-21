@@ -1,26 +1,30 @@
-import { z } from 'zod'
+import { toTypedSchema } from '@vee-validate/valibot'
+import { boolean, customAsync, enum_, maxLength, minLength, objectAsync, optional, regex, string, stringAsync, toCustom, toUpperCase } from 'valibot'
 import { Script } from '~/models'
 
 export const useWalletCreateForm = () => {
-  const schema = z.object({
-    name: z.string()
-      .min(1, 'Name is required')
-      .min(3, 'Name must be at least 3 characters')
-      .max(40, 'Name must be at most 40 characters'),
-    description: z.string().optional(),
-    scriptType: z.nativeEnum(Script),
-    xpub: z.string()
-      .min(1, 'xpub is required')
-      .refine(validateXpubClientSide, 'Invalid xpub'),
-    fingerprint: z
-      .string()
-      .regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string')
-      .transform((fp) => fp.toUpperCase()).optional(),
-    derivationPath: z.string()
-      .min(1, 'Derivation path is required')
-      .regex(derivationPathRegex, 'Invalid derivation path')
-      .transform((path) => path.replaceAll(`'`, 'h')),
-    passphraseProtected: z.boolean().default(false),
+  const schema = objectAsync({
+    name: string([
+      minLength(1, 'Name is required'),
+      minLength(3, 'Name must be at least 3 characters'),
+      maxLength(40, 'Name must be at most 40 characters'),
+    ]),
+    description: optional(string()),
+    scriptType: enum_(Script),
+    xpub: stringAsync([
+      minLength(1, 'xpub is required'),
+      customAsync(validateXpubClientSide, 'Invalid xpub'),
+    ]),
+    fingerprint: optional(string([
+      regex(fingerprintRegex, 'Fingerprint must be an 8-digit hex string'),
+      toUpperCase(),
+    ])),
+    derivationPath: string([
+      minLength(1, 'Derivation path is required'),
+      regex(derivationPathRegex, 'Invalid derivation path'),
+      toCustom((path) => path.replaceAll(`'`, 'h')),
+    ]),
+    passphraseProtected: optional(boolean()),
   })
 
   const DEFAULTS: {
