@@ -23,7 +23,7 @@
   "dependencies": {
     "@bitcoinerlab/secp256k1": "^1.0.5",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@tauri-apps/cli": "^1.5.8",
+    "@tauri-apps/cli": "^1.5.9",
     "@vee-validate/valibot": "^4.12.3",
     "better-sqlite3": "^9.2.2",
     "drizzle-orm": "^0.29.0"
@@ -46,7 +46,7 @@
     "bip32": "^4.0.0",
     "bitcoinjs-lib": "^6.1.5",
     "buffer": "^6.0.3",
-    "date-fns": "^3.0.0",
+    "date-fns": "^3.0.5",
     "drizzle-kit": "^0.20.7",
     "eslint": "^8.56.0",
     "nuxt": "^3.8.2",
@@ -58,7 +58,7 @@
     "typescript": "^5.3.3",
     "utilipea": "^0.3.1",
     "valibot": "^0.24.1",
-    "vue": "^3.3.12",
+    "vue": "^3.3.13",
     "vue-router": "^4.2.5",
     "xpub-converter": "^1.0.2",
     "zod": "^3.22.4"
