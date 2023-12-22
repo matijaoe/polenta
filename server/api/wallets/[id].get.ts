@@ -1,28 +1,38 @@
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { ErrorCode } from '~/models'
 import { wallet_table } from '~/server/db/schema'
+import { parseBooleanQuery } from '~/utils'
 
-export default defineEventHandler(async () => {
-  const { id } = useParams<{ id: string }>()
-  const { accounts: includeAccounts } = useQueryParams<{ accounts: boolean }>({
-    parseBooleans: true
-  })
+const paramsSchema = z.object({
+  id: z.coerce.number(z.string())
+})
 
-  const parsedId = Number.parseInt(id, 10)
+const accountsSchema = z.object({
+  accounts: z.string().transform(parseBooleanQuery).optional(),
+  num: z.number().optional()
+})
 
-  if (Number.isNaN(parsedId)) {
+export default defineEventHandler(async (event) => {
+  const params = await getValidatedRouterParams(event, paramsSchema.safeParse)
+
+  if (!params.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Validation error',
-      message: 'Invalid ID',
+      statusMessage: 'Invalid ID',
+      message: extractZodErrorMessage(params.error),
       data: {
         errorCode: ErrorCode.VALIDATION_ERROR
       }
     })
   }
 
+  const { id } = params.data
+
+  const { accounts: includeAccounts } = await getValidatedQuery(event, accountsSchema.parse)
+
   const wallet = await db.query.wallet_table.findFirst({
-    where: eq(wallet_table.id, parsedId),
+    where: eq(wallet_table.id, id),
     with: includeAccounts ? { accounts: true } : {}
   })
 

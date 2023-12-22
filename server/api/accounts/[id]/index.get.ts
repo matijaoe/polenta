@@ -1,26 +1,30 @@
 import { eq } from 'drizzle-orm'
-import { toNumber } from 'utilipea'
+import { z } from 'zod'
 import { ErrorCode } from '~/models'
 import { account_table } from '~/server/db/schema'
 
-export default defineEventHandler(async () => {
-  const { id } = useParams<{ id: string }>()
+const paramsSchema = z.object({
+  id: z.coerce.number(z.string())
+})
 
-  const parsedId = toNumber(id)
+export default defineEventHandler(async (event) => {
+  const params = await getValidatedRouterParams(event, paramsSchema.safeParse)
 
-  if (!parsedId) {
+  if (!params.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Validation error',
-      message: 'Invalid ID',
+      statusMessage: 'Invalid ID',
+      message: extractZodErrorMessage(params.error),
       data: {
         errorCode: ErrorCode.VALIDATION_ERROR
       }
     })
   }
 
+  const { id } = params.data
+
   const account = await db.query.account_table.findFirst({
-    where: eq(account_table.id, parsedId),
+    where: eq(account_table.id, id),
     with: {
       wallet: true
     }

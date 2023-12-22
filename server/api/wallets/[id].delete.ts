@@ -1,24 +1,32 @@
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { ErrorCode } from '~/models'
 import { wallet_table } from '~/server/db/schema'
 
-export default defineEventHandler(async () => {
-  const { id } = useParams<{ id: string }>()
+const paramsSchema = z.object({
+  id: z.coerce.number(z.string())
+})
 
-  const parsedId = Number.parseInt(id, 10)
+export default defineEventHandler(async (event) => {
+  const params = await getValidatedRouterParams(event, paramsSchema.safeParse)
 
-  if (Number.isNaN(parsedId)) {
+  if (!params.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Validation error',
-      message: 'Invalid ID',
+      statusMessage: 'Invalid ID',
+      message: extractZodErrorMessage(params.error),
       data: {
         errorCode: ErrorCode.VALIDATION_ERROR
       }
     })
   }
 
-  const res = await db.delete(wallet_table).where(eq(wallet_table.id, parsedId)).execute()
+  const { id } = params.data
+
+  const res = await db
+    .delete(wallet_table)
+    .where(eq(wallet_table.id, id))
+    .execute()
 
   if (res.changes === 0) {
     throw createError({

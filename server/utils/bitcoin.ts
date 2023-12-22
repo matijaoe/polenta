@@ -3,6 +3,7 @@ import type { BIP32Interface } from 'bip32'
 import { BIP32Factory } from 'bip32'
 import * as bitcoin from 'bitcoinjs-lib'
 import { Buffer } from 'buffer/index.js'
+import { list } from 'utilipea'
 import type { Script } from '~/models'
 
 export const HARD_ADDRESS_COUNT_LIMIT = 250

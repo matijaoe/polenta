@@ -14,3 +14,7 @@ export const validateFingerprintFormat = (value?: string) => {
   }
   return fingerprintRegex.test(value)
 }
+
+export const parseBooleanQuery = (val?: string) => {
+  return Boolean(val && !['false', '0', ''].includes(val.toString().trim().toLowerCase()))
+}

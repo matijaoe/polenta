@@ -1,25 +1,30 @@
 import { eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { ErrorCode } from '~/models'
 import { account_table } from '~/server/db/schema'
 
-export default defineEventHandler(async () => {
-  const { id } = useParams<{ id: string }>()
+const paramsSchema = z.object({
+  id: z.coerce.number(z.string())
+})
 
-  const accountId = Number.parseInt(id, 10)
+export default defineEventHandler(async (event) => {
+  const params = await getValidatedRouterParams(event, paramsSchema.safeParse)
 
-  if (Number.isNaN(accountId)) {
+  if (!params.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Validation error',
-      message: 'Invalid ID',
+      statusMessage: 'Invalid ID',
+      message: extractZodErrorMessage(params.error),
       data: {
         errorCode: ErrorCode.VALIDATION_ERROR
       }
     })
   }
 
+  const { id } = params.data
+
   const account = await db.query.account_table.findFirst({
-    where: eq(account_table.id, accountId),
+    where: eq(account_table.id, id),
     columns: {
       id: true,
       walletId: true

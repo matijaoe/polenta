@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { ErrorCode, Script } from '~/models'
 import { address_table } from '~/server/db/schema'
 
-const schema = z.object({
+const addressSchema = z.object({
   script: z.nativeEnum(Script),
   xpub: z.string(),
   gapReceiving: z.number().min(0).optional().default(0),
@@ -11,69 +11,74 @@ const schema = z.object({
   limitChange: z.number().min(1).optional().default(5),
 })
 
+const paramsSchema = z.object({
+  id: z.coerce.number(z.string())
+})
+
 export default defineEventHandler(async (event) => {
-  const { id } = useParams<{ id: string }>()
+  const params = await getValidatedRouterParams(event, paramsSchema.safeParse)
 
-  const body = await readBody<z.infer<typeof schema>>(event)
-
-  const accountId = Number.parseInt(id, 10)
-
-  if (Number.isNaN(accountId)) {
+  if (!params.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Validation error',
-      message: 'Invalid ID',
+      statusMessage: 'Invalid ID',
+      message: extractZodErrorMessage(params.error),
       data: {
         errorCode: ErrorCode.VALIDATION_ERROR
       }
     })
   }
 
+  const { id: accountId } = params.data
+
+  const bodyParse = await readValidatedBody(event, addressSchema.safeParse)
+
+  if (!bodyParse.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Invalid address data',
+      message: extractZodErrorMessage(bodyParse.error),
+      data: {
+        errorCode: ErrorCode.VALIDATION_ERROR
+      }
+    })
+  }
+
+  const body = bodyParse.data
+
+  const { script, xpub, gapChange, gapReceiving, limitChange, limitReceiving } = body
+
+  const receivingAddresses = generateAddressesFromXpub(body.xpub, {
+    script,
+    type: 'receiving',
+    limit: limitReceiving,
+    gap: gapReceiving
+  }).map((addr) => ({
+    accountId,
+    type: 0,
+    index: addr.index,
+    address: addr.address!,
+  })).filter((item) => Boolean(item.address))
+
+  const changeAddresses = generateAddressesFromXpub(xpub, {
+    script,
+    type: 'change',
+    limit: limitChange,
+    gap: gapChange
+  }).map((addr) => ({
+    accountId,
+    type: 1,
+    index: addr.index,
+    address: addr.address!,
+  })).filter((item) => Boolean(item.address))
+
   try {
-    const parsedBody = schema.parse(body)
-    const { script, xpub, gapChange, gapReceiving, limitChange, limitReceiving } = parsedBody
-
-    const receivingAddresses = generateAddressesFromXpub(body.xpub, {
-      script,
-      type: 'receiving',
-      limit: limitReceiving,
-      gap: gapReceiving
-    }).map((addr) => ({
-      accountId,
-      type: 0,
-      index: addr.index,
-      address: addr.address!,
-    })).filter((item) => Boolean(item.address))
-
-    const changeAddresses = generateAddressesFromXpub(xpub, {
-      script,
-      type: 'change',
-      limit: limitChange,
-      gap: gapChange
-    }).map((addr) => ({
-      accountId,
-      type: 1,
-      index: addr.index,
-      address: addr.address!,
-    })).filter((item) => Boolean(item.address))
-
     const res = await db.insert(address_table)
       .values([...receivingAddresses, ...changeAddresses])
       .execute()
 
     return res
   } catch (err: any) {
-    if (err instanceof z.ZodError) {
-      const message = extractZodErrorMessage(err)
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Validation error',
-        message,
-        data: {
-          errorCode: ErrorCode.VALIDATION_ERROR
-        }
-      })
-    }
     throw createError({
       statusCode: 500,
       message: err.message,

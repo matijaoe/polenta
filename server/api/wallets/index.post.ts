@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { ErrorCode } from '~/models'
 import type { AccountInsert, WalletInsert } from '~/models/db'
 import { accountSchema, walletSchema } from '~/schema'
@@ -10,17 +9,30 @@ export default defineEventHandler(async (event) => {
     account: Omit<AccountInsert, 'walletId' >
   }>(event)
 
+  // TODO: do i still need this after implementing safeParse
   // Store the original error caught inside the transaction block
   let originalError: any = null
 
   try {
-    const validatedWallet = walletSchema.parse(body.wallet)
+    const walletParse = walletSchema.safeParse(body.wallet)
+    if (!walletParse.success) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid wallet data',
+        message: extractZodErrorMessage(walletParse.error),
+        data: {
+          errorCode: ErrorCode.VALIDATION_ERROR,
+        }
+      })
+    }
+
+    const wallet = walletParse.data
 
     const res = db.transaction((tx) => {
       try {
         const createdWallet = tx
           .insert(wallet_table)
-          .values(validatedWallet)
+          .values(wallet)
           .returning()
           .get()
 
@@ -29,11 +41,24 @@ export default defineEventHandler(async (event) => {
           walletId: createdWallet.id,
         }
 
-        const validatedAccount = accountSchema.parse(accountDto)
+        const accountParse = accountSchema.safeParse(accountDto)
+
+        if (!accountParse.success) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: 'Invalid account data',
+            message: extractZodErrorMessage(accountParse.error),
+            data: {
+              errorCode: ErrorCode.VALIDATION_ERROR,
+            }
+          })
+        }
+
+        const account = accountParse.data
 
         const createdAccount = tx
           .insert(account_table)
-          .values(validatedAccount)
+          .values(account)
           .returning()
           .get()
 
@@ -53,16 +78,6 @@ export default defineEventHandler(async (event) => {
     if (originalError) {
       // eslint-disable-next-line no-ex-assign
       err = originalError
-    }
-    if (err instanceof z.ZodError) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Validation error - status message',
-        message: extractZodErrorMessage(err),
-        data: {
-          errorCode: ErrorCode.VALIDATION_ERROR,
-        }
-      })
     }
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       throw createError({

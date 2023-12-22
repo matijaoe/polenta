@@ -9,6 +9,8 @@ const fetchAddressStats = async (address: string) => {
 export default defineEventHandler(async (event) => {
   const { addresses } = await readBody(event) as { addresses: string[] }
 
+  // TODO: safeParse addresses
+
   try {
     const promises = addresses.map(fetchAddressStats)
     const res = await Promise.all(promises)

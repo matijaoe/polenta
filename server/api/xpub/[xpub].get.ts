@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { XpubAddressesResponse } from '~/models'
 import { ErrorCode, Script } from '~/models'
 
-const schema = z.object({
+const querySchema = z.object({
   script: z.nativeEnum(Script).optional().default(Script.native_segwit),
   type: z.enum(['receiving', 'change']).optional().default('receiving'),
   limit: z.number().min(1).max(HARD_ADDRESS_COUNT_LIMIT).optional().default(10),
@@ -11,37 +11,28 @@ const schema = z.object({
 
 export default defineEventHandler(async () => {
   const { xpub } = useParams<{ xpub: string }>()
-  const rawParams = useQueryParams<Partial<z.infer<typeof schema>>>()
 
-  try {
-    const { script, type, gap, limit } = schema.parse(rawParams)
+  const rawQueryParams = useQueryParams<Partial<z.infer<typeof querySchema>>>()
+  const paramsParse = querySchema.safeParse(rawQueryParams)
 
-    const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit })
-
-    return {
-      xpub,
-      addresses,
-      type,
-      script,
-    } as XpubAddressesResponse
-  } catch (err: any) {
-    if (err instanceof z.ZodError) {
-      const message = extractZodErrorMessage(err)
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Validation error',
-        message,
-        data: {
-          errorCode: ErrorCode.VALIDATION_ERROR
-        }
-      })
-    }
+  if (!paramsParse.success) {
     throw createError({
-      statusCode: 500,
-      message: err.message,
+      statusCode: 400,
+      statusMessage: 'Invalid params',
+      message: extractZodErrorMessage(paramsParse.error),
       data: {
-        errorCode: ErrorCode.UNKNOWN_ERROR
+        errorCode: ErrorCode.VALIDATION_ERROR
       }
     })
   }
+  const { script, type, gap, limit } = paramsParse.data
+
+  const addresses = generateAddressesFromXpub(xpub, { script, type, gap, limit })
+
+  return {
+    xpub,
+    addresses,
+    type,
+    script,
+  } as XpubAddressesResponse
 })
