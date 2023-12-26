@@ -4,11 +4,15 @@ const { account } = defineProps<{
 }>()
 
 const wallet = computed(() => account.wallet)
+
+const isBlankFp = (fp: string) => {
+  return fp.split('').every((c) => c === '0')
+}
 </script>
 
 <template>
   <UCard
-    class="group aspect-square h-[400px]"
+    class="group aspect-square h-[300px]"
     :ui="{
       shadow: 'shadow-inner',
       background: 'bg-white dark:bg-gray-800/20',
@@ -37,7 +41,15 @@ const wallet = computed(() => account.wallet)
 
             <div class="-mx-0.5 flex items-center gap-2">
               <UTooltip text="Master fingerprint" :popper="{ placement: 'top' }">
-                <UBadge variant="subtle" color="primary">
+                <UBadge
+                  variant="subtle"
+                  :color="isBlankFp(account.fingerprint) ? 'white' : 'primary'"
+                  :ui="isBlankFp(account.fingerprint) && {
+                    variant: {
+                      subtle: 'ring-inset ring-gray-500 dark:ring-gray-400 text-gray-400'
+                    }
+                  }"
+                >
                   {{ account.fingerprint }}
                 </UBadge>
               </UTooltip>
@@ -54,9 +66,11 @@ const wallet = computed(() => account.wallet)
                 }
               }"
             >
-              <p class="text-xs text-gray-600 dark:text-gray-500 hover:underline underline-offset-2 line-clamp-1">
-                {{ wallet.name }}
-              </p>
+              <div class="flex items-center gap-2">
+                <p class="text-xs text-gray-600 dark:text-gray-500 hover:underline underline-offset-2 line-clamp-1">
+                  {{ wallet.name }}
+                </p>
+              </div>
             </ULink>
           </div>
         </div>
@@ -70,17 +84,20 @@ const wallet = computed(() => account.wallet)
           <p class="text-2xl font-bold">
             0.29362027
           </p>
-          <i class="i-ph-currency-btc text-3xl text-primary" />
+          <p class="text-2xl text-gray-400 ml-2">
+            BTC
+          </p>
         </div>
-        <div class="mt-2 space-y-1">
+
+        <div class="mt-2 space-y-1 pt-2">
           <div class="flex items-center">
-            <i class="i-ph-currency-eur text-md text-primary" />
+            <i class="i-ph-currency-eur text-md text-white" />
             <p class="text-sm text-gray-400">
               10,354.31
             </p>
           </div>
           <div class="flex items-center">
-            <i class="i-ph-currency-dollar text-md text-primary" />
+            <i class="i-ph-currency-dollar text-md text-white" />
             <p class="text-sm text-gray-400">
               11,272.45
             </p>

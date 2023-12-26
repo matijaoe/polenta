@@ -1,29 +1,49 @@
 <script lang="ts" setup>
 const { data: accounts } = await useAccounts()
 
-// const account = computed(() => {
-//   return _accounts.value?.[0]
-// })
+// group accounts by wallets
+const wallets = computed(() => {
+  // group accounts by wallet, so that i have a wallet with a list of accounts for it as a map
+  const wallets = new Map<number, AccountWithWallet[]>()
+  accounts.value?.forEach((account) => {
+    const walletId = account.walletId
+    const wallet = wallets.get(walletId)
+    if (wallet) {
+      wallet.push(account)
+    } else {
+      wallets.set(walletId, [account])
+    }
+  })
+  return wallets
+})
 
-const count = ref(1)
-
-// // for count, clone that many account objects from account computed
-// const _accounts = computed<AccountWithWallet[]>(() => {
-//   return Array.from({ length: count.value }, () => account.value)
-// })
+console.log(wallets.value.entries())
 </script>
 
 <template>
-  <div>
-    <URange v-model="count" name="range" :min="0" :max="10" color="gray" class="mb-8" />
+  <div class="flex flex-col gap-10">
+    <section
+      v-for="[walletId, walletAccounts] in wallets.entries()"
+      :key="walletId"
+    >
+      <ULink
+        class="mb-4 block text-xl"
+        :to="{
+          name: 'wallets-walletId',
+          params: { walletId }
+        }"
+      >
+        {{ wallets.get(walletId)?.[0].wallet.name }}
+      </ULink>
 
-    <section class="grid accounts-grid gap-6 h-full">
-      <WalletAccountCard
-        v-for="account in accounts"
-        :key="account.id"
-        class="aspect-square"
-        :account="account"
-      />
+      <div class="grid accounts-grid gap-6 h-full">
+        <WalletAccountCard
+          v-for="account in walletAccounts"
+          :key="account.id"
+          class="aspect-square"
+          :account="account"
+        />
+      </div>
     </section>
   </div>
 </template>
@@ -31,6 +51,5 @@ const count = ref(1)
 <style lang="postcss" scoped>
 .accounts-grid {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  /* grid-template-columns: 1fr 1fr 1fr; */
 }
 </style>
