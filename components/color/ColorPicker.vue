@@ -22,7 +22,7 @@ const { primaryColors, grayColors, gray, primary } = useColor()
           <ColorPickerPill
             v-for="color in primaryColors"
             :key="color.value"
-            :color="color"
+            :color
             :selected="primary!"
             @select="primary = color"
           />
@@ -34,7 +34,7 @@ const { primaryColors, grayColors, gray, primary } = useColor()
           <ColorPickerPill
             v-for="color in grayColors"
             :key="color.value"
-            :color="color"
+            :color
             :selected="gray!"
             @select="gray = color"
           />

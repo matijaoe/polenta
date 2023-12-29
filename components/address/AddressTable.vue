@@ -42,9 +42,9 @@ const navigateToBlockExplorer = (row: Row) => {
 
 <template>
   <UTable
-    :rows="rows"
-    :columns="columns"
-    :loading="loading"
+    :rows
+    :columns
+    :loading
     @select="navigateToBlockExplorer"
   />
 </template>

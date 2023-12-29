@@ -20,8 +20,8 @@ defineProps<{
           size="lg"
           variant="link"
           color="black"
-          :to="to"
           class="font-bold"
+          :to
         >
           {{ title }}
         </UButton>

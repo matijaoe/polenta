@@ -16,8 +16,6 @@ const wallets = computed(() => {
   })
   return wallets
 })
-
-console.log(wallets.value.entries())
 </script>
 
 <template>
@@ -41,7 +39,7 @@ console.log(wallets.value.entries())
           v-for="account in walletAccounts"
           :key="account.id"
           class="aspect-square"
-          :account="account"
+          :account
         />
       </div>
     </section>

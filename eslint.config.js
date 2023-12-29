@@ -6,6 +6,7 @@ export default matijaoe({
   },
   rules: {
     'unicorn/prefer-node-protocol': 'off',
-    'no-alert': 'warn'
+    'no-alert': 'warn',
+    'vue/valid-v-bind': 'off' // TODO: for new shorten :id syntax
   },
 })

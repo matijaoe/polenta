@@ -81,7 +81,7 @@ defineShortcuts({
 <template>
   <UModal v-model="isCommandPaletteOpen">
     <UCommandPalette
-      :groups="groups"
+      :groups
       :ui="{
         wrapper: 'min-h-[--cmd-palette-height] max-h-[--cmd-palette-height]'
       }"

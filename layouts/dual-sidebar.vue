@@ -7,7 +7,7 @@ defineProps<{
 <template>
   <LayoutBase no-padding>
     <div class="content-container-height grid grid-cols-[200px_1fr]">
-      <SidebarWalletAccounts :wallet="wallet" />
+      <SidebarWalletAccounts :wallet />
       <div class="h-full p-6 overflow-y-scroll">
         <slot />
       </div>

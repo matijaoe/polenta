@@ -23,7 +23,7 @@ const { metaSymbol } = useShortcuts()
 </script>
 
 <template>
-  <UHeader :links="links">
+  <UHeader :links>
     <template #left>
       <NuxtLink to="/">
         <div class="flex items-center gap-2.5">

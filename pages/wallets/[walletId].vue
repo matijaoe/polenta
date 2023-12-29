@@ -12,7 +12,7 @@ definePageMeta({
 </script>
 
 <template>
-  <NuxtLayout name="dual-sidebar" :wallet="wallet">
+  <NuxtLayout name="dual-sidebar" :wallet>
     <div v-if="wallet" class="text-xl">
       {{ wallet.name }} (id = {{ wallet.id }})
     </div>
