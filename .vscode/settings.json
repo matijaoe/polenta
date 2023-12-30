@@ -88,5 +88,8 @@
     "json",
     "jsonc",
     "yaml"
+  ],
+  "cSpell.words": [
+    "Idxs"
   ]
 }

@@ -30,7 +30,6 @@ export default defineNuxtConfig({
       'composables/**',
       'store/**',
       'models/db/*',
-      // 'node_modules/utilipea/**',
     ],
     imports: [
       {
@@ -76,11 +75,6 @@ export default defineNuxtConfig({
     families: {
       'Victor+Mono': [400, 500, 600, 700],
     },
-  },
-
-  vue: {
-    defineModel: true,
-    propsDestructure: true,
   },
 
   vite: {

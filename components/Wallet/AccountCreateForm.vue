@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { generateSlug } from 'random-word-slugs'
-import { toNumber } from 'utilipea'
+import { isNumber, max, toNumber } from 'utilipea'
 import { ErrorCode } from '~/models'
 
 // --------------------------------------
@@ -46,21 +46,32 @@ const autofillFingerprint = () => {
   setFieldValue('fingerprint', defaults.fingerprint)
 }
 
+// increment last account number (or missing number in-between)
+// TODO: messy PoC, needs refactoring
 const defaultDerivationPath = computed(() => {
-  // increment last account number (or missing number inbetween)
-  // TODO: messy PoC, needs refactoring
   const script = useScript(defaults.script)
   const walletPath = script.value!.derivationPath
+
   const walletAccounts = wallet.value?.accounts ?? []
-  // sort wallet accounts by derivation index, if m/84'/0'/0' and m/84'/0'/1', index is third number
-  const lastAccount = walletAccounts.sort((a, b) => {
-    const aIdx = toNumber(a.derivationPath.split('/')[3])!
-    const bIdx = toNumber(b.derivationPath.split('/')[3])!
-    return bIdx - aIdx
-  })[0]
-  const accountIdx = lastAccount ? toNumber(lastAccount.derivationPath.split('/')[3])! + 1 : 0
-  // replace last number with account index
-  const accountPath = walletPath.replace(/\/\d+'$/, `/${accountIdx}'`)
+
+  const accountIdxs = walletAccounts
+    .map((acc) => acc.derivationPath)
+    .map(getAccountIndexFromDerivationPath)
+    .map(toNumber)
+    .filter(isNumber)
+  ?? []
+
+  // TODO: instead of always max, find first missing number
+  // have an account picker instead of just derivation?
+  const lastAccountIdx = accountIdxs.length ? max(accountIdxs) : undefined
+
+  const accountIdx = isNumber(lastAccountIdx) ? toNumber(lastAccountIdx)! + 1 : 0
+
+  // TODO: implement more robust solution
+  const parts = walletPath.split('/')
+  parts[3] = `${accountIdx}'`
+  const accountPath = parts.join('/')
+  console.log('accountPath :', accountPath)
   return accountPath
 })
 

@@ -20,28 +20,47 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
 
 <template>
   <div v-if="account">
-    <div class="prose dark:prose-invert">
-      <h3>{{ account.name }}</h3>
-      <h4>{{ formatXpub(account.xpub) }}</h4>
-      <h4>{{ account.fingerprint }}</h4>
+    <div class="space-y-8">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="text-2xl font-medium">
+            {{ account.name }}
+          </h2>
+          <h4 class="font-mono mt-2">
+            {{ formatXpub(account.xpub) }}
+          </h4>
+        </div>
 
-      <div v-if="addressesReceivingRes?.addresses">
-        <h4>Receiving addresses:</h4>
+        <UBadge variant="subtle" size="lg">
+          {{ account.fingerprint }}
+        </UBadge>
+      </div>
+
+      <p>{{ account.derivationPath }}</p>
+
+      <UCard v-if="addressesReceivingRes?.addresses">
+        <template #header>
+          <h4>Receiving addresses:</h4>
+        </template>
+
         <ul>
-          <li v-for="address in addressesReceivingRes?.addresses" :key="address.address!">
+          <li v-for="address in addressesReceivingRes?.addresses" :key="address.address!" class="py-1 text-sm">
             {{ address.address }}
           </li>
         </ul>
-      </div>
+      </UCard>
 
-      <div v-if="addressesChangeRes?.addresses">
-        <h4>Change addresses:</h4>
+      <UCard v-if="addressesChangeRes?.addresses">
+        <template #header>
+          <h4>Change addresses:</h4>
+        </template>
+
         <ul>
-          <li v-for="address in addressesChangeRes?.addresses" :key="address.address!">
+          <li v-for="address in addressesChangeRes?.addresses" :key="address.address!" class="py-1 text-sm">
             {{ address.address }}
           </li>
         </ul>
-      </div>
+      </UCard>
     </div>
   </div>
 </template>

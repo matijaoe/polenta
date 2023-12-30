@@ -91,14 +91,14 @@ const isBlankFp = (fp: string) => {
 
         <div class="mt-2 space-y-1 pt-2">
           <div class="flex items-center">
-            <i class="i-ph-currency-eur text-md text-white" />
-            <p class="text-sm text-gray-400">
+            <i class="i-ph-currency-eur text-md" />
+            <p class="text-sm">
               10,354.31
             </p>
           </div>
           <div class="flex items-center">
-            <i class="i-ph-currency-dollar text-md text-white" />
-            <p class="text-sm text-gray-400">
+            <i class="i-ph-currency-dollar text-md" />
+            <p class="text-sm">
               11,272.45
             </p>
           </div>
