@@ -4,6 +4,8 @@ import { toNumber } from 'utilipea'
 import type { XpubAddressesResponse } from '~/models'
 
 const route = useRoute('wallets-walletId-accountId')
+
+// TODO: handle conversion error, or non existing account
 const accountId = computed(() => toNumber(route.params.accountId)!)
 
 const { data: account } = await useAccount(accountId)
@@ -29,6 +31,9 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
           <h4 class="font-mono mt-2">
             {{ formatXpub(account.xpub) }}
           </h4>
+          <p class="mt-2">
+            {{ account.derivationPath.replaceAll('h', "'") }}
+          </p>
         </div>
 
         <UBadge variant="subtle" size="lg">
@@ -36,15 +41,13 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
         </UBadge>
       </div>
 
-      <p>{{ account.derivationPath }}</p>
-
       <UCard v-if="addressesReceivingRes?.addresses">
         <template #header>
           <h4>Receiving addresses:</h4>
         </template>
 
-        <ul>
-          <li v-for="address in addressesReceivingRes?.addresses" :key="address.address!" class="py-1 text-sm">
+        <ul class="space-y-2">
+          <li v-for="address in addressesReceivingRes?.addresses" :key="address.address!" class="text-sm">
             {{ address.address }}
           </li>
         </ul>
@@ -55,8 +58,8 @@ const { data: addressesChangeRes } = await useFetchAddresses({ type: 'change', l
           <h4>Change addresses:</h4>
         </template>
 
-        <ul>
-          <li v-for="address in addressesChangeRes?.addresses" :key="address.address!" class="py-1 text-sm">
+        <ul class="space-y-2">
+          <li v-for="address in addressesChangeRes?.addresses" :key="address.address!" class="text-sm">
             {{ address.address }}
           </li>
         </ul>

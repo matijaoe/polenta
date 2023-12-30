@@ -8,6 +8,7 @@ const { data: wallet } = await useWallet(props.wallet.id)
 const accountItems = computed(() => {
   return wallet.value?.accounts.map((account) => ({
     label: account.name,
+    index: getAccountIndexFromDerivationPath(account.derivationPath),
     click: () => {
       navigateTo({
         name: 'wallets-walletId-accountId',
