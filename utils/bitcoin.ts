@@ -2,8 +2,7 @@ import { looseToNumber } from '@nuxt/ui/dist/runtime/utils'
 import { toNumber } from 'utilipea'
 
 export const blockExplorerAddressUrl = (address: string) => {
-  const blockExplorer = new URL('https://mempool.space/address')
-  blockExplorer.pathname = address
+  const blockExplorer = new URL(`https://mempool.space/address/${address}`)
   return blockExplorer.toString()
 }
 

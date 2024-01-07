@@ -17,6 +17,7 @@ const links = computed<{
     icon: 'i-ph-gear-six-bold',
     to: '/settings'
   }
+
 ].filter(Boolean)))
 
 const { metaSymbol } = useShortcuts()

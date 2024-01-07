@@ -99,7 +99,8 @@ const rowsWithValue = computed(() => {
   if (!floatRate.value) {
     return rows.value
   }
-  return rows.value.map((row) => {
+  // TODO: use actual returned index from xpub derivation
+  return rows.value.map((row, idx) => {
     const addr = addressStatsArr.value.find((addr) => addr.address === row.address)
     if (!addr) {
       return row
@@ -112,7 +113,7 @@ const rowsWithValue = computed(() => {
       maximumFractionDigits: 2
     })
 
-    return { ...row, value }
+    return { ...row, value, index: idx }
   })
 })
 
@@ -225,20 +226,22 @@ const isXpubValueInvalid = computed(() => {
       </UFormGroup>
     </form>
     <template v-if="isXpubDefined && hasAddresses">
-      <UCard>
-        <div class="flex items-center justify-between gap-3">
-          <button @click="toggleSatsFormatStyle">
-            <p class="text-2xl font-bold">
-              {{ totalSatsFormatted }}
-            </p>
-          </button>
+      <UCard :ui="{ body: { padding: 0 } }">
+        <template #header>
+          <div class="flex items-center justify-between gap-3">
+            <button @click="toggleSatsFormatStyle">
+              <p class="text-2xl font-bold">
+                {{ totalSatsFormatted }}
+              </p>
+            </button>
 
-          <button @click="cycleShownCurrency">
-            <p class="text-2xl font-bold">
-              {{ totalValueFormatted }}
-            </p>
-          </button>
-        </div>
+            <button @click="cycleShownCurrency">
+              <p class="text-2xl font-bold">
+                {{ totalValueFormatted }}
+              </p>
+            </button>
+          </div>
+        </template>
 
         <AddressTable
           class="mt-4"

@@ -14,20 +14,24 @@ defineProps<{
 
 const columns = ref([
   {
+    key: 'index',
+    label: '#',
+  },
+  {
     key: 'address',
-    label: 'Address',
+    label: 'address',
   },
   {
     key: 'balance',
-    label: 'Balance',
+    label: 'balance',
   },
   {
     key: 'value',
-    label: 'Value'
+    label: 'value'
   },
   {
     key: 'txCount',
-    label: 'Tx count',
+    label: 'tx count',
   }
 ])
 
