@@ -1,6 +1,6 @@
 # 🌽 Polenta 
 
-> Bitcoin Wallet Manager
+> Wallet manager for organizing and tracking Bitcoin wallets by purpose and usage
 
 
 ## ⚠️ wip ⚠️ 
